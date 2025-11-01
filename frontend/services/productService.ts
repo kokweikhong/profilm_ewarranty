@@ -23,10 +23,11 @@ export class ProductService {
     // status?: string;
   }): Promise<Product[]> {
     const response = await apiClient.get<ApiResponse<VwProductListResponse>>(
-      this.BASE_PATH,
+      this.BASE_PATH + "/details",
       { params }
     );
     if (response.data && response.data.data) {
+      console.log("API Response Data:", response.data.data.products);
       return convertVwProductListToProducts(response.data.data.products);
     }
     return [];

@@ -21,8 +21,10 @@ export default function Page() {
           //   page: 1,
           //   limit: 10,
         });
+        console.log("API Response in Page:", response);
         if (response) {
           //   let products = convertVwProductListToProducts(response);
+          console.log("Fetched products:", response);
           setProducts(response);
         }
       } catch (err) {
