@@ -132,7 +132,7 @@ func TestValidateStruct_MultipleErrors(t *testing.T) {
 
 	err := ValidateStruct(&invalidStruct)
 	assert.Error(t, err)
-	
+
 	errMsg := err.Error()
 	// Should contain multiple validation errors
 	assert.Contains(t, errMsg, "requiredfield is required")

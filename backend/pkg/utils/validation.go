@@ -27,7 +27,7 @@ func ValidateStruct(s interface{}) error {
 
 func formatValidationError(err validator.FieldError) string {
 	field := strings.ToLower(err.Field())
-	
+
 	switch err.Tag() {
 	case "required":
 		return fmt.Sprintf("%s is required", field)

@@ -40,7 +40,7 @@ type shopService struct {
 // NewShopService creates a new ShopService
 func NewShopService(db *pgxpool.Pool, queries *shops.Queries) ShopService {
 	return &shopService{
-		db:     db,
+		db:      db,
 		queries: queries,
 	}
 }

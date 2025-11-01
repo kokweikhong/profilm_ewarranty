@@ -21,7 +21,6 @@ func Load() *Config {
 		log.Println("No .env file found, using environment variables")
 	}
 
-
 	config := &Config{
 		Port:        getEnv("PORT", "8080"),
 		DatabaseURL: getEnv("DATABASE_URL", "postgresql://localhost:5432/profilm_ewarranty?sslmode=disable"),

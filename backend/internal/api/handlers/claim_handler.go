@@ -13,6 +13,7 @@ import (
 
 type ClaimsHandler interface {
 	ListClaims(w http.ResponseWriter, r *http.Request)
+	ListClaimDetails(w http.ResponseWriter, r *http.Request)
 	GetClaimByID(w http.ResponseWriter, r *http.Request)
 	CreateClaim(w http.ResponseWriter, r *http.Request)
 	UpdateClaim(w http.ResponseWriter, r *http.Request)
@@ -46,9 +47,30 @@ func (h *claimsHandler) ListClaims(w http.ResponseWriter, r *http.Request) {
 	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
+// ListClaimDetails handles listing all claim details with comprehensive information
+func (h *claimsHandler) ListClaimDetails(w http.ResponseWriter, r *http.Request) {
+	details, err := h.service.ListClaimsDetails(r.Context())
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to list claim details")
+		return
+	}
+
+	// Convert to response DTOs
+	var responses []*dto.ClaimDetailResponse
+	for _, detail := range details {
+		responses = append(responses, dto.FromClaimDetail(detail))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
+}
+
 // GetClaimByID handles retrieving a claim by its ID
 func (h *claimsHandler) GetClaimByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing claim ID")
+		return
+	}
 
 	id, err := uuid.Parse(idParam)
 	if err != nil {
@@ -58,7 +80,7 @@ func (h *claimsHandler) GetClaimByID(w http.ResponseWriter, r *http.Request) {
 
 	claim, err := h.service.GetClaimByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to retrieve claim")
+		utils.ErrorResponse(w, http.StatusNotFound, "Claim not found")
 		return
 	}
 
@@ -128,7 +150,7 @@ func (h *claimsHandler) UpdateClaim(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert to SQLC params
-	params, err := req.ToUpdateClaimParams(currentClaim)
+	params, err := req.ToUpdateClaimParams(id, currentClaim)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request data: "+err.Error())
 		return
@@ -148,6 +170,11 @@ func (h *claimsHandler) UpdateClaim(w http.ResponseWriter, r *http.Request) {
 // DeleteClaim handles deleting a claim by its ID
 func (h *claimsHandler) DeleteClaim(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing claim ID")
+		return
+	}
+
 	id, err := uuid.Parse(idParam)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid claim ID")

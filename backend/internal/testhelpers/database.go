@@ -118,7 +118,7 @@ func (tdb *TestDBContainer) RunMigrations(t *testing.T, migrationsPath string) {
 	// For now, we'll manually run the migration files
 	migrationFiles := []string{
 		"00001_products.sql",
-		"00002_shops.sql", 
+		"00002_shops.sql",
 		"00003_states.sql",
 		"00004_claims.sql",
 		"00005_warranties.sql",
@@ -135,7 +135,7 @@ func (tdb *TestDBContainer) RunMigrations(t *testing.T, migrationsPath string) {
 func (tdb *TestDBContainer) runMigrationFile(filePath string) error {
 	// Note: This is a simplified version. In production, you'd use proper migration tools
 	// For this example, we'll create the schema directly
-	
+
 	// Create basic schema for testing
 	schema := `
 		-- Create tables for testing
@@ -294,7 +294,7 @@ func (tdb *TestDBContainer) runMigrationFile(filePath string) error {
 		LEFT JOIN car_parts cp ON w.car_part_id = cp.id
 		LEFT JOIN shops s ON w.shop_id = s.id;
 	`
-	
+
 	_, err := tdb.DB.Exec(schema)
 	return err
 }
@@ -323,7 +323,7 @@ func (tdb *TestDBContainer) SeedTestData(t *testing.T) {
 		('55555555-5555-5555-5555-555555555555', 'John Doe', 'john@example.com', 'Toyota', 'Camry', 'WTY-001', '44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333')
 		ON CONFLICT (id) DO NOTHING;
 	`
-	
+
 	if _, err := tdb.DB.Exec(seedSQL); err != nil {
 		t.Fatalf("Failed to seed test data: %v", err)
 	}
@@ -343,7 +343,7 @@ func (tdb *TestDBContainer) CleanupTestData(t *testing.T) {
 		DELETE FROM product_types;
 		DELETE FROM product_brands;
 	`
-	
+
 	if _, err := tdb.DB.Exec(cleanupSQL); err != nil {
 		t.Logf("Failed to cleanup test data: %v", err)
 	}

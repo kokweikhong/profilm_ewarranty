@@ -6,9 +6,11 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
 type Database struct {
-	Pool    *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
+
 func NewDB(databaseURL string) (*Database, error) {
 	pool, err := pgxpool.New(context.Background(), databaseURL)
 	if err != nil {

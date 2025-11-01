@@ -718,7 +718,7 @@ func (h *productHandler) DeleteWarrantyYear(w http.ResponseWriter, r *http.Reque
 	var req struct {
 		ID string `json:"id"`
 	}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
@@ -741,12 +741,12 @@ func (h *productHandler) DeleteWarrantyYear(w http.ResponseWriter, r *http.Reque
 // CreateProduct creates a new product entry
 func (h *productHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		ProductNameID        string `json:"product_name_id"`
-		ProductBrandID       string `json:"product_brand_id"`
-		WarrantyYears        int32  `json:"warranty_years"`
-		FilmSerialNo         string `json:"film_serial_no"`
-		FilmQuantity         int32  `json:"film_quantity"`
-		FilmShipmentNo      string `json:"film_shipment_no"`
+		ProductNameID  string `json:"product_name_id"`
+		ProductBrandID string `json:"product_brand_id"`
+		WarrantyYears  int32  `json:"warranty_years"`
+		FilmSerialNo   string `json:"film_serial_no"`
+		FilmQuantity   int32  `json:"film_quantity"`
+		FilmShipmentNo string `json:"film_shipment_no"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -821,13 +821,13 @@ func (h *productHandler) ListProducts(w http.ResponseWriter, r *http.Request) {
 // UpdateProduct updates a product's details
 func (h *productHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		ID                   string `json:"id"`
-		ProductNameID        string `json:"product_name_id"`
-		ProductBrandID       string `json:"product_brand_id"`
-		WarrantyYears        int32  `json:"warranty_years"`
-		FilmSerialNo         string `json:"film_serial_no"`
-		FilmQuantity         int32  `json:"film_quantity"`
-		FilmShipmentNo      string `json:"film_shipment_no"`
+		ID             string `json:"id"`
+		ProductNameID  string `json:"product_name_id"`
+		ProductBrandID string `json:"product_brand_id"`
+		WarrantyYears  int32  `json:"warranty_years"`
+		FilmSerialNo   string `json:"film_serial_no"`
+		FilmQuantity   int32  `json:"film_quantity"`
+		FilmShipmentNo string `json:"film_shipment_no"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

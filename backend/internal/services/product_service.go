@@ -55,19 +55,18 @@ type ProductService interface {
 
 // productService implements ProductService
 type productService struct {
-	db *pgxpool.Pool
+	db      *pgxpool.Pool
 	queries *products.Queries
 }
 
 // NewProductService creates a new product service
 func NewProductService(db *pgxpool.Pool, queries *products.Queries) ProductService {
 	return &productService{
-		db: db,
+		db:      db,
 		queries: queries,
 	}
 }
 
-		
 // CreateProduct creates a new product
 func (r *productService) CreateProduct(ctx context.Context, params *products.CreateProductParams) (*products.Product, error) {
 	tx, err := r.db.Begin(ctx)
@@ -221,8 +220,6 @@ func (r *productService) ListProductBrands(ctx context.Context) ([]*products.Pro
 	return productBrands, nil
 }
 
-
-
 // UpdateProductBrand updates a product brand
 func (r *productService) UpdateProductBrand(ctx context.Context, id uuid.UUID, params *products.UpdateProductBrandParams) (*products.ProductBrand, error) {
 	tx, err := r.db.Begin(ctx)
@@ -318,7 +315,6 @@ func (r *productService) ListProductTypes(ctx context.Context) ([]*products.Prod
 
 	return productTypes, nil
 }
-
 
 // UpdateProductType updates a product type
 func (r *productService) UpdateProductType(ctx context.Context, params *products.UpdateProductTypeParams) (*products.ProductType, error) {
@@ -432,7 +428,6 @@ func (r *productService) ListProductSeriesByType(ctx context.Context, productTyp
 	}
 	return productSeries, nil
 }
-
 
 // UpdateProductSeries updates a product series
 func (r *productService) UpdateProductSeries(ctx context.Context, params *products.UpdateProductSeriesParams) (*products.ProductSeries, error) {
@@ -602,7 +597,6 @@ func (r *productService) CreateWarrantyYear(ctx context.Context, years int32) (*
 	}
 	return warrantyYear, nil
 }
-
 
 // GetWarrantyYearByID retrieves a warranty year by ID
 func (r *productService) GetWarrantyYearByID(ctx context.Context, id uuid.UUID) (*products.WarrantyYear, error) {

@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/shops"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/api/dto"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/services"
 	"github.com/kokweikhong/profilm_ewarranty/backend/pkg/utils"
 )
@@ -51,41 +52,51 @@ func (h *shopHandler) ListStates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, states)
+	// Convert to response DTOs
+	var responses []*dto.StateResponse
+	for _, state := range states {
+		responses = append(responses, dto.FromState(state))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
 // GetStateByID handles retrieving a state by its ID
 func (h *shopHandler) GetStateByID(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing state ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid state ID")
 		return
 	}
 
-	state, err := h.service.GetStateByID(r.Context(), uuid)
+	state, err := h.service.GetStateByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get state")
+		utils.ErrorResponse(w, http.StatusNotFound, "State not found")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, state)
+	// Convert to response DTO
+	response := dto.FromState(state)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // CreateState handles creating a new state
 func (h *shopHandler) CreateState(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Name string `json:"name"`
-	}
+	var req dto.CreateStateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -95,55 +106,66 @@ func (h *shopHandler) CreateState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, state)
+	// Convert to response DTO
+	response := dto.FromState(state)
+	utils.JSONResponse(w, http.StatusCreated, response)
 }
 
 // UpdateState handles updating an existing state
 func (h *shopHandler) UpdateState(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing state ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid state ID")
 		return
 	}
 
-	state, err := h.service.UpdateState(r.Context(), &shops.UpdateStateParams{
-		ID:   uuid,
-		Name: req.Name,
-	})
+	var req dto.UpdateStateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Convert to SQLC params
+	params := req.ToUpdateStateParams(id)
+
+	state, err := h.service.UpdateState(r.Context(), params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to update state")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, state)
+	// Convert to response DTO
+	response := dto.FromState(state)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // DeleteState handles deleting a state by its ID
 func (h *shopHandler) DeleteState(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing state ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid state ID")
 		return
 	}
 
-	if err := h.service.DeleteState(r.Context(), uuid); err != nil {
+	if err := h.service.DeleteState(r.Context(), id); err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to delete state")
 		return
 	}
@@ -159,101 +181,138 @@ func (h *shopHandler) ListShops(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, shops)
+	// Convert to response DTOs
+	var responses []*dto.ShopResponse
+	for _, shop := range shops {
+		responses = append(responses, dto.FromShop(shop))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
 // GetShopByID handles retrieving a shop by its ID
 func (h *shopHandler) GetShopByID(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing shop ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid shop ID")
 		return
 	}
 
-	shop, err := h.service.GetShopByID(r.Context(), uuid)
+	shop, err := h.service.GetShopByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get shop")
+		utils.ErrorResponse(w, http.StatusNotFound, "Shop not found")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, shop)
+	// Convert to response DTO
+	response := dto.FromShop(shop)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // CreateShop handles creating a new shop
 func (h *shopHandler) CreateShop(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Name string `json:"name"`
-	}
+	var req dto.CreateShopRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	shop, err := h.service.CreateShop(r.Context(), &shops.CreateShopParams{
-		Name: req.Name,
-	})
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Convert to SQLC params
+	params, err := req.ToCreateShopParams()
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	shop, err := h.service.CreateShop(r.Context(), params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to create shop")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, shop)
+	// Convert to response DTO
+	response := dto.FromShop(shop)
+	utils.JSONResponse(w, http.StatusCreated, response)
 }
 
 // UpdateShop handles updating an existing shop
 func (h *shopHandler) UpdateShop(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing shop ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid shop ID")
 		return
 	}
 
-	shop, err := h.service.UpdateShop(r.Context(), &shops.UpdateShopParams{
-		ID:   uuid,
-		Name: req.Name,
-	})
+	var req dto.UpdateShopRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Get current shop data for the update (SQLC requires all fields)
+	currentShop, err := h.service.GetShopByID(r.Context(), id)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusNotFound, "Shop not found")
+		return
+	}
+
+	// Convert to SQLC params
+	params, err := req.ToUpdateShopParams(id, currentShop)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	shop, err := h.service.UpdateShop(r.Context(), params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to update shop")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, shop)
+	// Convert to response DTO
+	response := dto.FromShop(shop)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // DeleteShop handles deleting a shop by its ID
 func (h *shopHandler) DeleteShop(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing shop ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid shop ID")
 		return
 	}
 
-	if err := h.service.DeleteShop(r.Context(), uuid); err != nil {
+	if err := h.service.DeleteShop(r.Context(), id); err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to delete shop")
 		return
 	}
@@ -269,133 +328,138 @@ func (h *shopHandler) ListProductAllocations(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, allocations)
+	// Convert to response DTOs
+	var responses []*dto.ProductAllocationResponse
+	for _, allocation := range allocations {
+		responses = append(responses, dto.FromProductAllocation(allocation))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
 // GetProductAllocationByID retrieves a product allocation by its ID
 func (h *shopHandler) GetProductAllocationByID(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing allocation ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid allocation ID")
 		return
 	}
 
-	allocation, err := h.service.GetProductAllocationByID(r.Context(), uuid)
+	allocation, err := h.service.GetProductAllocationByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get product allocation")
+		utils.ErrorResponse(w, http.StatusNotFound, "Product allocation not found")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, allocation)
+	// Convert to response DTO
+	response := dto.FromProductAllocation(allocation)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // CreateProductAllocation creates a new product allocation
 func (h *shopHandler) CreateProductAllocation(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ShopID        string `json:"shop_id"`
-		ProductID     string `json:"product_id"`
-		FilmQuantity  int32  `json:"film_quantity"`
-	}
+	var req dto.CreateProductAllocationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	shopID, err := uuid.Parse(req.ShopID)
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Convert to SQLC params
+	params, err := req.ToCreateProductAllocationParams()
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	productID, err := uuid.Parse(req.ProductID)
-	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
-		return
-	}
-
-	allocation, err := h.service.CreateProductAllocation(r.Context(), &shops.CreateProductAllocationParams{
-		ShopID:        shopID,
-		ProductID:     productID,
-		FilmQuantity:  req.FilmQuantity,
-	})
+	allocation, err := h.service.CreateProductAllocation(r.Context(), params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to create product allocation")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, allocation)
+	// Convert to response DTO
+	response := dto.FromProductAllocation(allocation)
+	utils.JSONResponse(w, http.StatusCreated, response)
 }
 
 // UpdateProductAllocation updates an existing product allocation
 func (h *shopHandler) UpdateProductAllocation(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID            string `json:"id"`
-		ProductID    string `json:"product_id"`
-    ShopID       string `json:"shop_id"`
-    FilmQuantity int32  `json:"film_quantity"`
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing allocation ID")
+		return
 	}
+
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid allocation ID")
+		return
+	}
+
+	var req dto.UpdateProductAllocationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	id, err := uuid.Parse(req.ID)
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Get current allocation data for the update (SQLC requires all fields)
+	currentAllocation, err := h.service.GetProductAllocationByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusNotFound, "Product allocation not found")
 		return
 	}
-	productID, err := uuid.Parse(req.ProductID)
 
+	// Convert to SQLC params
+	params, err := req.ToUpdateProductAllocationParams(id, currentAllocation)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	shopID, err := uuid.Parse(req.ShopID)
-	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
-		return
-	}
-
-	allocation, err := h.service.UpdateProductAllocation(r.Context(), &shops.UpdateProductAllocationParams{
-		ID:            id,
-		ProductID:     productID,
-		ShopID:       shopID,
-		FilmQuantity: req.FilmQuantity,
-	})
+	allocation, err := h.service.UpdateProductAllocation(r.Context(), params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to update product allocation")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, allocation)
+	// Convert to response DTO
+	response := dto.FromProductAllocation(allocation)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // DeleteProductAllocation deletes a product allocation by its ID
 func (h *shopHandler) DeleteProductAllocation(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing allocation ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid allocation ID")
 		return
 	}
 
-	if err := h.service.DeleteProductAllocation(r.Context(), uuid); err != nil {
+	if err := h.service.DeleteProductAllocation(r.Context(), id); err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to delete product allocation")
 		return
 	}
@@ -411,30 +475,36 @@ func (h *shopHandler) ListShopDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, details)
+	// Convert to response DTOs
+	var responses []*dto.ShopDetailResponse
+	for _, detail := range details {
+		responses = append(responses, dto.FromShopDetail(detail))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
 // GetShopDetailsByID retrieves shop details by ID
 func (h *shopHandler) GetShopDetailsByID(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing shop ID")
 		return
 	}
 
-	uuid, err := uuid.Parse(req.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid shop ID")
 		return
 	}
 
-	detail, err := h.service.GetShopDetailsByID(r.Context(), uuid)
+	detail, err := h.service.GetShopDetailsByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get shop details")
+		utils.ErrorResponse(w, http.StatusNotFound, "Shop details not found")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, detail)
+	// Convert to response DTO
+	response := dto.FromShopDetail(detail)
+	utils.JSONResponse(w, http.StatusOK, response)
 }

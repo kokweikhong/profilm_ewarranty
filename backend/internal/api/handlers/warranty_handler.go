@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/warranties"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/api/dto"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/services"
 	"github.com/kokweikhong/profilm_ewarranty/backend/pkg/utils"
 )
@@ -41,12 +42,23 @@ func (h *warrantyHandler) ListCarParts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, parts)
+	// Convert to response DTOs
+	var responses []*dto.CarPartResponse
+	for _, part := range parts {
+		responses = append(responses, dto.FromCarPart(part))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
 // GetCarPartByID retrieves a car part by its ID
 func (h *warrantyHandler) GetCarPartByID(w http.ResponseWriter, r *http.Request) {
-	idParam := r.URL.Query().Get("id")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing car part ID")
+		return
+	}
+
 	id, err := uuid.Parse(idParam)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid car part ID")
@@ -55,20 +67,31 @@ func (h *warrantyHandler) GetCarPartByID(w http.ResponseWriter, r *http.Request)
 
 	part, err := h.service.GetCarPartByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to retrieve car part")
+		utils.ErrorResponse(w, http.StatusNotFound, "Car part not found")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, part)
+	// Convert to response DTO
+	response := dto.FromCarPart(part)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // CreateCarPart creates a new car part
 func (h *warrantyHandler) CreateCarPart(w http.ResponseWriter, r *http.Request) {
-	var params *warranties.CreateCarPartParams
-	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+	var req dto.CreateCarPartRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
+
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Convert to SQLC params
+	params := req.ToCreateCarPartParams()
 
 	carPart, err := h.service.CreateCarPart(r.Context(), params)
 	if err != nil {
@@ -76,53 +99,78 @@ func (h *warrantyHandler) CreateCarPart(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, carPart)
+	// Convert to response DTO
+	response := dto.FromCarPart(carPart)
+	utils.JSONResponse(w, http.StatusCreated, response)
 }
 
 // UpdateCarPart updates an existing car part
 func (h *warrantyHandler) UpdateCarPart(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID string `json:"id"`
-		*warranties.UpdateCarPartParams
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing car part ID")
+		return
 	}
+
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid car part ID")
+		return
+	}
+
+	var req dto.UpdateCarPartRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	id, err := uuid.Parse(req.ID)
-	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid car part ID")
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	carPart, err := h.service.UpdateCarPart(r.Context(), id, req.UpdateCarPartParams)
+	// Get current car part data for the update (SQLC requires all fields)
+	currentPart, err := h.service.GetCarPartByID(r.Context(), id)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusNotFound, "Car part not found")
+		return
+	}
+
+	// Convert to SQLC params
+	params := req.ToUpdateCarPartParams(id, currentPart)
+
+	carPart, err := h.service.UpdateCarPart(r.Context(), id, params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to update car part")
 		return
 	}
-	utils.JSONResponse(w, http.StatusOK, carPart)
+
+	// Convert to response DTO
+	response := dto.FromCarPart(carPart)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // DeleteCarPart deletes a car part by its ID
 func (h *warrantyHandler) DeleteCarPart(w http.ResponseWriter, r *http.Request) {
-	var params struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing car part ID")
 		return
 	}
-	id, err := uuid.Parse(params.ID)
+
+	id, err := uuid.Parse(idParam)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid car part ID")
 		return
 	}
+
 	if err := h.service.DeleteCarPart(r.Context(), id); err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to delete car part")
 		return
 	}
-	utils.JSONResponse(w, http.StatusOK, nil)
+
+	utils.JSONResponse(w, http.StatusNoContent, nil)
 }
 
 // ListWarranties lists all warranties
@@ -133,12 +181,23 @@ func (h *warrantyHandler) ListWarranties(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, warranties)
+	// Convert to response DTOs
+	var responses []*dto.WarrantyResponse
+	for _, warranty := range warranties {
+		responses = append(responses, dto.FromWarranty(warranty))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
 // GetWarrantyByID retrieves a warranty by its ID
 func (h *warrantyHandler) GetWarrantyByID(w http.ResponseWriter, r *http.Request) {
-	idParam := r.URL.Query().Get("id")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing warranty ID")
+		return
+	}
+
 	id, err := uuid.Parse(idParam)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid warranty ID")
@@ -147,75 +206,116 @@ func (h *warrantyHandler) GetWarrantyByID(w http.ResponseWriter, r *http.Request
 
 	warranty, err := h.service.GetWarrantyByID(r.Context(), id)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to retrieve warranty")
+		utils.ErrorResponse(w, http.StatusNotFound, "Warranty not found")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, warranty)
+	// Convert to response DTO
+	response := dto.FromWarranty(warranty)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // CreateWarranty creates a new warranty
 func (h *warrantyHandler) CreateWarranty(w http.ResponseWriter, r *http.Request) {
-	var params warranties.CreateWarrantyParams
-	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+	var req dto.CreateWarrantyRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	warranty, err := h.service.CreateWarranty(r.Context(), &params)
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Convert to SQLC params
+	params, err := req.ToCreateWarrantyParams()
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	warranty, err := h.service.CreateWarranty(r.Context(), params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to create warranty")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusCreated, warranty)
+	// Convert to response DTO
+	response := dto.FromWarranty(warranty)
+	utils.JSONResponse(w, http.StatusCreated, response)
 }
 
 // UpdateWarranty updates an existing warranty
 func (h *warrantyHandler) UpdateWarranty(w http.ResponseWriter, r *http.Request) {
-	var params struct {
-		ID string `json:"id"`
-		*warranties.UpdateWarrantyParams
-	}
-
-
-	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing warranty ID")
 		return
 	}
 
-	id, err := uuid.Parse(params.ID)
+	id, err := uuid.Parse(idParam)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid warranty ID")
 		return
 	}
 
-	warranty, err := h.service.UpdateWarranty(r.Context(), id, params.UpdateWarrantyParams)
+	var req dto.UpdateWarrantyRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Validate request
+	if err := utils.ValidateStruct(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Get current warranty data for the update (SQLC requires all fields)
+	currentWarranty, err := h.service.GetWarrantyByID(r.Context(), id)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusNotFound, "Warranty not found")
+		return
+	}
+
+	// Convert to SQLC params
+	params, err := req.ToUpdateWarrantyParams(id, currentWarranty)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	warranty, err := h.service.UpdateWarranty(r.Context(), id, params)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to update warranty")
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, warranty)
+	// Convert to response DTO
+	response := dto.FromWarranty(warranty)
+	utils.JSONResponse(w, http.StatusOK, response)
 }
 
 // DeleteWarranty deletes a warranty by its ID
 func (h *warrantyHandler) DeleteWarranty(w http.ResponseWriter, r *http.Request) {
-	var params struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing warranty ID")
 		return
 	}
-	id, err := uuid.Parse(params.ID)
+
+	id, err := uuid.Parse(idParam)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid warranty ID")
 		return
 	}
+
 	if err := h.service.DeleteWarranty(r.Context(), id); err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to delete warranty")
 		return
 	}
-	utils.JSONResponse(w, http.StatusOK, nil)
+
+	utils.JSONResponse(w, http.StatusNoContent, nil)
 }

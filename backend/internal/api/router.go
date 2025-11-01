@@ -60,7 +60,7 @@ func (r *Router) SetupRoutes() http.Handler {
 			// User routes (placeholder for future implementation)
 			// r.setupUserRoutes(v1)
 
-			// Warranty routes (placeholder for future implementation)  
+			// Warranty routes (placeholder for future implementation)
 			// r.setupWarrantyRoutes(v1)
 		})
 	})
@@ -81,29 +81,29 @@ func (r *Router) setupProductRoutes(router chi.Router) {
 	router.Route("/products", func(products chi.Router) {
 		// Product Brand routes
 		products.Route("/brands", func(brands chi.Router) {
-			brands.Post("/", r.Handler.Product.CreateProductBrand)           // POST /api/v1/products/brands
-			brands.Get("/", r.Handler.Product.ListProductBrands)             // GET /api/v1/products/brands
-			brands.Get("/{id}", r.Handler.Product.GetProductBrandByID)       // GET /api/v1/products/brands/{id}
-			brands.Put("/{id}", r.Handler.Product.UpdateProductBrand)        // PUT /api/v1/products/brands/{id}
-			brands.Delete("/{id}", r.Handler.Product.DeleteProductBrand)     // DELETE /api/v1/products/brands/{id}
+			brands.Post("/", r.Handler.Product.CreateProductBrand)       // POST /api/v1/products/brands
+			brands.Get("/", r.Handler.Product.ListProductBrands)         // GET /api/v1/products/brands
+			brands.Get("/{id}", r.Handler.Product.GetProductBrandByID)   // GET /api/v1/products/brands/{id}
+			brands.Put("/{id}", r.Handler.Product.UpdateProductBrand)    // PUT /api/v1/products/brands/{id}
+			brands.Delete("/{id}", r.Handler.Product.DeleteProductBrand) // DELETE /api/v1/products/brands/{id}
 		})
 
 		// Product Type routes
 		products.Route("/types", func(types chi.Router) {
-			types.Post("/", r.Handler.Product.CreateProductType)             // POST /api/v1/products/types
-			types.Get("/", r.Handler.Product.ListProductTypes)               // GET /api/v1/products/types
-			types.Get("/{id}", r.Handler.Product.GetProductTypeByID)         // GET /api/v1/products/types/{id}
-			types.Put("/{id}", r.Handler.Product.UpdateProductType)          // PUT /api/v1/products/types/{id}
-			types.Delete("/{id}", r.Handler.Product.DeleteProductType)       // DELETE /api/v1/products/types/{id}
+			types.Post("/", r.Handler.Product.CreateProductType)       // POST /api/v1/products/types
+			types.Get("/", r.Handler.Product.ListProductTypes)         // GET /api/v1/products/types
+			types.Get("/{id}", r.Handler.Product.GetProductTypeByID)   // GET /api/v1/products/types/{id}
+			types.Put("/{id}", r.Handler.Product.UpdateProductType)    // PUT /api/v1/products/types/{id}
+			types.Delete("/{id}", r.Handler.Product.DeleteProductType) // DELETE /api/v1/products/types/{id}
 		})
 
 		// Product Series routes
 		products.Route("/series", func(series chi.Router) {
-			series.Post("/", r.Handler.Product.CreateProductSeries)          // POST /api/v1/products/series
-			series.Get("/", r.Handler.Product.ListProductSeries)             // GET /api/v1/products/series
-			series.Get("/{id}", r.Handler.Product.GetProductSeriesByID)      // GET /api/v1/products/series/{id}
-			series.Put("/{id}", r.Handler.Product.UpdateProductSeries)       // PUT /api/v1/products/series/{id}
-			series.Delete("/{id}", r.Handler.Product.DeleteProductSeries)    // DELETE /api/v1/products/series/{id}
+			series.Post("/", r.Handler.Product.CreateProductSeries)       // POST /api/v1/products/series
+			series.Get("/", r.Handler.Product.ListProductSeries)          // GET /api/v1/products/series
+			series.Get("/{id}", r.Handler.Product.GetProductSeriesByID)   // GET /api/v1/products/series/{id}
+			series.Put("/{id}", r.Handler.Product.UpdateProductSeries)    // PUT /api/v1/products/series/{id}
+			series.Delete("/{id}", r.Handler.Product.DeleteProductSeries) // DELETE /api/v1/products/series/{id}
 
 			// Nested route for series by type
 			series.Get("/by-type/{typeId}", r.Handler.Product.ListProductSeriesByType) // GET /api/v1/products/series/by-type/{typeId}
@@ -111,23 +111,23 @@ func (r *Router) setupProductRoutes(router chi.Router) {
 
 		// Product Model routes
 		products.Route("/warranty-years", func(warrantyYears chi.Router) {
-			warrantyYears.Post("/", r.Handler.Product.CreateWarrantyYear)           // POST /api/v1/products/warranty-years
-			warrantyYears.Get("/", r.Handler.Product.ListWarrantyYears)             // GET /api/v1/products/warranty-years
-			warrantyYears.Get("/{id}", r.Handler.Product.GetWarrantyYearByID)      // GET /api/v1/products/warranty-years/{id}
-			warrantyYears.Put("/{id}", r.Handler.Product.UpdateWarrantyYear)       // PUT /api/v1/products/warranty-years/{id}
-			warrantyYears.Delete("/{id}", r.Handler.Product.DeleteWarrantyYear)    // DELETE /api/v1/products/warranty-years/{id}
+			warrantyYears.Post("/", r.Handler.Product.CreateWarrantyYear)       // POST /api/v1/products/warranty-years
+			warrantyYears.Get("/", r.Handler.Product.ListWarrantyYears)         // GET /api/v1/products/warranty-years
+			warrantyYears.Get("/{id}", r.Handler.Product.GetWarrantyYearByID)   // GET /api/v1/products/warranty-years/{id}
+			warrantyYears.Put("/{id}", r.Handler.Product.UpdateWarrantyYear)    // PUT /api/v1/products/warranty-years/{id}
+			warrantyYears.Delete("/{id}", r.Handler.Product.DeleteWarrantyYear) // DELETE /api/v1/products/warranty-years/{id}
 		})
 
 		// Main Product routes
-		products.Post("/", r.Handler.Product.CreateProduct)                 // POST /api/v1/products
-		products.Get("/", r.Handler.Product.ListProducts)                   // GET /api/v1/products
-		products.Get("/{id}", r.Handler.Product.GetProductByID)             // GET /api/v1/products/{id}
-		products.Put("/{id}", r.Handler.Product.UpdateProduct)              // PUT /api/v1/products/{id}
-		products.Delete("/{id}", r.Handler.Product.DeleteProduct)           // DELETE /api/v1/products/{id}
+		products.Post("/", r.Handler.Product.CreateProduct)       // POST /api/v1/products
+		products.Get("/", r.Handler.Product.ListProducts)         // GET /api/v1/products
+		products.Get("/{id}", r.Handler.Product.GetProductByID)   // GET /api/v1/products/{id}
+		products.Put("/{id}", r.Handler.Product.UpdateProduct)    // PUT /api/v1/products/{id}
+		products.Delete("/{id}", r.Handler.Product.DeleteProduct) // DELETE /api/v1/products/{id}
 
 		// Additional product routes
-		products.Get("/details", r.Handler.Product.ListProductsWithDetails)           // GET /api/v1/products/details
-		products.Get("/details/{id}", r.Handler.Product.GetProductDetailsByID)        // GET /api/v1/products/details/{id}
+		products.Get("/details", r.Handler.Product.ListProductsWithDetails)    // GET /api/v1/products/details
+		products.Get("/details/{id}", r.Handler.Product.GetProductDetailsByID) // GET /api/v1/products/details/{id}
 	})
 }
 
@@ -142,14 +142,14 @@ func (r *Router) setupShopRoutes(router chi.Router) {
 	})
 
 	router.Route("/shops", func(shops chi.Router) {
-		shops.Post("/", r.Handler.Shop.CreateShop)                 // POST /api/v1/shops
+		shops.Post("/", r.Handler.Shop.CreateShop) // POST /api/v1/shops
 		shops.Get("/", r.Handler.Shop.ListShops)
-		shops.Get("/{id}", r.Handler.Shop.GetShopByID)             // GET /api/v1/shops/{id}
+		shops.Get("/{id}", r.Handler.Shop.GetShopByID) // GET /api/v1/shops/{id}
 		shops.Put("/{id}", r.Handler.Shop.UpdateShop)
 		shops.Delete("/{id}", r.Handler.Shop.DeleteShop)
 
-		shops.Get("/details", r.Handler.Shop.ListShopDetails)           // GET /api/v1/shops/details
-		shops.Get("/details/{id}", r.Handler.Shop.GetShopDetailsByID)        // GET /api/v1/shops/details/{id}
+		shops.Get("/details", r.Handler.Shop.ListShopDetails)         // GET /api/v1/shops/details
+		shops.Get("/details/{id}", r.Handler.Shop.GetShopDetailsByID) // GET /api/v1/shops/details/{id}
 	})
 
 	router.Route("/allocations", func(allocations chi.Router) {

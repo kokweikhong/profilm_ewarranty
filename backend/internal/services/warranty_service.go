@@ -23,13 +23,13 @@ type WarrantyService interface {
 }
 
 type warrantyService struct {
-	db     *pgxpool.Pool
+	db      *pgxpool.Pool
 	queries *warranties.Queries
 }
 
 func NewWarrantyService(db *pgxpool.Pool, queries *warranties.Queries) WarrantyService {
 	return &warrantyService{
-		db:     db,
+		db:      db,
 		queries: queries,
 	}
 }
