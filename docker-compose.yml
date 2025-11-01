@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: profilm_ewarranty_db
+    environment:
+      POSTGRES_DB: profilm_ewarranty
+      POSTGRES_USER: profilm_admin
+      POSTGRES_PASSWORD: uTVy0o1WZk
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - profilm_network
+
+  adminer:
+    image: adminer
+    container_name: profilm_ewarranty_adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    networks:
+      - profilm_network
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: profilm_ewarranty_api
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://profilm_admin:uTVy0o1WZk@postgres:5432/profilm_ewarranty?sslmode=disable
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      ENVIRONMENT: development
+    depends_on:
+      - postgres
+    networks:
+      - profilm_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  profilm_network:
+    driver: bridge
