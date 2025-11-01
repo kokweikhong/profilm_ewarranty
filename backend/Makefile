@@ -55,6 +55,10 @@ sqlc-generate:
 build-seeds:
 	go build -o bin/seeds.exe ./cmd/seeds
 
+# Dummy data commands
+build-dummy:
+	go build -o bin/dummy.exe ./cmd/dummy
+
 seed-product-brands: build-seeds
 	./bin/seeds.exe -type product-brands
 
@@ -78,6 +82,37 @@ seed-all: build-seeds
 
 seeds-help: build-seeds
 	./bin/seeds.exe -help
+
+# Dummy data targets (requires existing seeds)
+dummy-products: build-dummy
+	./bin/dummy.exe -type products -count=50
+
+dummy-shops: build-dummy
+	./bin/dummy.exe -type shops -count=50
+
+dummy-allocations: build-dummy
+	./bin/dummy.exe -type product-allocations -count=50
+
+dummy-all: build-dummy
+	./bin/dummy.exe -type all -count=50
+
+dummy-help: build-dummy
+	./bin/dummy.exe -help
+
+# Swagger documentation commands
+build-swagger-test:
+	go build -o bin/swagger-test.exe ./cmd/swagger-test/main.go
+
+swagger-test: build-swagger-test
+	./bin/swagger-test.exe
+
+swagger-docs:
+	@echo "Swagger documentation will be available at:"
+	@echo "  Swagger UI: http://localhost:8080/docs"
+	@echo "  Health Check: http://localhost:8080/health" 
+	@echo "  Swagger Spec: http://localhost:8080/swagger.yaml"
+	@echo ""
+	@echo "Run 'make swagger-test' to start the documentation server"
 
 # Go mod commands
 mod-tidy:

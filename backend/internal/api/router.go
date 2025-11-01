@@ -50,6 +50,10 @@ func (r *Router) SetupRoutes() http.Handler {
 	// Health check route
 	router.Get("/health", r.healthCheck)
 
+	// Swagger documentation routes
+	router.Handle("/docs", r.Handler.Swagger.ServeSwaggerUI())
+	router.Handle("/swagger.yaml", r.Handler.Swagger.ServeSwaggerSpec())
+
 	// API routes
 	router.Route("/api", func(api chi.Router) {
 		// Version 1 API

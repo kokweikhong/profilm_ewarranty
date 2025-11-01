@@ -44,12 +44,12 @@ INSERT INTO shops (
     state_id, company_name, company_registration_no, company_license_image_url,
     company_email, company_contact, company_website, name, type, address,
     image_url, pic_name, pic_contact, pic_email, pic_position,
-    login_hash_password, is_active
+    username, login_hash_password, is_active
 ) VALUES (
     $1, $2, $3, $4,
     $5, $6, $7, $8, $9, $10,
     $11, $12, $13, $14, $15,
-    $16, $17
+    $16, $17, $18
 )
 RETURNING id, state_id, company_name, company_registration_no, company_license_image_url, company_email, company_contact, company_website, name, type, address, image_url, pic_name, pic_contact, pic_email, pic_position, username, login_hash_password, is_active, created_at, updated_at
 `
@@ -70,6 +70,7 @@ type CreateShopParams struct {
 	PicContact             string      `db:"pic_contact" json:"pic_contact"`
 	PicEmail               string      `db:"pic_email" json:"pic_email"`
 	PicPosition            string      `db:"pic_position" json:"pic_position"`
+	Username               string      `db:"username" json:"username"`
 	LoginHashPassword      string      `db:"login_hash_password" json:"login_hash_password"`
 	IsActive               pgtype.Bool `db:"is_active" json:"is_active"`
 }
@@ -91,6 +92,7 @@ func (q *Queries) CreateShop(ctx context.Context, arg *CreateShopParams) (*Shop,
 		arg.PicContact,
 		arg.PicEmail,
 		arg.PicPosition,
+		arg.Username,
 		arg.LoginHashPassword,
 		arg.IsActive,
 	)

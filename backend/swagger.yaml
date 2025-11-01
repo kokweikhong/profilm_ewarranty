@@ -1,0 +1,2574 @@
+swagger: "2.0"
+info:
+  title: ProFilm eWarranty API
+  description: API for managing ProFilm warranty claims, products, shops, and more
+  version: "1.0.0"
+  contact:
+    name: ProFilm Support
+    email: support@profilm.com
+host: localhost:8080
+basePath: /
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Products
+    description: Product management endpoints
+  - name: Product Brands
+    description: Product brand management
+  - name: Product Types
+    description: Product type management
+  - name: Product Series
+    description: Product series management
+  - name: Warranty Years
+    description: Warranty year management
+  - name: Shops
+    description: Shop management endpoints
+  - name: States
+    description: State management endpoints
+  - name: Product Allocations
+    description: Product allocation management
+  - name: Warranties
+    description: Warranty management endpoints
+  - name: Car Parts
+    description: Car part management
+  - name: Claims
+    description: Claim management endpoints
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check if the API server is running
+      responses:
+        200:
+          description: Server is healthy
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: ok
+              message:
+                type: string
+                example: Server is running
+
+  # Product Brand Endpoints
+  /products/brands:
+    post:
+      tags:
+        - Product Brands
+      summary: Create a new product brand
+      description: Create a new product brand in the system
+      parameters:
+        - in: body
+          name: brand
+          description: Product brand object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateProductBrandRequest"
+      responses:
+        201:
+          description: Product brand created successfully
+          schema:
+            $ref: "#/definitions/ProductBrandResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Product Brands
+      summary: List all product brands
+      description: Retrieve a list of all product brands
+      responses:
+        200:
+          description: List of product brands
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductBrandResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/brands/{id}:
+    get:
+      tags:
+        - Product Brands
+      summary: Get product brand by ID
+      description: Retrieve a specific product brand by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product brand ID
+      responses:
+        200:
+          description: Product brand details
+          schema:
+            $ref: "#/definitions/ProductBrandResponse"
+        404:
+          description: Product brand not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Product Brands
+      summary: Update product brand
+      description: Update an existing product brand
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product brand ID
+        - in: body
+          name: brand
+          description: Updated product brand object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateProductBrandRequest"
+      responses:
+        200:
+          description: Product brand updated successfully
+          schema:
+            $ref: "#/definitions/ProductBrandResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Product brand not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Product Brands
+      summary: Delete product brand
+      description: Delete a product brand from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product brand ID
+      responses:
+        204:
+          description: Product brand deleted successfully
+        404:
+          description: Product brand not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Product Type Endpoints
+  /products/types:
+    post:
+      tags:
+        - Product Types
+      summary: Create a new product type
+      description: Create a new product type under a brand
+      parameters:
+        - in: body
+          name: type
+          description: Product type object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateProductTypeRequest"
+      responses:
+        201:
+          description: Product type created successfully
+          schema:
+            $ref: "#/definitions/ProductTypeResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Product Types
+      summary: List all product types
+      description: Retrieve a list of all product types
+      responses:
+        200:
+          description: List of product types
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductTypeResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/types/{id}:
+    get:
+      tags:
+        - Product Types
+      summary: Get product type by ID
+      description: Retrieve a specific product type by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product type ID
+      responses:
+        200:
+          description: Product type details
+          schema:
+            $ref: "#/definitions/ProductTypeResponse"
+        404:
+          description: Product type not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Product Types
+      summary: Update product type
+      description: Update an existing product type
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product type ID
+        - in: body
+          name: type
+          description: Updated product type object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateProductTypeRequest"
+      responses:
+        200:
+          description: Product type updated successfully
+          schema:
+            $ref: "#/definitions/ProductTypeResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Product type not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Product Types
+      summary: Delete product type
+      description: Delete a product type from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product type ID
+      responses:
+        204:
+          description: Product type deleted successfully
+        404:
+          description: Product type not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Product Series Endpoints
+  /products/series:
+    post:
+      tags:
+        - Product Series
+      summary: Create a new product series
+      description: Create a new product series under a product type
+      parameters:
+        - in: body
+          name: series
+          description: Product series object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateProductSeriesRequest"
+      responses:
+        201:
+          description: Product series created successfully
+          schema:
+            $ref: "#/definitions/ProductSeriesResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Product Series
+      summary: List all product series
+      description: Retrieve a list of all product series
+      responses:
+        200:
+          description: List of product series
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductSeriesResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/series/{id}:
+    get:
+      tags:
+        - Product Series
+      summary: Get product series by ID
+      description: Retrieve a specific product series by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product series ID
+      responses:
+        200:
+          description: Product series details
+          schema:
+            $ref: "#/definitions/ProductSeriesResponse"
+        404:
+          description: Product series not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Product Series
+      summary: Update product series
+      description: Update an existing product series
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product series ID
+        - in: body
+          name: series
+          description: Updated product series object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateProductSeriesRequest"
+      responses:
+        200:
+          description: Product series updated successfully
+          schema:
+            $ref: "#/definitions/ProductSeriesResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Product series not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Product Series
+      summary: Delete product series
+      description: Delete a product series from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product series ID
+      responses:
+        204:
+          description: Product series deleted successfully
+        404:
+          description: Product series not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/series/by-type/{typeId}:
+    get:
+      tags:
+        - Product Series
+      summary: List product series by type ID
+      description: Retrieve all product series for a specific product type
+      parameters:
+        - in: path
+          name: typeId
+          type: string
+          format: uuid
+          required: true
+          description: Product type ID
+      responses:
+        200:
+          description: List of product series for the specified type
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductSeriesResponse"
+        404:
+          description: Product type not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Warranty Years Endpoints
+  /products/warranty-years:
+    post:
+      tags:
+        - Warranty Years
+      summary: Create a new warranty year
+      description: Create a new warranty year option
+      parameters:
+        - in: body
+          name: warrantyYear
+          description: Warranty year object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateWarrantyYearRequest"
+      responses:
+        201:
+          description: Warranty year created successfully
+          schema:
+            $ref: "#/definitions/WarrantyYearResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Warranty Years
+      summary: List all warranty years
+      description: Retrieve a list of all warranty year options
+      responses:
+        200:
+          description: List of warranty years
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/WarrantyYearResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/warranty-years/{id}:
+    get:
+      tags:
+        - Warranty Years
+      summary: Get warranty year by ID
+      description: Retrieve a specific warranty year by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Warranty year ID
+      responses:
+        200:
+          description: Warranty year details
+          schema:
+            $ref: "#/definitions/WarrantyYearResponse"
+        404:
+          description: Warranty year not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Warranty Years
+      summary: Update warranty year
+      description: Update an existing warranty year
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Warranty year ID
+        - in: body
+          name: warrantyYear
+          description: Updated warranty year object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateWarrantyYearRequest"
+      responses:
+        200:
+          description: Warranty year updated successfully
+          schema:
+            $ref: "#/definitions/WarrantyYearResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Warranty year not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Warranty Years
+      summary: Delete warranty year
+      description: Delete a warranty year from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Warranty year ID
+      responses:
+        204:
+          description: Warranty year deleted successfully
+        404:
+          description: Warranty year not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Main Product Endpoints
+  /products:
+    post:
+      tags:
+        - Products
+      summary: Create a new product
+      description: Create a new product in the system
+      parameters:
+        - in: body
+          name: product
+          description: Product object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateProductRequest"
+      responses:
+        201:
+          description: Product created successfully
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Products
+      summary: List all products
+      description: Retrieve a list of all products
+      responses:
+        200:
+          description: List of products
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      description: Retrieve a specific product by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product ID
+      responses:
+        200:
+          description: Product details
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        404:
+          description: Product not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Products
+      summary: Update product
+      description: Update an existing product
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product ID
+        - in: body
+          name: product
+          description: Updated product object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateProductRequest"
+      responses:
+        200:
+          description: Product updated successfully
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Product not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Products
+      summary: Delete product
+      description: Delete a product from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product ID
+      responses:
+        204:
+          description: Product deleted successfully
+        404:
+          description: Product not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Product Detail Routes
+  /products/details:
+    get:
+      tags:
+        - Products
+      summary: List all products with details
+      description: Retrieve a list of all products with comprehensive details
+      responses:
+        200:
+          description: List of products with details
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductDetailResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/details/{id}:
+    get:
+      tags:
+        - Products
+      summary: Get product details by ID
+      description: Retrieve comprehensive product details by ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product ID
+      responses:
+        200:
+          description: Product details
+          schema:
+            $ref: "#/definitions/ProductDetailResponse"
+        404:
+          description: Product not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # States Endpoints
+  /states:
+    post:
+      tags:
+        - States
+      summary: Create a new state
+      description: Create a new state in the system
+      parameters:
+        - in: body
+          name: state
+          description: State object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateStateRequest"
+      responses:
+        201:
+          description: State created successfully
+          schema:
+            $ref: "#/definitions/StateResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - States
+      summary: List all states
+      description: Retrieve a list of all states
+      responses:
+        200:
+          description: List of states
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/StateResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /states/{id}:
+    get:
+      tags:
+        - States
+      summary: Get state by ID
+      description: Retrieve a specific state by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: State ID
+      responses:
+        200:
+          description: State details
+          schema:
+            $ref: "#/definitions/StateResponse"
+        404:
+          description: State not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - States
+      summary: Update state
+      description: Update an existing state
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: State ID
+        - in: body
+          name: state
+          description: Updated state object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateStateRequest"
+      responses:
+        200:
+          description: State updated successfully
+          schema:
+            $ref: "#/definitions/StateResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: State not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - States
+      summary: Delete state
+      description: Delete a state from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: State ID
+      responses:
+        204:
+          description: State deleted successfully
+        404:
+          description: State not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Shop Endpoints
+  /shops:
+    post:
+      tags:
+        - Shops
+      summary: Create a new shop
+      description: Create a new shop in the system
+      parameters:
+        - in: body
+          name: shop
+          description: Shop object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateShopRequest"
+      responses:
+        201:
+          description: Shop created successfully
+          schema:
+            $ref: "#/definitions/ShopResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Shops
+      summary: List all shops
+      description: Retrieve a list of all shops
+      responses:
+        200:
+          description: List of shops
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ShopResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /shops/{id}:
+    get:
+      tags:
+        - Shops
+      summary: Get shop by ID
+      description: Retrieve a specific shop by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Shop ID
+      responses:
+        200:
+          description: Shop details
+          schema:
+            $ref: "#/definitions/ShopResponse"
+        404:
+          description: Shop not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Shops
+      summary: Update shop
+      description: Update an existing shop
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Shop ID
+        - in: body
+          name: shop
+          description: Updated shop object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateShopRequest"
+      responses:
+        200:
+          description: Shop updated successfully
+          schema:
+            $ref: "#/definitions/ShopResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Shop not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Shops
+      summary: Delete shop
+      description: Delete a shop from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Shop ID
+      responses:
+        204:
+          description: Shop deleted successfully
+        404:
+          description: Shop not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Shop Detail Routes
+  /shops/details:
+    get:
+      tags:
+        - Shops
+      summary: List all shop details
+      description: Retrieve a list of all shops with comprehensive details
+      responses:
+        200:
+          description: List of shops with details
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ShopDetailResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /shops/details/{id}:
+    get:
+      tags:
+        - Shops
+      summary: Get shop details by ID
+      description: Retrieve comprehensive shop details by ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Shop ID
+      responses:
+        200:
+          description: Shop details
+          schema:
+            $ref: "#/definitions/ShopDetailResponse"
+        404:
+          description: Shop not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Product Allocation Endpoints
+  /allocations:
+    post:
+      tags:
+        - Product Allocations
+      summary: Create a new product allocation
+      description: Create a new product allocation to a shop
+      parameters:
+        - in: body
+          name: allocation
+          description: Product allocation object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateProductAllocationRequest"
+      responses:
+        201:
+          description: Product allocation created successfully
+          schema:
+            $ref: "#/definitions/ProductAllocationResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Product Allocations
+      summary: List all product allocations
+      description: Retrieve a list of all product allocations
+      responses:
+        200:
+          description: List of product allocations
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductAllocationResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /allocations/{id}:
+    get:
+      tags:
+        - Product Allocations
+      summary: Get product allocation by ID
+      description: Retrieve a specific product allocation by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product allocation ID
+      responses:
+        200:
+          description: Product allocation details
+          schema:
+            $ref: "#/definitions/ProductAllocationResponse"
+        404:
+          description: Product allocation not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Product Allocations
+      summary: Update product allocation
+      description: Update an existing product allocation
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product allocation ID
+        - in: body
+          name: allocation
+          description: Updated product allocation object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateProductAllocationRequest"
+      responses:
+        200:
+          description: Product allocation updated successfully
+          schema:
+            $ref: "#/definitions/ProductAllocationResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Product allocation not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Product Allocations
+      summary: Delete product allocation
+      description: Delete a product allocation from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product allocation ID
+      responses:
+        204:
+          description: Product allocation deleted successfully
+        404:
+          description: Product allocation not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Car Parts Endpoints
+  /car-parts:
+    post:
+      tags:
+        - Car Parts
+      summary: Create a new car part
+      description: Create a new car part in the system
+      parameters:
+        - in: body
+          name: carPart
+          description: Car part object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateCarPartRequest"
+      responses:
+        201:
+          description: Car part created successfully
+          schema:
+            $ref: "#/definitions/CarPartResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Car Parts
+      summary: List all car parts
+      description: Retrieve a list of all car parts
+      responses:
+        200:
+          description: List of car parts
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CarPartResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /car-parts/{id}:
+    get:
+      tags:
+        - Car Parts
+      summary: Get car part by ID
+      description: Retrieve a specific car part by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Car part ID
+      responses:
+        200:
+          description: Car part details
+          schema:
+            $ref: "#/definitions/CarPartResponse"
+        404:
+          description: Car part not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Car Parts
+      summary: Update car part
+      description: Update an existing car part
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Car part ID
+        - in: body
+          name: carPart
+          description: Updated car part object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateCarPartRequest"
+      responses:
+        200:
+          description: Car part updated successfully
+          schema:
+            $ref: "#/definitions/CarPartResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Car part not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Car Parts
+      summary: Delete car part
+      description: Delete a car part from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Car part ID
+      responses:
+        204:
+          description: Car part deleted successfully
+        404:
+          description: Car part not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Warranty Endpoints
+  /warranties:
+    post:
+      tags:
+        - Warranties
+      summary: Create a new warranty
+      description: Create a new warranty in the system
+      parameters:
+        - in: body
+          name: warranty
+          description: Warranty object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateWarrantyRequest"
+      responses:
+        201:
+          description: Warranty created successfully
+          schema:
+            $ref: "#/definitions/WarrantyResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Warranties
+      summary: List all warranties
+      description: Retrieve a list of all warranties
+      responses:
+        200:
+          description: List of warranties
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/WarrantyResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /warranties/{id}:
+    get:
+      tags:
+        - Warranties
+      summary: Get warranty by ID
+      description: Retrieve a specific warranty by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Warranty ID
+      responses:
+        200:
+          description: Warranty details
+          schema:
+            $ref: "#/definitions/WarrantyResponse"
+        404:
+          description: Warranty not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Warranties
+      summary: Update warranty
+      description: Update an existing warranty
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Warranty ID
+        - in: body
+          name: warranty
+          description: Updated warranty object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateWarrantyRequest"
+      responses:
+        200:
+          description: Warranty updated successfully
+          schema:
+            $ref: "#/definitions/WarrantyResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Warranty not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Warranties
+      summary: Delete warranty
+      description: Delete a warranty from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Warranty ID
+      responses:
+        204:
+          description: Warranty deleted successfully
+        404:
+          description: Warranty not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Claims Endpoints
+  /claims:
+    post:
+      tags:
+        - Claims
+      summary: Create a new claim
+      description: Create a new warranty claim
+      parameters:
+        - in: body
+          name: claim
+          description: Claim object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateClaimRequest"
+      responses:
+        201:
+          description: Claim created successfully
+          schema:
+            $ref: "#/definitions/ClaimResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Claims
+      summary: List all claims
+      description: Retrieve a list of all claims
+      responses:
+        200:
+          description: List of claims
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ClaimResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /claims/{id}:
+    get:
+      tags:
+        - Claims
+      summary: Get claim by ID
+      description: Retrieve a specific claim by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Claim ID
+      responses:
+        200:
+          description: Claim details
+          schema:
+            $ref: "#/definitions/ClaimResponse"
+        404:
+          description: Claim not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Claims
+      summary: Update claim
+      description: Update an existing claim
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Claim ID
+        - in: body
+          name: claim
+          description: Updated claim object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateClaimRequest"
+      responses:
+        200:
+          description: Claim updated successfully
+          schema:
+            $ref: "#/definitions/ClaimResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Claim not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Claims
+      summary: Delete claim
+      description: Delete a claim from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Claim ID
+      responses:
+        204:
+          description: Claim deleted successfully
+        404:
+          description: Claim not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+definitions:
+  # Error Response
+  ErrorResponse:
+    type: object
+    properties:
+      error:
+        type: string
+        description: Error message
+      code:
+        type: integer
+        description: Error code
+    required:
+      - error
+
+  # Product Brand Models
+  CreateProductBrandRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Brand name
+        example: "Profilm"
+    required:
+      - name
+
+  UpdateProductBrandRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Updated brand name
+        example: "Profilm Updated"
+
+  ProductBrandResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Brand ID
+      name:
+        type: string
+        description: Brand name
+      is_active:
+        type: boolean
+        description: Whether the brand is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Product Type Models
+  CreateProductTypeRequest:
+    type: object
+    properties:
+      brand_id:
+        type: string
+        format: uuid
+        description: Brand ID this type belongs to
+      name:
+        type: string
+        description: Type name
+        example: "Window Tinting Film"
+      description:
+        type: string
+        description: Type description
+    required:
+      - brand_id
+      - name
+
+  UpdateProductTypeRequest:
+    type: object
+    properties:
+      brand_id:
+        type: string
+        format: uuid
+        description: Brand ID this type belongs to
+      name:
+        type: string
+        description: Updated type name
+      description:
+        type: string
+        description: Updated type description
+
+  ProductTypeResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Type ID
+      brand_id:
+        type: string
+        format: uuid
+        description: Brand ID
+      name:
+        type: string
+        description: Type name
+      description:
+        type: string
+        description: Type description
+      is_active:
+        type: boolean
+        description: Whether the type is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Product Models
+  CreateProductRequest:
+    type: object
+    properties:
+      product_name_id:
+        type: string
+        format: uuid
+        description: Product name ID
+      warranty_year_id:
+        type: string
+        format: uuid
+        description: Warranty year ID
+      film_serial_no:
+        type: string
+        description: Film serial number
+        example: "SN2025000001"
+      manufacture_date:
+        type: string
+        format: date
+        description: Manufacture date
+      expiry_date:
+        type: string
+        format: date
+        description: Expiry date
+    required:
+      - product_name_id
+      - warranty_year_id
+      - film_serial_no
+
+  UpdateProductRequest:
+    type: object
+    properties:
+      product_name_id:
+        type: string
+        format: uuid
+        description: Product name ID
+      warranty_year_id:
+        type: string
+        format: uuid
+        description: Warranty year ID
+      film_serial_no:
+        type: string
+        description: Film serial number
+      manufacture_date:
+        type: string
+        format: date
+        description: Manufacture date
+      expiry_date:
+        type: string
+        format: date
+        description: Expiry date
+
+  ProductResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Product ID
+      product_name_id:
+        type: string
+        format: uuid
+        description: Product name ID
+      warranty_year_id:
+        type: string
+        format: uuid
+        description: Warranty year ID
+      film_serial_no:
+        type: string
+        description: Film serial number
+      manufacture_date:
+        type: string
+        format: date
+        description: Manufacture date
+      expiry_date:
+        type: string
+        format: date
+        description: Expiry date
+      is_active:
+        type: boolean
+        description: Whether the product is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Shop Models
+  CreateShopRequest:
+    type: object
+    properties:
+      state_id:
+        type: string
+        format: uuid
+        description: State ID
+      company_name:
+        type: string
+        description: Company name
+      company_registration_no:
+        type: string
+        description: Company registration number
+      company_email:
+        type: string
+        format: email
+        description: Company email
+      company_contact:
+        type: string
+        description: Company contact number
+      name:
+        type: string
+        description: Shop name
+      type:
+        type: string
+        description: Shop type
+      address:
+        type: string
+        description: Shop address
+      pic_name:
+        type: string
+        description: Person in charge name
+      pic_contact:
+        type: string
+        description: Person in charge contact
+      pic_email:
+        type: string
+        format: email
+        description: Person in charge email
+      username:
+        type: string
+        description: Shop login username
+    required:
+      - state_id
+      - company_name
+      - company_registration_no
+      - company_email
+      - company_contact
+      - name
+      - type
+      - pic_name
+      - pic_contact
+      - pic_email
+      - username
+
+  ShopResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Shop ID
+      state_id:
+        type: string
+        format: uuid
+        description: State ID
+      company_name:
+        type: string
+        description: Company name
+      company_registration_no:
+        type: string
+        description: Company registration number
+      company_email:
+        type: string
+        description: Company email
+      company_contact:
+        type: string
+        description: Company contact number
+      name:
+        type: string
+        description: Shop name
+      type:
+        type: string
+        description: Shop type
+      address:
+        type: string
+        description: Shop address
+      pic_name:
+        type: string
+        description: Person in charge name
+      pic_contact:
+        type: string
+        description: Person in charge contact
+      pic_email:
+        type: string
+        description: Person in charge email
+      username:
+        type: string
+        description: Shop login username
+      is_active:
+        type: boolean
+        description: Whether the shop is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Claim Models
+  CreateClaimRequest:
+    type: object
+    properties:
+      warranty_id:
+        type: string
+        format: uuid
+        description: Warranty ID
+      claim_no:
+        type: string
+        description: Claim number
+      status:
+        type: string
+        description: Claim status
+        enum: [pending, approved, rejected, processing]
+      claim_date:
+        type: string
+        format: date
+        description: Claim date
+      damaged_image_url:
+        type: string
+        description: URL of damaged product image
+      remarks:
+        type: string
+        description: Additional remarks
+    required:
+      - warranty_id
+      - claim_no
+      - status
+      - damaged_image_url
+
+  ClaimResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Claim ID
+      warranty_id:
+        type: string
+        format: uuid
+        description: Warranty ID
+      claim_no:
+        type: string
+        description: Claim number
+      status:
+        type: string
+        description: Claim status
+      claim_date:
+        type: string
+        format: date
+        description: Claim date
+      damaged_image_url:
+        type: string
+        description: URL of damaged product image
+      resolution_image_url:
+        type: string
+        description: URL of resolution image
+      remarks:
+        type: string
+        description: Additional remarks
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Missing Model Definitions
+
+  # Product Series Models
+  CreateProductSeriesRequest:
+    type: object
+    properties:
+      product_type_id:
+        type: string
+        format: uuid
+        description: Product type ID this series belongs to
+      name:
+        type: string
+        description: Series name
+        example: "Tint Value Series"
+      description:
+        type: string
+        description: Series description
+    required:
+      - product_type_id
+      - name
+
+  UpdateProductSeriesRequest:
+    type: object
+    properties:
+      product_type_id:
+        type: string
+        format: uuid
+        description: Product type ID this series belongs to
+      name:
+        type: string
+        description: Updated series name
+      description:
+        type: string
+        description: Updated series description
+
+  ProductSeriesResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Series ID
+      product_type_id:
+        type: string
+        format: uuid
+        description: Product type ID
+      name:
+        type: string
+        description: Series name
+      description:
+        type: string
+        description: Series description
+      is_active:
+        type: boolean
+        description: Whether the series is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Warranty Year Models
+  CreateWarrantyYearRequest:
+    type: object
+    properties:
+      years:
+        type: integer
+        description: Number of warranty years
+        example: 5
+    required:
+      - years
+
+  UpdateWarrantyYearRequest:
+    type: object
+    properties:
+      years:
+        type: integer
+        description: Updated warranty years
+
+  WarrantyYearResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Warranty year ID
+      years:
+        type: integer
+        description: Number of warranty years
+      is_active:
+        type: boolean
+        description: Whether the warranty year is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # State Models
+  CreateStateRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        description: State name
+        example: "Selangor"
+    required:
+      - name
+
+  UpdateStateRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Updated state name
+
+  StateResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: State ID
+      name:
+        type: string
+        description: State name
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Shop Detail Models
+  UpdateShopRequest:
+    type: object
+    properties:
+      state_id:
+        type: string
+        format: uuid
+        description: State ID
+      company_name:
+        type: string
+        description: Company name
+      company_registration_no:
+        type: string
+        description: Company registration number
+      company_email:
+        type: string
+        format: email
+        description: Company email
+      company_contact:
+        type: string
+        description: Company contact number
+      name:
+        type: string
+        description: Shop name
+      type:
+        type: string
+        description: Shop type
+      address:
+        type: string
+        description: Shop address
+      pic_name:
+        type: string
+        description: Person in charge name
+      pic_contact:
+        type: string
+        description: Person in charge contact
+      pic_email:
+        type: string
+        format: email
+        description: Person in charge email
+      username:
+        type: string
+        description: Shop login username
+
+  ShopDetailResponse:
+    type: object
+    properties:
+      shop_id:
+        type: string
+        format: uuid
+        description: Shop ID
+      company_name:
+        type: string
+        description: Company name
+      company_registration_no:
+        type: string
+        description: Company registration number
+      company_email:
+        type: string
+        description: Company email
+      company_contact:
+        type: string
+        description: Company contact number
+      name:
+        type: string
+        description: Shop name
+      type:
+        type: string
+        description: Shop type
+      address:
+        type: string
+        description: Shop address
+      pic_name:
+        type: string
+        description: Person in charge name
+      pic_contact:
+        type: string
+        description: Person in charge contact
+      pic_email:
+        type: string
+        description: Person in charge email
+      state_id:
+        type: string
+        format: uuid
+        description: State ID
+      state_name:
+        type: string
+        description: State name
+      is_active:
+        type: boolean
+        description: Whether the shop is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  ProductDetailResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Product ID
+      film_serial_no:
+        type: string
+        description: Film serial number
+      manufacture_date:
+        type: string
+        format: date
+        description: Manufacture date
+      expiry_date:
+        type: string
+        format: date
+        description: Expiry date
+      product_name:
+        type: string
+        description: Product name
+      brand_name:
+        type: string
+        description: Brand name
+      type_name:
+        type: string
+        description: Product type name
+      series_name:
+        type: string
+        description: Product series name
+      warranty_years:
+        type: integer
+        description: Warranty years
+      is_active:
+        type: boolean
+        description: Whether the product is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Product Allocation Models
+  CreateProductAllocationRequest:
+    type: object
+    properties:
+      product_id:
+        type: string
+        format: uuid
+        description: Product ID
+      shop_id:
+        type: string
+        format: uuid
+        description: Shop ID
+      film_quantity:
+        type: integer
+        description: Quantity of film allocated
+        example: 10
+      allocated_date:
+        type: string
+        format: date-time
+        description: Allocation date
+    required:
+      - product_id
+      - shop_id
+      - film_quantity
+
+  UpdateProductAllocationRequest:
+    type: object
+    properties:
+      product_id:
+        type: string
+        format: uuid
+        description: Product ID
+      shop_id:
+        type: string
+        format: uuid
+        description: Shop ID
+      film_quantity:
+        type: integer
+        description: Updated quantity of film allocated
+      allocated_date:
+        type: string
+        format: date-time
+        description: Updated allocation date
+
+  ProductAllocationResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Allocation ID
+      product_id:
+        type: string
+        format: uuid
+        description: Product ID
+      shop_id:
+        type: string
+        format: uuid
+        description: Shop ID
+      film_quantity:
+        type: integer
+        description: Quantity of film allocated
+      allocated_date:
+        type: string
+        format: date-time
+        description: Allocation date
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Car Part Models
+  CreateCarPartRequest:
+    type: object
+    properties:
+      part_name:
+        type: string
+        description: Car part name
+        example: "Hood"
+      description:
+        type: string
+        description: Car part description
+    required:
+      - part_name
+
+  UpdateCarPartRequest:
+    type: object
+    properties:
+      part_name:
+        type: string
+        description: Updated car part name
+      description:
+        type: string
+        description: Updated car part description
+
+  CarPartResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Car part ID
+      part_name:
+        type: string
+        description: Car part name
+      description:
+        type: string
+        description: Car part description
+      is_active:
+        type: boolean
+        description: Whether the car part is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Warranty Models
+  CreateWarrantyRequest:
+    type: object
+    properties:
+      product_id:
+        type: string
+        format: uuid
+        description: Product ID
+      shop_id:
+        type: string
+        format: uuid
+        description: Shop ID
+      customer_name:
+        type: string
+        description: Customer name
+        example: "Ahmad Rahman"
+      customer_email:
+        type: string
+        format: email
+        description: Customer email
+      customer_contact:
+        type: string
+        description: Customer contact number
+      car_brand:
+        type: string
+        description: Car brand
+        example: "Toyota"
+      car_model:
+        type: string
+        description: Car model
+        example: "Camry"
+      car_year:
+        type: integer
+        description: Car year
+        example: 2023
+      installation_date:
+        type: string
+        format: date
+        description: Installation date
+    required:
+      - product_id
+      - shop_id
+      - customer_name
+      - customer_email
+      - customer_contact
+      - car_brand
+      - car_model
+      - installation_date
+
+  UpdateWarrantyRequest:
+    type: object
+    properties:
+      product_id:
+        type: string
+        format: uuid
+        description: Product ID
+      shop_id:
+        type: string
+        format: uuid
+        description: Shop ID
+      customer_name:
+        type: string
+        description: Customer name
+      customer_email:
+        type: string
+        format: email
+        description: Customer email
+      customer_contact:
+        type: string
+        description: Customer contact number
+      car_brand:
+        type: string
+        description: Car brand
+      car_model:
+        type: string
+        description: Car model
+      car_year:
+        type: integer
+        description: Car year
+      installation_date:
+        type: string
+        format: date
+        description: Installation date
+
+  WarrantyResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Warranty ID
+      product_id:
+        type: string
+        format: uuid
+        description: Product ID
+      shop_id:
+        type: string
+        format: uuid
+        description: Shop ID
+      customer_name:
+        type: string
+        description: Customer name
+      customer_email:
+        type: string
+        description: Customer email
+      customer_contact:
+        type: string
+        description: Customer contact number
+      car_brand:
+        type: string
+        description: Car brand
+      car_model:
+        type: string
+        description: Car model
+      car_year:
+        type: integer
+        description: Car year
+      installation_date:
+        type: string
+        format: date
+        description: Installation date
+      expiry_date:
+        type: string
+        format: date
+        description: Warranty expiry date
+      is_active:
+        type: boolean
+        description: Whether the warranty is active
+      created_at:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updated_at:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Claim Update Model
+  UpdateClaimRequest:
+    type: object
+    properties:
+      warranty_id:
+        type: string
+        format: uuid
+        description: Warranty ID
+      claim_no:
+        type: string
+        description: Claim number
+      status:
+        type: string
+        description: Claim status
+        enum: [pending, approved, rejected, processing]
+      claim_date:
+        type: string
+        format: date
+        description: Claim date
+      damaged_image_url:
+        type: string
+        description: URL of damaged product image
+      resolution_image_url:
+        type: string
+        description: URL of resolution image
+      remarks:
+        type: string
+        description: Additional remarks

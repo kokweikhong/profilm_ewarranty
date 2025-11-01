@@ -7,6 +7,7 @@ type Handler struct {
 	Product  ProductHandler
 	Shop     ShopHandler
 	Claim    ClaimsHandler
+	Swagger  *SwaggerHandler
 }
 
 func NewHandler(services *services.Service) *Handler {
@@ -15,5 +16,6 @@ func NewHandler(services *services.Service) *Handler {
 		Product:  NewProductHandler(services.Product),
 		Shop:     NewShopHandler(services.Shop),
 		Claim:    NewClaimsHandler(services.Claim),
+		Swagger:  NewSwaggerHandler(),
 	}
 }
