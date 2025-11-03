@@ -19,7 +19,7 @@ RETURNING id, part_name, description, is_active, created_at, updated_at
 `
 
 type CreateCarPartParams struct {
-	PartName    string      `db:"part_name" json:"part_name"`
+	PartName    string      `db:"part_name" json:"partName"`
 	Description pgtype.Text `db:"description" json:"description"`
 }
 
@@ -53,20 +53,20 @@ RETURNING id, customer_name, customer_email, customer_contact, car_brand, car_mo
 `
 
 type CreateWarrantyParams struct {
-	CustomerName      string      `db:"customer_name" json:"customer_name"`
-	CustomerEmail     string      `db:"customer_email" json:"customer_email"`
-	CustomerContact   string      `db:"customer_contact" json:"customer_contact"`
-	CarBrand          string      `db:"car_brand" json:"car_brand"`
-	CarModel          string      `db:"car_model" json:"car_model"`
-	CarColor          string      `db:"car_color" json:"car_color"`
-	CarPlateNo        string      `db:"car_plate_no" json:"car_plate_no"`
-	CarChassisNo      string      `db:"car_chassis_no" json:"car_chassis_no"`
-	ShopAllocationsID uuid.UUID   `db:"shop_allocations_id" json:"shop_allocations_id"`
-	CarPartsID        uuid.UUID   `db:"car_parts_id" json:"car_parts_id"`
-	ImageUrl          string      `db:"image_url" json:"image_url"`
-	InstallationDate  pgtype.Date `db:"installation_date" json:"installation_date"`
-	ReferenceNo       string      `db:"reference_no" json:"reference_no"`
-	WarrantyNo        string      `db:"warranty_no" json:"warranty_no"`
+	CustomerName      string      `db:"customer_name" json:"customerName"`
+	CustomerEmail     string      `db:"customer_email" json:"customerEmail"`
+	CustomerContact   string      `db:"customer_contact" json:"customerContact"`
+	CarBrand          string      `db:"car_brand" json:"carBrand"`
+	CarModel          string      `db:"car_model" json:"carModel"`
+	CarColor          string      `db:"car_color" json:"carColor"`
+	CarPlateNo        string      `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo      string      `db:"car_chassis_no" json:"carChassisNo"`
+	ShopAllocationsID uuid.UUID   `db:"shop_allocations_id" json:"shopAllocationsId"`
+	CarPartsID        uuid.UUID   `db:"car_parts_id" json:"carPartsId"`
+	ImageUrl          string      `db:"image_url" json:"imageUrl"`
+	InstallationDate  pgtype.Date `db:"installation_date" json:"installationDate"`
+	ReferenceNo       string      `db:"reference_no" json:"referenceNo"`
+	WarrantyNo        string      `db:"warranty_no" json:"warrantyNo"`
 }
 
 func (q *Queries) CreateWarranty(ctx context.Context, arg *CreateWarrantyParams) (*Warranty, error) {
@@ -261,7 +261,7 @@ RETURNING id, part_name, description, is_active, created_at, updated_at
 `
 
 type UpdateCarPartParams struct {
-	PartName    string      `db:"part_name" json:"part_name"`
+	PartName    string      `db:"part_name" json:"partName"`
 	Description pgtype.Text `db:"description" json:"description"`
 	ID          uuid.UUID   `db:"id" json:"id"`
 }
@@ -291,20 +291,20 @@ RETURNING id, customer_name, customer_email, customer_contact, car_brand, car_mo
 `
 
 type UpdateWarrantyParams struct {
-	CustomerName      string      `db:"customer_name" json:"customer_name"`
-	CustomerEmail     string      `db:"customer_email" json:"customer_email"`
-	CustomerContact   string      `db:"customer_contact" json:"customer_contact"`
-	CarBrand          string      `db:"car_brand" json:"car_brand"`
-	CarModel          string      `db:"car_model" json:"car_model"`
-	CarColor          string      `db:"car_color" json:"car_color"`
-	CarPlateNo        string      `db:"car_plate_no" json:"car_plate_no"`
-	CarChassisNo      string      `db:"car_chassis_no" json:"car_chassis_no"`
-	ShopAllocationsID uuid.UUID   `db:"shop_allocations_id" json:"shop_allocations_id"`
-	CarPartsID        uuid.UUID   `db:"car_parts_id" json:"car_parts_id"`
-	ImageUrl          string      `db:"image_url" json:"image_url"`
-	InstallationDate  pgtype.Date `db:"installation_date" json:"installation_date"`
-	ReferenceNo       string      `db:"reference_no" json:"reference_no"`
-	WarrantyNo        string      `db:"warranty_no" json:"warranty_no"`
+	CustomerName      string      `db:"customer_name" json:"customerName"`
+	CustomerEmail     string      `db:"customer_email" json:"customerEmail"`
+	CustomerContact   string      `db:"customer_contact" json:"customerContact"`
+	CarBrand          string      `db:"car_brand" json:"carBrand"`
+	CarModel          string      `db:"car_model" json:"carModel"`
+	CarColor          string      `db:"car_color" json:"carColor"`
+	CarPlateNo        string      `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo      string      `db:"car_chassis_no" json:"carChassisNo"`
+	ShopAllocationsID uuid.UUID   `db:"shop_allocations_id" json:"shopAllocationsId"`
+	CarPartsID        uuid.UUID   `db:"car_parts_id" json:"carPartsId"`
+	ImageUrl          string      `db:"image_url" json:"imageUrl"`
+	InstallationDate  pgtype.Date `db:"installation_date" json:"installationDate"`
+	ReferenceNo       string      `db:"reference_no" json:"referenceNo"`
+	WarrantyNo        string      `db:"warranty_no" json:"warrantyNo"`
 	ID                uuid.UUID   `db:"id" json:"id"`
 }
 

@@ -14,83 +14,83 @@ import (
 
 // CreateClaimRequest represents the request payload for creating a claim
 type CreateClaimRequest struct {
-	WarrantyID         string  `json:"warranty_id" validate:"required,uuid"`
-	ClaimNo            string  `json:"claim_no" validate:"required,min=1,max=50"`
+	WarrantyID         string  `json:"warrantyId" validate:"required,uuid"`
+	ClaimNo            string  `json:"claimNo" validate:"required,min=1,max=50"`
 	Status             string  `json:"status" validate:"required,oneof=pending approved rejected processing completed"`
-	ClaimDate          string  `json:"claim_date" validate:"required"` // Format: YYYY-MM-DD
-	DamagedImageUrl    string  `json:"damaged_image_url" validate:"required,url"`
-	ResolutionImageUrl string  `json:"resolution_image_url" validate:"required,url"`
+	ClaimDate          string  `json:"claimDate" validate:"required"` // Format: YYYY-MM-DD
+	DamagedImageUrl    string  `json:"damagedImageUrl" validate:"required,url"`
+	ResolutionImageUrl string  `json:"resolutionImageUrl" validate:"required,url"`
 	Remarks            *string `json:"remarks,omitempty" validate:"omitempty,max=1000"`
 }
 
 // UpdateClaimRequest represents the request payload for updating a claim
 type UpdateClaimRequest struct {
-	WarrantyID         *string `json:"warranty_id,omitempty" validate:"omitempty,uuid"`
-	ClaimNo            *string `json:"claim_no,omitempty" validate:"omitempty,min=1,max=50"`
+	WarrantyID         *string `json:"warrantyId,omitempty" validate:"omitempty,uuid"`
+	ClaimNo            *string `json:"claimNo,omitempty" validate:"omitempty,min=1,max=50"`
 	Status             *string `json:"status,omitempty" validate:"omitempty,oneof=pending approved rejected processing completed"`
-	ClaimDate          *string `json:"claim_date,omitempty" validate:"omitempty"` // Format: YYYY-MM-DD
-	DamagedImageUrl    *string `json:"damaged_image_url,omitempty" validate:"omitempty,url"`
-	ResolutionImageUrl *string `json:"resolution_image_url,omitempty" validate:"omitempty,url"`
+	ClaimDate          *string `json:"claimDate,omitempty" validate:"omitempty"` // Format: YYYY-MM-DD
+	DamagedImageUrl    *string `json:"damagedImageUrl,omitempty" validate:"omitempty,url"`
+	ResolutionImageUrl *string `json:"resolutionImageUrl,omitempty" validate:"omitempty,url"`
 	Remarks            *string `json:"remarks,omitempty" validate:"omitempty,max=1000"`
 }
 
 // ClaimResponse represents the response payload for a claim
 type ClaimResponse struct {
 	ID                 string    `json:"id"`
-	WarrantyID         string    `json:"warranty_id"`
-	ClaimNo            string    `json:"claim_no"`
+	WarrantyID         string    `json:"warrantyId"`
+	ClaimNo            string    `json:"claimNo"`
 	Status             string    `json:"status"`
-	ClaimDate          *string   `json:"claim_date,omitempty"` // Format: YYYY-MM-DD
-	DamagedImageUrl    string    `json:"damaged_image_url"`
-	ResolutionImageUrl string    `json:"resolution_image_url"`
+	ClaimDate          *string   `json:"claimDate,omitempty"` // Format: YYYY-MM-DD
+	DamagedImageUrl    string    `json:"damagedImageUrl"`
+	ResolutionImageUrl string    `json:"resolutionImageUrl"`
 	Remarks            *string   `json:"remarks,omitempty"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
+	CreatedAt          time.Time `json:"createdAt"`
+	UpdatedAt          time.Time `json:"updatedAt"`
 }
 
 // ClaimDetailResponse represents the response payload for detailed claim information
 type ClaimDetailResponse struct {
 	// Claim information
-	ClaimID            string    `json:"claim_id"`
-	ClaimNo            string    `json:"claim_no"`
+	ClaimID            string    `json:"claimId"`
+	ClaimNo            string    `json:"claimNo"`
 	Status             string    `json:"status"`
-	ClaimDate          *string   `json:"claim_date,omitempty"`
-	DamagedImageUrl    string    `json:"damaged_image_url"`
-	ResolutionImageUrl string    `json:"resolution_image_url"`
+	ClaimDate          *string   `json:"claimDate,omitempty"`
+	DamagedImageUrl    string    `json:"damagedImageUrl"`
+	ResolutionImageUrl string    `json:"resolutionImageUrl"`
 	Remarks            *string   `json:"remarks,omitempty"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
+	CreatedAt          time.Time `json:"createdAt"`
+	UpdatedAt          time.Time `json:"updatedAt"`
 
 	// Customer information
-	CustomerName    string `json:"customer_name"`
-	CustomerEmail   string `json:"customer_email"`
-	CustomerContact string `json:"customer_contact"`
+	CustomerName    string `json:"customerName"`
+	CustomerEmail   string `json:"customerEmail"`
+	CustomerContact string `json:"customerContact"`
 
 	// Car information
-	CarBrand     string `json:"car_brand"`
-	CarModel     string `json:"car_model"`
-	CarPlateNo   string `json:"car_plate_no"`
-	CarChassisNo string `json:"car_chassis_no"`
+	CarBrand     string `json:"carBrand"`
+	CarModel     string `json:"carModel"`
+	CarPlateNo   string `json:"carPlateNo"`
+	CarChassisNo string `json:"carChassisNo"`
 
 	// Warranty information
-	WarrantyImageUrl string  `json:"warranty_image_url"`
-	InstallationDate *string `json:"installation_date,omitempty"`
-	ReferenceNo      string  `json:"reference_no"`
-	WarrantyNo       string  `json:"warranty_no"`
+	WarrantyImageUrl string  `json:"warrantyImageUrl"`
+	InstallationDate *string `json:"installationDate,omitempty"`
+	ReferenceNo      string  `json:"referenceNo"`
+	WarrantyNo       string  `json:"warrantyNo"`
 
 	// Car part information
-	CarPartName        string  `json:"car_part_name"`
-	CarPartDescription *string `json:"car_part_description,omitempty"`
+	CarPartName        string  `json:"carPartName"`
+	CarPartDescription *string `json:"carPartDescription,omitempty"`
 
 	// Film allocation information
-	AllocatedFilmQuantity int32   `json:"allocated_film_quantity"`
-	FilmAllocatedDate     *string `json:"film_allocated_date,omitempty"`
+	AllocatedFilmQuantity int32   `json:"allocatedFilmQuantity"`
+	FilmAllocatedDate     *string `json:"filmAllocatedDate,omitempty"`
 
 	// Shop information
-	ShopState       string `json:"shop_state"`
-	ShopCompanyName string `json:"shop_company_name"`
-	ShopName        string `json:"shop_name"`
-	ShopAddress     string `json:"shop_address"`
+	ShopState       string `json:"shopState"`
+	ShopCompanyName string `json:"shopCompanyName"`
+	ShopName        string `json:"shopName"`
+	ShopAddress     string `json:"shopAddress"`
 }
 
 // ====================

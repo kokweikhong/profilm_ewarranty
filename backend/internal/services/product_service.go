@@ -20,6 +20,7 @@ type ProductService interface {
 	CreateProductType(ctx context.Context, params *products.CreateProductTypeParams) (*products.ProductType, error)
 	GetProductTypeByID(ctx context.Context, id uuid.UUID) (*products.ProductType, error)
 	ListProductTypes(ctx context.Context) ([]*products.ProductType, error)
+	ListProductTypesByBrand(ctx context.Context, brandID uuid.UUID) ([]*products.ProductType, error)
 	UpdateProductType(ctx context.Context, params *products.UpdateProductTypeParams) (*products.ProductType, error)
 	DeleteProductType(ctx context.Context, id uuid.UUID) error
 
@@ -313,6 +314,25 @@ func (r *productService) ListProductTypes(ctx context.Context) ([]*products.Prod
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
+	return productTypes, nil
+}
+
+// ListProductTypesByBrand retrieves product types by brand ID
+func (r *productService) ListProductTypesByBrand(ctx context.Context, brandID uuid.UUID) ([]*products.ProductType, error) {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	qtx := r.queries.WithTx(tx)
+	productTypes, err := qtx.ListProductTypesByBrand(ctx, brandID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list product types by brand: %w", err)
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
 	return productTypes, nil
 }
 

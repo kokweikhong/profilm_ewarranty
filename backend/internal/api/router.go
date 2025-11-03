@@ -99,6 +99,9 @@ func (r *Router) setupProductRoutes(router chi.Router) {
 			types.Get("/{id}", r.Handler.Product.GetProductTypeByID)   // GET /api/v1/products/types/{id}
 			types.Put("/{id}", r.Handler.Product.UpdateProductType)    // PUT /api/v1/products/types/{id}
 			types.Delete("/{id}", r.Handler.Product.DeleteProductType) // DELETE /api/v1/products/types/{id}
+
+			// Nested route for types by brand
+			types.Get("/by-brand/{brandId}", r.Handler.Product.ListProductTypesByBrand) // GET /api/v1/products/types/by-brand/{brandId}
 		})
 
 		// Product Series routes
@@ -111,6 +114,18 @@ func (r *Router) setupProductRoutes(router chi.Router) {
 
 			// Nested route for series by type
 			series.Get("/by-type/{typeId}", r.Handler.Product.ListProductSeriesByType) // GET /api/v1/products/series/by-type/{typeId}
+		})
+
+		products.Route("/names", func(names chi.Router) {
+			names.Post("/", r.Handler.Product.CreateProductName)	   // POST /api/v1/products/names
+			names.Get("/", r.Handler.Product.ListProductNames)         // GET /api/v1/products/names
+			names.Get("/{id}", r.Handler.Product.GetProductNameByID)   // GET /api/v1/products/names/{id}
+			names.Put("/{id}", r.Handler.Product.UpdateProductName)    // PUT /api/v1/products/names/{id}
+			names.Delete("/{id}", r.Handler.Product.DeleteProductName) // DELETE /api/v1/products/names/{id}
+
+			// Nested route for names by series
+			names.Get("/by-series/{seriesId}", r.Handler.Product.ListProductNamesBySeries) // GET /api/v1/products/names/by-series/{seriesId}
+
 		})
 
 		// Product Model routes

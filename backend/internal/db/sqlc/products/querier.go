@@ -36,6 +36,7 @@ type Querier interface {
 	ListProductSeries(ctx context.Context) ([]*ProductSeries, error)
 	ListProductSeriesByType(ctx context.Context, productTypeID uuid.UUID) ([]*ProductSeries, error)
 	ListProductTypes(ctx context.Context) ([]*ProductType, error)
+	ListProductTypesByBrand(ctx context.Context, brandID uuid.UUID) ([]*ProductType, error)
 	ListProducts(ctx context.Context) ([]*Product, error)
 	ListProductsWithDetails(ctx context.Context) ([]*VwProductDetail, error)
 	ListWarrantyYears(ctx context.Context) ([]*WarrantyYear, error)

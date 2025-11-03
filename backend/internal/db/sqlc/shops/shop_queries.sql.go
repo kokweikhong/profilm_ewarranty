@@ -19,9 +19,9 @@ RETURNING id, product_id, shop_id, film_quantity, allocated_date, created_at, up
 `
 
 type CreateProductAllocationParams struct {
-	ProductID    uuid.UUID `db:"product_id" json:"product_id"`
-	ShopID       uuid.UUID `db:"shop_id" json:"shop_id"`
-	FilmQuantity int32     `db:"film_quantity" json:"film_quantity"`
+	ProductID    uuid.UUID `db:"product_id" json:"productId"`
+	ShopID       uuid.UUID `db:"shop_id" json:"shopId"`
+	FilmQuantity int32     `db:"film_quantity" json:"filmQuantity"`
 }
 
 func (q *Queries) CreateProductAllocation(ctx context.Context, arg *CreateProductAllocationParams) (*ProductAllocation, error) {
@@ -55,24 +55,24 @@ RETURNING id, state_id, company_name, company_registration_no, company_license_i
 `
 
 type CreateShopParams struct {
-	StateID                uuid.UUID   `db:"state_id" json:"state_id"`
-	CompanyName            string      `db:"company_name" json:"company_name"`
-	CompanyRegistrationNo  string      `db:"company_registration_no" json:"company_registration_no"`
-	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"company_license_image_url"`
-	CompanyEmail           string      `db:"company_email" json:"company_email"`
-	CompanyContact         string      `db:"company_contact" json:"company_contact"`
-	CompanyWebsite         pgtype.Text `db:"company_website" json:"company_website"`
+	StateID                uuid.UUID   `db:"state_id" json:"stateId"`
+	CompanyName            string      `db:"company_name" json:"companyName"`
+	CompanyRegistrationNo  string      `db:"company_registration_no" json:"companyRegistrationNo"`
+	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"companyLicenseImageUrl"`
+	CompanyEmail           string      `db:"company_email" json:"companyEmail"`
+	CompanyContact         string      `db:"company_contact" json:"companyContact"`
+	CompanyWebsite         pgtype.Text `db:"company_website" json:"companyWebsite"`
 	Name                   string      `db:"name" json:"name"`
 	Type                   string      `db:"type" json:"type"`
 	Address                string      `db:"address" json:"address"`
-	ImageUrl               string      `db:"image_url" json:"image_url"`
-	PicName                string      `db:"pic_name" json:"pic_name"`
-	PicContact             string      `db:"pic_contact" json:"pic_contact"`
-	PicEmail               string      `db:"pic_email" json:"pic_email"`
-	PicPosition            string      `db:"pic_position" json:"pic_position"`
+	ImageUrl               string      `db:"image_url" json:"imageUrl"`
+	PicName                string      `db:"pic_name" json:"picName"`
+	PicContact             string      `db:"pic_contact" json:"picContact"`
+	PicEmail               string      `db:"pic_email" json:"picEmail"`
+	PicPosition            string      `db:"pic_position" json:"picPosition"`
 	Username               string      `db:"username" json:"username"`
-	LoginHashPassword      string      `db:"login_hash_password" json:"login_hash_password"`
-	IsActive               pgtype.Bool `db:"is_active" json:"is_active"`
+	LoginHashPassword      string      `db:"login_hash_password" json:"loginHashPassword"`
+	IsActive               pgtype.Bool `db:"is_active" json:"isActive"`
 }
 
 func (q *Queries) CreateShop(ctx context.Context, arg *CreateShopParams) (*Shop, error) {
@@ -440,9 +440,9 @@ RETURNING id, product_id, shop_id, film_quantity, allocated_date, created_at, up
 `
 
 type UpdateProductAllocationParams struct {
-	ProductID    uuid.UUID `db:"product_id" json:"product_id"`
-	ShopID       uuid.UUID `db:"shop_id" json:"shop_id"`
-	FilmQuantity int32     `db:"film_quantity" json:"film_quantity"`
+	ProductID    uuid.UUID `db:"product_id" json:"productId"`
+	ShopID       uuid.UUID `db:"shop_id" json:"shopId"`
+	FilmQuantity int32     `db:"film_quantity" json:"filmQuantity"`
 	ID           uuid.UUID `db:"id" json:"id"`
 }
 
@@ -491,23 +491,23 @@ RETURNING id, state_id, company_name, company_registration_no, company_license_i
 `
 
 type UpdateShopParams struct {
-	StateID                uuid.UUID   `db:"state_id" json:"state_id"`
-	CompanyName            string      `db:"company_name" json:"company_name"`
-	CompanyRegistrationNo  string      `db:"company_registration_no" json:"company_registration_no"`
-	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"company_license_image_url"`
-	CompanyEmail           string      `db:"company_email" json:"company_email"`
-	CompanyContact         string      `db:"company_contact" json:"company_contact"`
-	CompanyWebsite         pgtype.Text `db:"company_website" json:"company_website"`
+	StateID                uuid.UUID   `db:"state_id" json:"stateId"`
+	CompanyName            string      `db:"company_name" json:"companyName"`
+	CompanyRegistrationNo  string      `db:"company_registration_no" json:"companyRegistrationNo"`
+	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"companyLicenseImageUrl"`
+	CompanyEmail           string      `db:"company_email" json:"companyEmail"`
+	CompanyContact         string      `db:"company_contact" json:"companyContact"`
+	CompanyWebsite         pgtype.Text `db:"company_website" json:"companyWebsite"`
 	Name                   string      `db:"name" json:"name"`
 	Type                   string      `db:"type" json:"type"`
 	Address                string      `db:"address" json:"address"`
-	ImageUrl               string      `db:"image_url" json:"image_url"`
-	PicName                string      `db:"pic_name" json:"pic_name"`
-	PicContact             string      `db:"pic_contact" json:"pic_contact"`
-	PicEmail               string      `db:"pic_email" json:"pic_email"`
-	PicPosition            string      `db:"pic_position" json:"pic_position"`
-	LoginHashPassword      string      `db:"login_hash_password" json:"login_hash_password"`
-	IsActive               pgtype.Bool `db:"is_active" json:"is_active"`
+	ImageUrl               string      `db:"image_url" json:"imageUrl"`
+	PicName                string      `db:"pic_name" json:"picName"`
+	PicContact             string      `db:"pic_contact" json:"picContact"`
+	PicEmail               string      `db:"pic_email" json:"picEmail"`
+	PicPosition            string      `db:"pic_position" json:"picPosition"`
+	LoginHashPassword      string      `db:"login_hash_password" json:"loginHashPassword"`
+	IsActive               pgtype.Bool `db:"is_active" json:"isActive"`
 	ID                     uuid.UUID   `db:"id" json:"id"`
 }
 

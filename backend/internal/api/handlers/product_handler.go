@@ -22,6 +22,7 @@ type ProductHandler interface {
 	CreateProductType(w http.ResponseWriter, r *http.Request)
 	GetProductTypeByID(w http.ResponseWriter, r *http.Request)
 	ListProductTypes(w http.ResponseWriter, r *http.Request)
+	ListProductTypesByBrand(w http.ResponseWriter, r *http.Request)
 	UpdateProductType(w http.ResponseWriter, r *http.Request)
 	DeleteProductType(w http.ResponseWriter, r *http.Request)
 
@@ -262,6 +263,28 @@ func (h *productHandler) ListProductTypes(w http.ResponseWriter, r *http.Request
 	utils.JSONResponse(w, http.StatusOK, types)
 }
 
+// ListProductTypesByBrand lists product types by brand ID
+func (h *productHandler) ListProductTypesByBrand(w http.ResponseWriter, r *http.Request) {
+	brandID := chi.URLParam(r, "brandId")
+	if brandID == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing brand ID")
+		return
+	}
+	uuid, err := uuid.Parse(brandID)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
+		return
+	}
+
+	types, err := h.service.ListProductTypesByBrand(r.Context(), uuid)
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to list product types by brand")
+		return
+	}
+
+	utils.JSONResponse(w, http.StatusOK, types)
+}
+
 // UpdateProductType updates a product type's details
 func (h *productHandler) UpdateProductType(w http.ResponseWriter, r *http.Request) {
 	var req struct {
@@ -383,22 +406,19 @@ func (h *productHandler) ListProductSeries(w http.ResponseWriter, r *http.Reques
 
 // ListProductSeriesByType lists product series by product type ID
 func (h *productHandler) ListProductSeriesByType(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ProductTypeID string `json:"product_type_id"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	typeID := chi.URLParam(r, "typeId")
+	if typeID == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing product type ID")
 		return
 	}
 
-	productTypeID, err := uuid.Parse(req.ProductTypeID)
+	uuid, err := uuid.Parse(typeID)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
 		return
 	}
 
-	series, err := h.service.ListProductSeriesByType(r.Context(), productTypeID)
+	series, err := h.service.ListProductSeriesByType(r.Context(), uuid)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to list product series")
 		return
@@ -539,24 +559,21 @@ func (h *productHandler) ListProductNames(w http.ResponseWriter, r *http.Request
 
 // ListProductNamesBySeries lists product names by product series ID
 func (h *productHandler) ListProductNamesBySeries(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ProductSeriesID string `json:"product_series_id"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+	seriesID := chi.URLParam(r, "seriesId")
+	if seriesID == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Missing product series ID")
 		return
 	}
 
-	productSeriesID, err := uuid.Parse(req.ProductSeriesID)
+	uuid, err := uuid.Parse(seriesID)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid UUID format")
 		return
 	}
 
-	names, err := h.service.ListProductNamesBySeries(r.Context(), productSeriesID)
+	names, err := h.service.ListProductNamesBySeries(r.Context(), uuid)
 	if err != nil {
-		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to list product names by series")
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to list product names")
 		return
 	}
 

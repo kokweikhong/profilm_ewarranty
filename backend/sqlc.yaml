@@ -16,6 +16,7 @@ sql:
         emit_empty_slices: true
         emit_result_struct_pointers: true
         emit_params_struct_pointers: true
+        json_tags_case_style: "camel"
         overrides:
           - db_type: "uuid"
             go_type:
@@ -42,6 +43,7 @@ sql:
         emit_empty_slices: true
         emit_result_struct_pointers: true
         emit_params_struct_pointers: true
+        json_tags_case_style: "camel"
         overrides:
           - db_type: "uuid"
             go_type:
@@ -68,6 +70,7 @@ sql:
         emit_empty_slices: true
         emit_result_struct_pointers: true
         emit_params_struct_pointers: true
+        json_tags_case_style: "camel"
         overrides:
           - db_type: "uuid"
             go_type:
@@ -94,6 +97,7 @@ sql:
         emit_empty_slices: true
         emit_result_struct_pointers: true
         emit_params_struct_pointers: true
+        json_tags_case_style: "camel"
         overrides:
           - db_type: "uuid"
             go_type:

@@ -1,60 +1,10 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { Product, ProductDetails, ProductsResponse } from "@/types/product";
 import { ProductService } from "@/services/productService";
-import {
-  convertVwProductListToProducts,
-  Product,
-  VwProductDetail,
-} from "@/types/product";
 
-export default function Page() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const response = await ProductService.getProducts({
-          //   page: 1,
-          //   limit: 10,
-        });
-        console.log("API Response in Page:", response);
-        if (response) {
-          //   let products = convertVwProductListToProducts(response);
-          console.log("Fetched products:", response);
-          setProducts(response);
-        }
-      } catch (err) {
-        setError("Failed to fetch products");
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Product Management</h1>
-        <p>Loading products...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Product Management</h1>
-        <p className="text-red-500">Error: {error}</p>
-      </div>
-    );
-  }
+export default async function Page() {
+  // Fetch products data from the service using ProductsResponse format
+  let products: ProductDetails[] = [];
+  products = await ProductService.getProductsDetails();
 
   return (
     <div className="p-6">
@@ -62,15 +12,20 @@ export default function Page() {
 
       <div className="grid gap-4">
         {products.length > 0 ? (
-          products.map((product) => (
-            <div key={product.id} className="border p-4 rounded-lg">
-              <div>{product.name}</div>
-              {/* <h3 className="font-semibold">{product.name}</h3>
-              <p className="text-gray-600">{product.description}</p>
+          products.map((product, index) => (
+            <div
+              key={product.productId || `product-${index}`}
+              className="border p-4 rounded-lg"
+            >
+              <h3 className="font-semibold">{product.productName}</h3>
               <p className="text-sm text-gray-500">
-                Brand: {product.brand} | Model: {product.model}
+                Series: {product.productSeries} | Type: {product.productType}
               </p>
-              <p className="font-bold">${product.price}</p> */}
+
+              {/* Debug: Show ID for troubleshooting */}
+              <p className="text-xs text-gray-400 mt-2">
+                ID: {product.productId || "No ID"}
+              </p>
             </div>
           ))
         ) : (

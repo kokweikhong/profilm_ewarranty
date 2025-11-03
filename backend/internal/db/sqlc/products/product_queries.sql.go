@@ -18,12 +18,12 @@ RETURNING id, product_name_id, product_brand_id, warranty_years, film_serial_no,
 `
 
 type CreateProductParams struct {
-	ProductNameID  uuid.UUID `db:"product_name_id" json:"product_name_id"`
-	ProductBrandID uuid.UUID `db:"product_brand_id" json:"product_brand_id"`
-	WarrantyYears  int32     `db:"warranty_years" json:"warranty_years"`
-	FilmSerialNo   string    `db:"film_serial_no" json:"film_serial_no"`
-	FilmQuantity   int32     `db:"film_quantity" json:"film_quantity"`
-	FilmShipmentNo string    `db:"film_shipment_no" json:"film_shipment_no"`
+	ProductNameID  uuid.UUID `db:"product_name_id" json:"productNameId"`
+	ProductBrandID uuid.UUID `db:"product_brand_id" json:"productBrandId"`
+	WarrantyYears  int32     `db:"warranty_years" json:"warrantyYears"`
+	FilmSerialNo   string    `db:"film_serial_no" json:"filmSerialNo"`
+	FilmQuantity   int32     `db:"film_quantity" json:"filmQuantity"`
+	FilmShipmentNo string    `db:"film_shipment_no" json:"filmShipmentNo"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg *CreateProductParams) (*Product, error) {
@@ -77,7 +77,7 @@ RETURNING id, product_series_id, name, is_active, created_at, updated_at
 `
 
 type CreateProductNameParams struct {
-	ProductSeriesID uuid.UUID `db:"product_series_id" json:"product_series_id"`
+	ProductSeriesID uuid.UUID `db:"product_series_id" json:"productSeriesId"`
 	Name            string    `db:"name" json:"name"`
 }
 
@@ -102,7 +102,7 @@ RETURNING id, product_type_id, name, is_active, created_at, updated_at
 `
 
 type CreateProductSeriesParams struct {
-	ProductTypeID uuid.UUID `db:"product_type_id" json:"product_type_id"`
+	ProductTypeID uuid.UUID `db:"product_type_id" json:"productTypeId"`
 	Name          string    `db:"name" json:"name"`
 }
 
@@ -127,7 +127,7 @@ RETURNING id, brand_id, name, is_active, created_at, updated_at
 `
 
 type CreateProductTypeParams struct {
-	BrandID uuid.UUID `db:"brand_id" json:"brand_id"`
+	BrandID uuid.UUID `db:"brand_id" json:"brandId"`
 	Name    string    `db:"name" json:"name"`
 }
 
@@ -555,6 +555,38 @@ func (q *Queries) ListProductTypes(ctx context.Context) ([]*ProductType, error) 
 	return items, nil
 }
 
+const listProductTypesByBrand = `-- name: ListProductTypesByBrand :many
+SELECT id, brand_id, name, is_active, created_at, updated_at FROM product_types
+WHERE brand_id = $1
+`
+
+func (q *Queries) ListProductTypesByBrand(ctx context.Context, brandID uuid.UUID) ([]*ProductType, error) {
+	rows, err := q.db.Query(ctx, listProductTypesByBrand, brandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ProductType{}
+	for rows.Next() {
+		var i ProductType
+		if err := rows.Scan(
+			&i.ID,
+			&i.BrandID,
+			&i.Name,
+			&i.IsActive,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listProducts = `-- name: ListProducts :many
 SELECT id, product_name_id, product_brand_id, warranty_years, film_serial_no, film_quantity, film_shipment_no, is_active, created_at, updated_at FROM products
 ORDER BY created_at DESC
@@ -674,12 +706,12 @@ RETURNING id, product_name_id, product_brand_id, warranty_years, film_serial_no,
 `
 
 type UpdateProductParams struct {
-	ProductNameID  uuid.UUID `db:"product_name_id" json:"product_name_id"`
-	ProductBrandID uuid.UUID `db:"product_brand_id" json:"product_brand_id"`
-	WarrantyYears  int32     `db:"warranty_years" json:"warranty_years"`
-	FilmSerialNo   string    `db:"film_serial_no" json:"film_serial_no"`
-	FilmQuantity   int32     `db:"film_quantity" json:"film_quantity"`
-	FilmShipmentNo string    `db:"film_shipment_no" json:"film_shipment_no"`
+	ProductNameID  uuid.UUID `db:"product_name_id" json:"productNameId"`
+	ProductBrandID uuid.UUID `db:"product_brand_id" json:"productBrandId"`
+	WarrantyYears  int32     `db:"warranty_years" json:"warrantyYears"`
+	FilmSerialNo   string    `db:"film_serial_no" json:"filmSerialNo"`
+	FilmQuantity   int32     `db:"film_quantity" json:"filmQuantity"`
+	FilmShipmentNo string    `db:"film_shipment_no" json:"filmShipmentNo"`
 	ID             uuid.UUID `db:"id" json:"id"`
 }
 
@@ -748,7 +780,7 @@ RETURNING id, product_series_id, name, is_active, created_at, updated_at
 
 type UpdateProductNameParams struct {
 	Name            string    `db:"name" json:"name"`
-	ProductSeriesID uuid.UUID `db:"product_series_id" json:"product_series_id"`
+	ProductSeriesID uuid.UUID `db:"product_series_id" json:"productSeriesId"`
 	ID              uuid.UUID `db:"id" json:"id"`
 }
 
@@ -778,7 +810,7 @@ RETURNING id, product_type_id, name, is_active, created_at, updated_at
 
 type UpdateProductSeriesParams struct {
 	Name          string    `db:"name" json:"name"`
-	ProductTypeID uuid.UUID `db:"product_type_id" json:"product_type_id"`
+	ProductTypeID uuid.UUID `db:"product_type_id" json:"productTypeId"`
 	ID            uuid.UUID `db:"id" json:"id"`
 }
 
@@ -807,7 +839,7 @@ RETURNING id, brand_id, name, is_active, created_at, updated_at
 `
 
 type UpdateProductTypeParams struct {
-	BrandID uuid.UUID `db:"brand_id" json:"brand_id"`
+	BrandID uuid.UUID `db:"brand_id" json:"brandId"`
 	Name    string    `db:"name" json:"name"`
 	ID      uuid.UUID `db:"id" json:"id"`
 }

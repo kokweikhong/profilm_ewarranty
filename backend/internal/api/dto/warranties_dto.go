@@ -14,24 +14,24 @@ import (
 
 // CreateCarPartRequest represents the request payload for creating a car part
 type CreateCarPartRequest struct {
-	PartName    string  `json:"part_name" validate:"required,min=1,max=100"`
+	PartName    string  `json:"partName" validate:"required,min=1,max=100"`
 	Description *string `json:"description,omitempty" validate:"omitempty,max=500"`
 }
 
 // UpdateCarPartRequest represents the request payload for updating a car part
 type UpdateCarPartRequest struct {
-	PartName    *string `json:"part_name,omitempty" validate:"omitempty,min=1,max=100"`
+	PartName    *string `json:"partName,omitempty" validate:"omitempty,min=1,max=100"`
 	Description *string `json:"description,omitempty" validate:"omitempty,max=500"`
 }
 
 // CarPartResponse represents the response payload for a car part
 type CarPartResponse struct {
 	ID          string    `json:"id"`
-	PartName    string    `json:"part_name"`
+	PartName    string    `json:"partName"`
 	Description *string   `json:"description,omitempty"`
-	IsActive    bool      `json:"is_active"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	IsActive    bool      `json:"isActive"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 // ====================
@@ -40,59 +40,59 @@ type CarPartResponse struct {
 
 // CreateWarrantyRequest represents the request payload for creating a warranty
 type CreateWarrantyRequest struct {
-	CustomerName      string `json:"customer_name" validate:"required,min=1,max=100"`
-	CustomerEmail     string `json:"customer_email" validate:"required,email,max=255"`
-	CustomerContact   string `json:"customer_contact" validate:"required,min=1,max=20"`
-	CarBrand          string `json:"car_brand" validate:"required,min=1,max=50"`
-	CarModel          string `json:"car_model" validate:"required,min=1,max=50"`
-	CarColor          string `json:"car_color" validate:"required,min=1,max=30"`
-	CarPlateNo        string `json:"car_plate_no" validate:"required,min=1,max=20"`
-	CarChassisNo      string `json:"car_chassis_no" validate:"required,min=1,max=50"`
-	ShopAllocationsID string `json:"shop_allocations_id" validate:"required,uuid"`
-	CarPartsID        string `json:"car_parts_id" validate:"required,uuid"`
-	ImageUrl          string `json:"image_url" validate:"required,url"`
-	InstallationDate  string `json:"installation_date" validate:"required"` // Format: YYYY-MM-DD
-	ReferenceNo       string `json:"reference_no" validate:"required,min=1,max=50"`
-	WarrantyNo        string `json:"warranty_no" validate:"required,min=1,max=50"`
+	CustomerName      string `json:"customerName" validate:"required,min=1,max=100"`
+	CustomerEmail     string `json:"customerEmail" validate:"required,email,max=255"`
+	CustomerContact   string `json:"customerContact" validate:"required,min=1,max=20"`
+	CarBrand          string `json:"carBrand" validate:"required,min=1,max=50"`
+	CarModel          string `json:"carModel" validate:"required,min=1,max=50"`
+	CarColor          string `json:"carColor" validate:"required,min=1,max=30"`
+	CarPlateNo        string `json:"carPlateNo" validate:"required,min=1,max=20"`
+	CarChassisNo      string `json:"carChassisNo" validate:"required,min=1,max=50"`
+	ShopAllocationsID string `json:"shopAllocationsId" validate:"required,uuid"`
+	CarPartsID        string `json:"carPartsId" validate:"required,uuid"`
+	ImageUrl          string `json:"imageUrl" validate:"required,url"`
+	InstallationDate  string `json:"installationDate" validate:"required"` // Format: YYYY-MM-DD
+	ReferenceNo       string `json:"referenceNo" validate:"required,min=1,max=50"`
+	WarrantyNo        string `json:"warrantyNo" validate:"required,min=1,max=50"`
 }
 
 // UpdateWarrantyRequest represents the request payload for updating a warranty
 type UpdateWarrantyRequest struct {
-	CustomerName      *string `json:"customer_name,omitempty" validate:"omitempty,min=1,max=100"`
-	CustomerEmail     *string `json:"customer_email,omitempty" validate:"omitempty,email,max=255"`
-	CustomerContact   *string `json:"customer_contact,omitempty" validate:"omitempty,min=1,max=20"`
-	CarBrand          *string `json:"car_brand,omitempty" validate:"omitempty,min=1,max=50"`
-	CarModel          *string `json:"car_model,omitempty" validate:"omitempty,min=1,max=50"`
-	CarColor          *string `json:"car_color,omitempty" validate:"omitempty,min=1,max=30"`
-	CarPlateNo        *string `json:"car_plate_no,omitempty" validate:"omitempty,min=1,max=20"`
-	CarChassisNo      *string `json:"car_chassis_no,omitempty" validate:"omitempty,min=1,max=50"`
-	ShopAllocationsID *string `json:"shop_allocations_id,omitempty" validate:"omitempty,uuid"`
-	CarPartsID        *string `json:"car_parts_id,omitempty" validate:"omitempty,uuid"`
-	ImageUrl          *string `json:"image_url,omitempty" validate:"omitempty,url"`
-	InstallationDate  *string `json:"installation_date,omitempty" validate:"omitempty"` // Format: YYYY-MM-DD
-	ReferenceNo       *string `json:"reference_no,omitempty" validate:"omitempty,min=1,max=50"`
-	WarrantyNo        *string `json:"warranty_no,omitempty" validate:"omitempty,min=1,max=50"`
+	CustomerName      *string `json:"customerName,omitempty" validate:"omitempty,min=1,max=100"`
+	CustomerEmail     *string `json:"customerEmail,omitempty" validate:"omitempty,email,max=255"`
+	CustomerContact   *string `json:"customerContact,omitempty" validate:"omitempty,min=1,max=20"`
+	CarBrand          *string `json:"carBrand,omitempty" validate:"omitempty,min=1,max=50"`
+	CarModel          *string `json:"carModel,omitempty" validate:"omitempty,min=1,max=50"`
+	CarColor          *string `json:"carColor,omitempty" validate:"omitempty,min=1,max=30"`
+	CarPlateNo        *string `json:"carPlateNo,omitempty" validate:"omitempty,min=1,max=20"`
+	CarChassisNo      *string `json:"carChassisNo,omitempty" validate:"omitempty,min=1,max=50"`
+	ShopAllocationsID *string `json:"shopAllocationsId,omitempty" validate:"omitempty,uuid"`
+	CarPartsID        *string `json:"carPartsId,omitempty" validate:"omitempty,uuid"`
+	ImageUrl          *string `json:"imageUrl,omitempty" validate:"omitempty,url"`
+	InstallationDate  *string `json:"installationDate,omitempty" validate:"omitempty"` // Format: YYYY-MM-DD
+	ReferenceNo       *string `json:"referenceNo,omitempty" validate:"omitempty,min=1,max=50"`
+	WarrantyNo        *string `json:"warrantyNo,omitempty" validate:"omitempty,min=1,max=50"`
 }
 
 // WarrantyResponse represents the response payload for a warranty
 type WarrantyResponse struct {
 	ID                string    `json:"id"`
-	CustomerName      string    `json:"customer_name"`
-	CustomerEmail     string    `json:"customer_email"`
-	CustomerContact   string    `json:"customer_contact"`
-	CarBrand          string    `json:"car_brand"`
-	CarModel          string    `json:"car_model"`
-	CarColor          string    `json:"car_color"`
-	CarPlateNo        string    `json:"car_plate_no"`
-	CarChassisNo      string    `json:"car_chassis_no"`
-	ShopAllocationsID string    `json:"shop_allocations_id"`
-	CarPartsID        string    `json:"car_parts_id"`
-	ImageUrl          string    `json:"image_url"`
-	InstallationDate  *string   `json:"installation_date,omitempty"` // Format: YYYY-MM-DD
-	ReferenceNo       string    `json:"reference_no"`
-	WarrantyNo        string    `json:"warranty_no"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	CustomerName      string    `json:"customerName"`
+	CustomerEmail     string    `json:"customerEmail"`
+	CustomerContact   string    `json:"customerContact"`
+	CarBrand          string    `json:"carBrand"`
+	CarModel          string    `json:"carModel"`
+	CarColor          string    `json:"carColor"`
+	CarPlateNo        string    `json:"carPlateNo"`
+	CarChassisNo      string    `json:"carChassisNo"`
+	ShopAllocationsID string    `json:"shopAllocationsId"`
+	CarPartsID        string    `json:"carPartsId"`
+	ImageUrl          string    `json:"imageUrl"`
+	InstallationDate  *string   `json:"installationDate,omitempty"` // Format: YYYY-MM-DD
+	ReferenceNo       string    `json:"referenceNo"`
+	WarrantyNo        string    `json:"warrantyNo"`
+	CreatedAt         time.Time `json:"createdAt"`
+	UpdatedAt         time.Time `json:"updatedAt"`
 }
 
 // ====================

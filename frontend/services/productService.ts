@@ -3,34 +3,45 @@ import {
   Product,
   ProductCreateRequest,
   ProductUpdateRequest,
-  ProductListResponse,
-  VwProductDetail,
-  VwProductListResponse,
+  ProductsResponse,
   ApiResponse,
-  convertVwProductToProductDetail,
-  convertVwProductListToProducts,
+  ProductDetails,
 } from "@/types/product";
 
 export class ProductService {
   private static readonly BASE_PATH = "/products";
 
   // Get all products with pagination
-  static async getProducts(params?: {
+  static async getProducts(params?: {}): Promise<Product[]> {
+    try {
+      const response = await apiClient.get<Product[]>(
+        this.BASE_PATH + "/details", // matches your working URL
+        { params }
+      );
+      console.log("Fetched products:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      throw error;
+    }
+  }
+
+  // Alternative method that returns converted ProductsResponse format
+  static async getProductsConverted(params?: {
     // page?: number;
     // limit?: number;
-    // category?: string;
-    // brand?: string;
-    // status?: string;
-  }): Promise<Product[]> {
-    const response = await apiClient.get<ApiResponse<VwProductListResponse>>(
-      this.BASE_PATH + "/details",
-      { params }
-    );
-    if (response.data && response.data.data) {
-      console.log("API Response Data:", response.data.data.products);
-      return convertVwProductListToProducts(response.data.data.products);
+  }): Promise<ProductsResponse> {
+    try {
+      const response = await apiClient.get<Product[]>(
+        this.BASE_PATH + "/details",
+        { params }
+      );
+
+      return { products: response.data };
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      throw error;
     }
-    return [];
   }
 
   // Get single product by ID
@@ -69,6 +80,14 @@ export class ProductService {
     const response = await apiClient.get<ApiResponse<Product[]>>(
       `${this.BASE_PATH}/search`,
       { params: { q: query } }
+    );
+    return response.data.data;
+  }
+
+  // Detailed product info
+  static async getProductsDetails(): Promise<ProductDetails[]> {
+    const response = await apiClient.get<ApiResponse<ProductDetails[]>>(
+      `${this.BASE_PATH}/details`
     );
     return response.data.data;
   }

@@ -25,9 +25,9 @@ type UpdateProductBrandRequest struct {
 type ProductBrandResponse struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	IsActive  bool      `json:"is_active"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	IsActive  bool      `json:"isActive"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // ToUpdateProductBrandParams converts UpdateProductBrandRequest to SQLC UpdateProductBrandParams
@@ -65,24 +65,24 @@ func FromProductBrand(brand *products.ProductBrand) *ProductBrandResponse {
 
 // CreateProductTypeRequest represents the request payload for creating a product type
 type CreateProductTypeRequest struct {
-	BrandID string `json:"brand_id" validate:"required,uuid"`
+	BrandID string `json:"brandId" validate:"required,uuid"`
 	Name    string `json:"name" validate:"required,min=1,max=100"`
 }
 
 // UpdateProductTypeRequest represents the request payload for updating a product type
 type UpdateProductTypeRequest struct {
-	BrandID *string `json:"brand_id,omitempty" validate:"omitempty,uuid"`
+	BrandID *string `json:"brandId,omitempty" validate:"omitempty,uuid"`
 	Name    *string `json:"name,omitempty" validate:"omitempty,min=1,max=100"`
 }
 
 // ProductTypeResponse represents the response payload for a product type
 type ProductTypeResponse struct {
 	ID        string    `json:"id"`
-	BrandID   string    `json:"brand_id"`
+	BrandID   string    `json:"brandId"`
 	Name      string    `json:"name"`
-	IsActive  bool      `json:"is_active"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	IsActive  bool      `json:"isActive"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // ToCreateProductTypeParams converts CreateProductTypeRequest to SQLC CreateProductTypeParams
@@ -143,24 +143,24 @@ func FromProductType(productType *products.ProductType) *ProductTypeResponse {
 
 // CreateProductSeriesRequest represents the request payload for creating a product series
 type CreateProductSeriesRequest struct {
-	ProductTypeID string `json:"product_type_id" validate:"required,uuid"`
+	ProductTypeID string `json:"productTypeId" validate:"required,uuid"`
 	Name          string `json:"name" validate:"required,min=1,max=100"`
 }
 
 // UpdateProductSeriesRequest represents the request payload for updating a product series
 type UpdateProductSeriesRequest struct {
-	ProductTypeID *string `json:"product_type_id,omitempty" validate:"omitempty,uuid"`
+	ProductTypeID *string `json:"productTypeId,omitempty" validate:"omitempty,uuid"`
 	Name          *string `json:"name,omitempty" validate:"omitempty,min=1,max=100"`
 }
 
 // ProductSeriesResponse represents the response payload for a product series
 type ProductSeriesResponse struct {
 	ID            string    `json:"id"`
-	ProductTypeID string    `json:"product_type_id"`
+	ProductTypeID string    `json:"productTypeId"`
 	Name          string    `json:"name"`
-	IsActive      bool      `json:"is_active"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	IsActive      bool      `json:"isActive"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
 }
 
 // ToCreateProductSeriesParams converts CreateProductSeriesRequest to SQLC CreateProductSeriesParams
@@ -221,24 +221,24 @@ func FromProductSeries(series *products.ProductSeries) *ProductSeriesResponse {
 
 // CreateProductNameRequest represents the request payload for creating a product name
 type CreateProductNameRequest struct {
-	ProductSeriesID string `json:"product_series_id" validate:"required,uuid"`
+	ProductSeriesID string `json:"productSeriesId" validate:"required,uuid"`
 	Name            string `json:"name" validate:"required,min=1,max=100"`
 }
 
 // UpdateProductNameRequest represents the request payload for updating a product name
 type UpdateProductNameRequest struct {
-	ProductSeriesID *string `json:"product_series_id,omitempty" validate:"omitempty,uuid"`
+	ProductSeriesID *string `json:"productSeriesId,omitempty" validate:"omitempty,uuid"`
 	Name            *string `json:"name,omitempty" validate:"omitempty,min=1,max=100"`
 }
 
 // ProductNameResponse represents the response payload for a product name
 type ProductNameResponse struct {
 	ID              string    `json:"id"`
-	ProductSeriesID string    `json:"product_series_id"`
+	ProductSeriesID string    `json:"productSeriesId"`
 	Name            string    `json:"name"`
-	IsActive        bool      `json:"is_active"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	IsActive        bool      `json:"isActive"`
+	CreatedAt       time.Time `json:"createdAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
 // ToCreateProductNameParams converts CreateProductNameRequest to SQLC CreateProductNameParams
@@ -311,9 +311,9 @@ type UpdateWarrantyYearRequest struct {
 type WarrantyYearResponse struct {
 	ID        string    `json:"id"`
 	Years     int32     `json:"years"`
-	IsActive  bool      `json:"is_active"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	IsActive  bool      `json:"isActive"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // ToUpdateWarrantyYearParams converts UpdateWarrantyYearRequest to SQLC UpdateWarrantyYearParams
@@ -352,36 +352,36 @@ func FromWarrantyYear(warrantyYear *products.WarrantyYear) *WarrantyYearResponse
 
 // CreateProductRequest represents the request payload for creating a product
 type CreateProductRequest struct {
-	ProductNameID  string `json:"product_name_id" validate:"required,uuid"`
-	ProductBrandID string `json:"product_brand_id" validate:"required,uuid"`
-	WarrantyYears  int32  `json:"warranty_years" validate:"required,min=1"`
-	FilmSerialNo   string `json:"film_serial_no" validate:"required,min=1,max=100"`
-	FilmQuantity   int32  `json:"film_quantity" validate:"required,min=1"`
-	FilmShipmentNo string `json:"film_shipment_no" validate:"required,min=1,max=100"`
+	ProductNameID  string `json:"productNameId" validate:"required,uuid"`
+	ProductBrandID string `json:"productBrandId" validate:"required,uuid"`
+	WarrantyYears  int32  `json:"warrantyYears" validate:"required,min=1"`
+	FilmSerialNo   string `json:"filmSerialNo" validate:"required,min=1,max=100"`
+	FilmQuantity   int32  `json:"filmQuantity" validate:"required,min=1"`
+	FilmShipmentNo string `json:"filmShipmentNo" validate:"required,min=1,max=100"`
 }
 
 // UpdateProductRequest represents the request payload for updating a product
 type UpdateProductRequest struct {
-	ProductNameID  *string `json:"product_name_id,omitempty" validate:"omitempty,uuid"`
-	ProductBrandID *string `json:"product_brand_id,omitempty" validate:"omitempty,uuid"`
-	WarrantyYears  *int32  `json:"warranty_years,omitempty" validate:"omitempty,min=1"`
-	FilmSerialNo   *string `json:"film_serial_no,omitempty" validate:"omitempty,min=1,max=100"`
-	FilmQuantity   *int32  `json:"film_quantity,omitempty" validate:"omitempty,min=1"`
-	FilmShipmentNo *string `json:"film_shipment_no,omitempty" validate:"omitempty,min=1,max=100"`
+	ProductNameID  *string `json:"productNameId,omitempty" validate:"omitempty,uuid"`
+	ProductBrandID *string `json:"productBrandId,omitempty" validate:"omitempty,uuid"`
+	WarrantyYears  *int32  `json:"warrantyYears,omitempty" validate:"omitempty,min=1"`
+	FilmSerialNo   *string `json:"filmSerialNo,omitempty" validate:"omitempty,min=1,max=100"`
+	FilmQuantity   *int32  `json:"filmQuantity,omitempty" validate:"omitempty,min=1"`
+	FilmShipmentNo *string `json:"filmShipmentNo,omitempty" validate:"omitempty,min=1,max=100"`
 }
 
 // ProductResponse represents the response payload for a product
 type ProductResponse struct {
 	ID             string    `json:"id"`
-	ProductNameID  string    `json:"product_name_id"`
-	ProductBrandID string    `json:"product_brand_id"`
-	WarrantyYears  int32     `json:"warranty_years"`
-	FilmSerialNo   string    `json:"film_serial_no"`
-	FilmQuantity   int32     `json:"film_quantity"`
-	FilmShipmentNo string    `json:"film_shipment_no"`
-	IsActive       bool      `json:"is_active"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ProductNameID  string    `json:"productNameId"`
+	ProductBrandID string    `json:"productBrandId"`
+	WarrantyYears  int32     `json:"warrantyYears"`
+	FilmSerialNo   string    `json:"filmSerialNo"`
+	FilmQuantity   int32     `json:"filmQuantity"`
+	FilmShipmentNo string    `json:"filmShipmentNo"`
+	IsActive       bool      `json:"isActive"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
 }
 
 // ToCreateProductParams converts CreateProductRequest to SQLC CreateProductParams

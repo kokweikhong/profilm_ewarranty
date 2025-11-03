@@ -32,6 +32,10 @@ RETURNING *;
 SELECT * FROM product_types
 WHERE id = $1;
 
+-- name: ListProductTypesByBrand :many
+SELECT * FROM product_types
+WHERE brand_id = $1;
+
 -- name: ListProductTypes :many
 SELECT * FROM product_types
 ORDER BY name ASC;

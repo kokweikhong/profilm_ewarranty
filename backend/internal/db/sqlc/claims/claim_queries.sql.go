@@ -24,12 +24,12 @@ RETURNING id, warranty_id, claim_no, status, claim_date, damaged_image_url, reso
 `
 
 type CreateClaimParams struct {
-	WarrantyID         uuid.UUID   `db:"warranty_id" json:"warranty_id"`
-	ClaimNo            string      `db:"claim_no" json:"claim_no"`
+	WarrantyID         uuid.UUID   `db:"warranty_id" json:"warrantyId"`
+	ClaimNo            string      `db:"claim_no" json:"claimNo"`
 	Status             string      `db:"status" json:"status"`
-	ClaimDate          pgtype.Date `db:"claim_date" json:"claim_date"`
-	DamagedImageUrl    string      `db:"damaged_image_url" json:"damaged_image_url"`
-	ResolutionImageUrl string      `db:"resolution_image_url" json:"resolution_image_url"`
+	ClaimDate          pgtype.Date `db:"claim_date" json:"claimDate"`
+	DamagedImageUrl    string      `db:"damaged_image_url" json:"damagedImageUrl"`
+	ResolutionImageUrl string      `db:"resolution_image_url" json:"resolutionImageUrl"`
 	Remarks            pgtype.Text `db:"remarks" json:"remarks"`
 }
 
@@ -191,12 +191,12 @@ RETURNING id, warranty_id, claim_no, status, claim_date, damaged_image_url, reso
 `
 
 type UpdateClaimParams struct {
-	WarrantyID         uuid.UUID   `db:"warranty_id" json:"warranty_id"`
-	ClaimNo            string      `db:"claim_no" json:"claim_no"`
+	WarrantyID         uuid.UUID   `db:"warranty_id" json:"warrantyId"`
+	ClaimNo            string      `db:"claim_no" json:"claimNo"`
 	Status             string      `db:"status" json:"status"`
-	ClaimDate          pgtype.Date `db:"claim_date" json:"claim_date"`
-	DamagedImageUrl    string      `db:"damaged_image_url" json:"damaged_image_url"`
-	ResolutionImageUrl string      `db:"resolution_image_url" json:"resolution_image_url"`
+	ClaimDate          pgtype.Date `db:"claim_date" json:"claimDate"`
+	DamagedImageUrl    string      `db:"damaged_image_url" json:"damagedImageUrl"`
+	ResolutionImageUrl string      `db:"resolution_image_url" json:"resolutionImageUrl"`
 	Remarks            pgtype.Text `db:"remarks" json:"remarks"`
 	ID                 uuid.UUID   `db:"id" json:"id"`
 }

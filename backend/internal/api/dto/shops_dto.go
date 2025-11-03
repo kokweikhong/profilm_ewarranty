@@ -25,8 +25,8 @@ type UpdateStateRequest struct {
 type StateResponse struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // ToUpdateStateParams converts UpdateStateRequest to SQLC UpdateStateParams
@@ -58,92 +58,92 @@ func FromState(state *shops.State) *StateResponse {
 
 // CreateShopRequest represents the request payload for creating a shop
 type CreateShopRequest struct {
-	StateID                string  `json:"state_id" validate:"required,uuid"`
-	CompanyName            string  `json:"company_name" validate:"required,min=1,max=200"`
-	CompanyRegistrationNo  string  `json:"company_registration_no" validate:"required,min=1,max=100"`
-	CompanyLicenseImageURL string  `json:"company_license_image_url" validate:"required,url"`
-	CompanyEmail           string  `json:"company_email" validate:"required,email"`
-	CompanyContact         string  `json:"company_contact" validate:"required,min=1,max=20"`
-	CompanyWebsite         *string `json:"company_website,omitempty" validate:"omitempty,url"`
+	StateID                string  `json:"stateId" validate:"required,uuid"`
+	CompanyName            string  `json:"companyName" validate:"required,min=1,max=200"`
+	CompanyRegistrationNo  string  `json:"companyRegistrationNo" validate:"required,min=1,max=100"`
+	CompanyLicenseImageURL string  `json:"companyLicenseImageUrl" validate:"required,url"`
+	CompanyEmail           string  `json:"companyEmail" validate:"required,email"`
+	CompanyContact         string  `json:"companyContact" validate:"required,min=1,max=20"`
+	CompanyWebsite         *string `json:"companyWebsite,omitempty" validate:"omitempty,url"`
 	Name                   string  `json:"name" validate:"required,min=1,max=200"`
 	Type                   string  `json:"type" validate:"required,min=1,max=50"`
 	Address                string  `json:"address" validate:"required,min=1,max=500"`
-	ImageURL               string  `json:"image_url" validate:"required,url"`
-	PicName                string  `json:"pic_name" validate:"required,min=1,max=100"`
-	PicContact             string  `json:"pic_contact" validate:"required,min=1,max=20"`
-	PicEmail               string  `json:"pic_email" validate:"required,email"`
-	PicPosition            string  `json:"pic_position" validate:"required,min=1,max=100"`
-	LoginHashPassword      string  `json:"login_hash_password" validate:"required,min=8"`
-	IsActive               *bool   `json:"is_active,omitempty"`
+	ImageURL               string  `json:"imageUrl" validate:"required,url"`
+	PicName                string  `json:"picName" validate:"required,min=1,max=100"`
+	PicContact             string  `json:"picContact" validate:"required,min=1,max=20"`
+	PicEmail               string  `json:"picEmail" validate:"required,email"`
+	PicPosition            string  `json:"picPosition" validate:"required,min=1,max=100"`
+	LoginHashPassword      string  `json:"loginHashPassword" validate:"required,min=8"`
+	IsActive               *bool   `json:"isActive,omitempty"`
 }
 
 // UpdateShopRequest represents the request payload for updating a shop
 type UpdateShopRequest struct {
-	StateID                *string `json:"state_id,omitempty" validate:"omitempty,uuid"`
-	CompanyName            *string `json:"company_name,omitempty" validate:"omitempty,min=1,max=200"`
-	CompanyRegistrationNo  *string `json:"company_registration_no,omitempty" validate:"omitempty,min=1,max=100"`
-	CompanyLicenseImageURL *string `json:"company_license_image_url,omitempty" validate:"omitempty,url"`
-	CompanyEmail           *string `json:"company_email,omitempty" validate:"omitempty,email"`
-	CompanyContact         *string `json:"company_contact,omitempty" validate:"omitempty,min=1,max=20"`
-	CompanyWebsite         *string `json:"company_website,omitempty" validate:"omitempty,url"`
+	StateID                *string `json:"stateId,omitempty" validate:"omitempty,uuid"`
+	CompanyName            *string `json:"companyName,omitempty" validate:"omitempty,min=1,max=200"`
+	CompanyRegistrationNo  *string `json:"companyRegistrationNo,omitempty" validate:"omitempty,min=1,max=100"`
+	CompanyLicenseImageURL *string `json:"companyLicenseImageUrl,omitempty" validate:"omitempty,url"`
+	CompanyEmail           *string `json:"companyEmail,omitempty" validate:"omitempty,email"`
+	CompanyContact         *string `json:"companyContact,omitempty" validate:"omitempty,min=1,max=20"`
+	CompanyWebsite         *string `json:"companyWebsite,omitempty" validate:"omitempty,url"`
 	Name                   *string `json:"name,omitempty" validate:"omitempty,min=1,max=200"`
 	Type                   *string `json:"type,omitempty" validate:"omitempty,min=1,max=50"`
 	Address                *string `json:"address,omitempty" validate:"omitempty,min=1,max=500"`
-	ImageURL               *string `json:"image_url,omitempty" validate:"omitempty,url"`
-	PicName                *string `json:"pic_name,omitempty" validate:"omitempty,min=1,max=100"`
-	PicContact             *string `json:"pic_contact,omitempty" validate:"omitempty,min=1,max=20"`
-	PicEmail               *string `json:"pic_email,omitempty" validate:"omitempty,email"`
-	PicPosition            *string `json:"pic_position,omitempty" validate:"omitempty,min=1,max=100"`
-	LoginHashPassword      *string `json:"login_hash_password,omitempty" validate:"omitempty,min=8"`
-	IsActive               *bool   `json:"is_active,omitempty"`
+	ImageURL               *string `json:"imageUrl,omitempty" validate:"omitempty,url"`
+	PicName                *string `json:"picName,omitempty" validate:"omitempty,min=1,max=100"`
+	PicContact             *string `json:"picContact,omitempty" validate:"omitempty,min=1,max=20"`
+	PicEmail               *string `json:"picEmail,omitempty" validate:"omitempty,email"`
+	PicPosition            *string `json:"picPosition,omitempty" validate:"omitempty,min=1,max=100"`
+	LoginHashPassword      *string `json:"loginHashPassword,omitempty" validate:"omitempty,min=8"`
+	IsActive               *bool   `json:"isActive,omitempty"`
 }
 
 // ShopResponse represents the response payload for a shop
 type ShopResponse struct {
 	ID                     string    `json:"id"`
-	StateID                string    `json:"state_id"`
-	CompanyName            string    `json:"company_name"`
-	CompanyRegistrationNo  string    `json:"company_registration_no"`
-	CompanyLicenseImageURL string    `json:"company_license_image_url"`
-	CompanyEmail           string    `json:"company_email"`
-	CompanyContact         string    `json:"company_contact"`
-	CompanyWebsite         *string   `json:"company_website"`
+	StateID                string    `json:"stateId"`
+	CompanyName            string    `json:"companyName"`
+	CompanyRegistrationNo  string    `json:"companyRegistrationNo"`
+	CompanyLicenseImageURL string    `json:"companyLicenseImageUrl"`
+	CompanyEmail           string    `json:"companyEmail"`
+	CompanyContact         string    `json:"companyContact"`
+	CompanyWebsite         *string   `json:"companyWebsite"`
 	Name                   string    `json:"name"`
 	Type                   string    `json:"type"`
 	Address                string    `json:"address"`
-	ImageURL               string    `json:"image_url"`
-	PicName                string    `json:"pic_name"`
-	PicContact             string    `json:"pic_contact"`
-	PicEmail               string    `json:"pic_email"`
-	PicPosition            string    `json:"pic_position"`
+	ImageURL               string    `json:"imageUrl"`
+	PicName                string    `json:"picName"`
+	PicContact             string    `json:"picContact"`
+	PicEmail               string    `json:"picEmail"`
+	PicPosition            string    `json:"picPosition"`
 	Username               string    `json:"username"`
-	IsActive               bool      `json:"is_active"`
-	CreatedAt              time.Time `json:"created_at"`
-	UpdatedAt              time.Time `json:"updated_at"`
+	IsActive               bool      `json:"isActive"`
+	CreatedAt              time.Time `json:"createdAt"`
+	UpdatedAt              time.Time `json:"updatedAt"`
 }
 
 // ShopDetailResponse represents the response payload for shop details with state information
 type ShopDetailResponse struct {
-	ShopID                 string    `json:"shop_id"`
-	CompanyName            string    `json:"company_name"`
-	CompanyRegistrationNo  string    `json:"company_registration_no"`
-	CompanyLicenseImageURL string    `json:"company_license_image_url"`
-	CompanyEmail           string    `json:"company_email"`
-	CompanyContact         string    `json:"company_contact"`
-	CompanyWebsite         *string   `json:"company_website"`
+	ShopID                 string    `json:"shopId"`
+	CompanyName            string    `json:"companyName"`
+	CompanyRegistrationNo  string    `json:"companyRegistrationNo"`
+	CompanyLicenseImageURL string    `json:"companyLicenseImageUrl"`
+	CompanyEmail           string    `json:"companyEmail"`
+	CompanyContact         string    `json:"companyContact"`
+	CompanyWebsite         *string   `json:"companyWebsite"`
 	Name                   string    `json:"name"`
 	Type                   string    `json:"type"`
 	Address                string    `json:"address"`
-	ImageURL               string    `json:"image_url"`
-	PicName                string    `json:"pic_name"`
-	PicContact             string    `json:"pic_contact"`
-	PicEmail               string    `json:"pic_email"`
-	PicPosition            string    `json:"pic_position"`
-	IsActive               bool      `json:"is_active"`
-	CreatedAt              time.Time `json:"created_at"`
-	UpdatedAt              time.Time `json:"updated_at"`
-	StateID                string    `json:"state_id"`
-	StateName              string    `json:"state_name"`
+	ImageURL               string    `json:"imageUrl"`
+	PicName                string    `json:"picName"`
+	PicContact             string    `json:"picContact"`
+	PicEmail               string    `json:"picEmail"`
+	PicPosition            string    `json:"picPosition"`
+	IsActive               bool      `json:"isActive"`
+	CreatedAt              time.Time `json:"createdAt"`
+	UpdatedAt              time.Time `json:"updatedAt"`
+	StateID                string    `json:"stateId"`
+	StateName              string    `json:"stateName"`
 }
 
 // ToCreateShopParams converts CreateShopRequest to SQLC CreateShopParams
@@ -369,27 +369,27 @@ func FromShopDetail(detail *shops.ShopDetail) *ShopDetailResponse {
 
 // CreateProductAllocationRequest represents the request payload for creating a product allocation
 type CreateProductAllocationRequest struct {
-	ProductID    string `json:"product_id" validate:"required,uuid"`
-	ShopID       string `json:"shop_id" validate:"required,uuid"`
-	FilmQuantity int32  `json:"film_quantity" validate:"required,min=1"`
+	ProductID    string `json:"productId" validate:"required,uuid"`
+	ShopID       string `json:"shopId" validate:"required,uuid"`
+	FilmQuantity int32  `json:"filmQuantity" validate:"required,min=1"`
 }
 
 // UpdateProductAllocationRequest represents the request payload for updating a product allocation
 type UpdateProductAllocationRequest struct {
-	ProductID    *string `json:"product_id,omitempty" validate:"omitempty,uuid"`
-	ShopID       *string `json:"shop_id,omitempty" validate:"omitempty,uuid"`
-	FilmQuantity *int32  `json:"film_quantity,omitempty" validate:"omitempty,min=1"`
+	ProductID    *string `json:"productId,omitempty" validate:"omitempty,uuid"`
+	ShopID       *string `json:"shopId,omitempty" validate:"omitempty,uuid"`
+	FilmQuantity *int32  `json:"filmQuantity,omitempty" validate:"omitempty,min=1"`
 }
 
 // ProductAllocationResponse represents the response payload for a product allocation
 type ProductAllocationResponse struct {
 	ID            string     `json:"id"`
-	ProductID     string     `json:"product_id"`
-	ShopID        string     `json:"shop_id"`
-	FilmQuantity  int32      `json:"film_quantity"`
-	AllocatedDate *time.Time `json:"allocated_date"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+	ProductID     string     `json:"productId"`
+	ShopID        string     `json:"shopId"`
+	FilmQuantity  int32      `json:"filmQuantity"`
+	AllocatedDate *time.Time `json:"allocatedDate"`
+	CreatedAt     time.Time  `json:"createdAt"`
+	UpdatedAt     time.Time  `json:"updatedAt"`
 }
 
 // ToCreateProductAllocationParams converts CreateProductAllocationRequest to SQLC CreateProductAllocationParams

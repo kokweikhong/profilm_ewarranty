@@ -326,6 +326,35 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
+  /products/types/by-brand/{brandId}:
+    get:
+      tags:
+        - Product Types
+      summary: List product types by brand ID
+      description: Retrieve all product types for a specific product brand
+      parameters:
+        - in: path
+          name: brandId
+          type: string
+          format: uuid
+          required: true
+          description: Product brand ID
+      responses:
+        200:
+          description: List of product types for the specified brand
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductTypeResponse"
+        404:
+          description: Product brand not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
   # Product Series Endpoints
   /products/series:
     post:
@@ -477,6 +506,164 @@ paths:
               $ref: "#/definitions/ProductSeriesResponse"
         404:
           description: Product type not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  # Product Names Endpoints
+  /products/names:
+    post:
+      tags:
+        - Product Names
+      summary: Create a new product name
+      description: Create a new product name under a product series
+      parameters:
+        - in: body
+          name: productName
+          description: Product name object
+          required: true
+          schema:
+            $ref: "#/definitions/CreateProductNameRequest"
+      responses:
+        201:
+          description: Product name created successfully
+          schema:
+            $ref: "#/definitions/ProductNameResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - Product Names
+      summary: List all product names
+      description: Retrieve a list of all product names
+      responses:
+        200:
+          description: List of product names
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductNameResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/names/{id}:
+    get:
+      tags:
+        - Product Names
+      summary: Get product name by ID
+      description: Retrieve a specific product name by its ID
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product name ID
+      responses:
+        200:
+          description: Product name details
+          schema:
+            $ref: "#/definitions/ProductNameResponse"
+        404:
+          description: Product name not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - Product Names
+      summary: Update product name
+      description: Update an existing product name
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product name ID
+        - in: body
+          name: productName
+          description: Updated product name object
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateProductNameRequest"
+      responses:
+        200:
+          description: Product name updated successfully
+          schema:
+            $ref: "#/definitions/ProductNameResponse"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: Product name not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - Product Names
+      summary: Delete product name
+      description: Delete a product name from the system
+      parameters:
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: Product name ID
+      responses:
+        204:
+          description: Product name deleted successfully
+        404:
+          description: Product name not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /products/names/by-series/{seriesId}:
+    get:
+      tags:
+        - Product Names
+      summary: List product names by series ID
+      description: Retrieve all product names for a specific product series
+      parameters:
+        - in: path
+          name: seriesId
+          type: string
+          format: uuid
+          required: true
+          description: Product series ID
+      responses:
+        200:
+          description: List of product names for the specified series
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductNameResponse"
+        404:
+          description: Product series not found
           schema:
             $ref: "#/definitions/ErrorResponse"
         500:
@@ -1651,14 +1838,14 @@ definitions:
       name:
         type: string
         description: Brand name
-      is_active:
+      isActive:
         type: boolean
         description: Whether the brand is active
-      created_at:
+      createdAt:
         type: string
         format: date-time
         description: Creation timestamp
-      updated_at:
+      updatedAt:
         type: string
         format: date-time
         description: Last update timestamp
@@ -1667,7 +1854,7 @@ definitions:
   CreateProductTypeRequest:
     type: object
     properties:
-      brand_id:
+      brandId:
         type: string
         format: uuid
         description: Brand ID this type belongs to
@@ -1679,13 +1866,13 @@ definitions:
         type: string
         description: Type description
     required:
-      - brand_id
+      - brandId
       - name
 
   UpdateProductTypeRequest:
     type: object
     properties:
-      brand_id:
+      brandId:
         type: string
         format: uuid
         description: Brand ID this type belongs to
@@ -1703,7 +1890,7 @@ definitions:
         type: string
         format: uuid
         description: Type ID
-      brand_id:
+      brandId:
         type: string
         format: uuid
         description: Brand ID
@@ -1713,14 +1900,14 @@ definitions:
       description:
         type: string
         description: Type description
-      is_active:
+      isActive:
         type: boolean
         description: Whether the type is active
-      created_at:
+      createdAt:
         type: string
         format: date-time
         description: Creation timestamp
-      updated_at:
+      updatedAt:
         type: string
         format: date-time
         description: Last update timestamp
@@ -2003,7 +2190,7 @@ definitions:
   CreateProductSeriesRequest:
     type: object
     properties:
-      product_type_id:
+      productTypeId:
         type: string
         format: uuid
         description: Product type ID this series belongs to
@@ -2015,13 +2202,13 @@ definitions:
         type: string
         description: Series description
     required:
-      - product_type_id
+      - productTypeId
       - name
 
   UpdateProductSeriesRequest:
     type: object
     properties:
-      product_type_id:
+      productTypeId:
         type: string
         format: uuid
         description: Product type ID this series belongs to
@@ -2039,7 +2226,7 @@ definitions:
         type: string
         format: uuid
         description: Series ID
-      product_type_id:
+      productTypeId:
         type: string
         format: uuid
         description: Product type ID
@@ -2049,14 +2236,67 @@ definitions:
       description:
         type: string
         description: Series description
-      is_active:
+      isActive:
         type: boolean
         description: Whether the series is active
-      created_at:
+      createdAt:
         type: string
         format: date-time
         description: Creation timestamp
-      updated_at:
+      updatedAt:
+        type: string
+        format: date-time
+        description: Last update timestamp
+
+  # Product Name Models
+  CreateProductNameRequest:
+    type: object
+    properties:
+      productSeriesId:
+        type: string
+        format: uuid
+        description: Product series ID this name belongs to
+      name:
+        type: string
+        description: Product name
+        example: "ProFilm ICE 70"
+    required:
+      - productSeriesId
+      - name
+
+  UpdateProductNameRequest:
+    type: object
+    properties:
+      productSeriesId:
+        type: string
+        format: uuid
+        description: Product series ID this name belongs to
+      name:
+        type: string
+        description: Updated product name
+
+  ProductNameResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Product name ID
+      productSeriesId:
+        type: string
+        format: uuid
+        description: Product series ID
+      name:
+        type: string
+        description: Product name
+      isActive:
+        type: boolean
+        description: Whether the product name is active
+      createdAt:
+        type: string
+        format: date-time
+        description: Creation timestamp
+      updatedAt:
         type: string
         format: date-time
         description: Last update timestamp
@@ -2089,14 +2329,14 @@ definitions:
       years:
         type: integer
         description: Number of warranty years
-      is_active:
+      isActive:
         type: boolean
         description: Whether the warranty year is active
-      created_at:
+      createdAt:
         type: string
         format: date-time
         description: Creation timestamp
-      updated_at:
+      updatedAt:
         type: string
         format: date-time
         description: Last update timestamp
@@ -2129,11 +2369,11 @@ definitions:
       name:
         type: string
         description: State name
-      created_at:
+      createdAt:
         type: string
         format: date-time
         description: Creation timestamp
-      updated_at:
+      updatedAt:
         type: string
         format: date-time
         description: Last update timestamp

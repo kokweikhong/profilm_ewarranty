@@ -13,208 +13,208 @@ import (
 
 type CarPart struct {
 	ID          uuid.UUID   `db:"id" json:"id"`
-	PartName    string      `db:"part_name" json:"part_name"`
+	PartName    string      `db:"part_name" json:"partName"`
 	Description pgtype.Text `db:"description" json:"description"`
-	IsActive    pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt   time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt   time.Time   `db:"updated_at" json:"updated_at"`
+	IsActive    pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt   time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt   time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type Claim struct {
 	ID                 uuid.UUID   `db:"id" json:"id"`
-	WarrantyID         uuid.UUID   `db:"warranty_id" json:"warranty_id"`
-	ClaimNo            string      `db:"claim_no" json:"claim_no"`
+	WarrantyID         uuid.UUID   `db:"warranty_id" json:"warrantyId"`
+	ClaimNo            string      `db:"claim_no" json:"claimNo"`
 	Status             string      `db:"status" json:"status"`
-	ClaimDate          pgtype.Date `db:"claim_date" json:"claim_date"`
-	DamagedImageUrl    string      `db:"damaged_image_url" json:"damaged_image_url"`
-	ResolutionImageUrl string      `db:"resolution_image_url" json:"resolution_image_url"`
+	ClaimDate          pgtype.Date `db:"claim_date" json:"claimDate"`
+	DamagedImageUrl    string      `db:"damaged_image_url" json:"damagedImageUrl"`
+	ResolutionImageUrl string      `db:"resolution_image_url" json:"resolutionImageUrl"`
 	Remarks            pgtype.Text `db:"remarks" json:"remarks"`
-	CreatedAt          time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt          time.Time   `db:"updated_at" json:"updated_at"`
+	CreatedAt          time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt          time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type ClaimDetail struct {
-	ClaimID               uuid.UUID        `db:"claim_id" json:"claim_id"`
-	ClaimNo               string           `db:"claim_no" json:"claim_no"`
+	ClaimID               uuid.UUID        `db:"claim_id" json:"claimId"`
+	ClaimNo               string           `db:"claim_no" json:"claimNo"`
 	Status                string           `db:"status" json:"status"`
-	ClaimDate             pgtype.Date      `db:"claim_date" json:"claim_date"`
-	DamagedImageUrl       string           `db:"damaged_image_url" json:"damaged_image_url"`
-	ResolutionImageUrl    string           `db:"resolution_image_url" json:"resolution_image_url"`
+	ClaimDate             pgtype.Date      `db:"claim_date" json:"claimDate"`
+	DamagedImageUrl       string           `db:"damaged_image_url" json:"damagedImageUrl"`
+	ResolutionImageUrl    string           `db:"resolution_image_url" json:"resolutionImageUrl"`
 	Remarks               pgtype.Text      `db:"remarks" json:"remarks"`
-	CreatedAt             time.Time        `db:"created_at" json:"created_at"`
-	UpdatedAt             time.Time        `db:"updated_at" json:"updated_at"`
-	CustomerName          string           `db:"customer_name" json:"customer_name"`
-	CustomerEmail         string           `db:"customer_email" json:"customer_email"`
-	CustomerContact       string           `db:"customer_contact" json:"customer_contact"`
-	CarBrand              string           `db:"car_brand" json:"car_brand"`
-	CarModel              string           `db:"car_model" json:"car_model"`
-	CarPlateNo            string           `db:"car_plate_no" json:"car_plate_no"`
-	CarChassisNo          string           `db:"car_chassis_no" json:"car_chassis_no"`
-	WarrantyImageUrl      string           `db:"warranty_image_url" json:"warranty_image_url"`
-	InstallationDate      pgtype.Date      `db:"installation_date" json:"installation_date"`
-	ReferenceNo           string           `db:"reference_no" json:"reference_no"`
-	WarrantyNo            string           `db:"warranty_no" json:"warranty_no"`
-	CarPartName           string           `db:"car_part_name" json:"car_part_name"`
-	CarPartDescription    pgtype.Text      `db:"car_part_description" json:"car_part_description"`
-	AllocatedFilmQuantity int32            `db:"allocated_film_quantity" json:"allocated_film_quantity"`
-	FilmAllocatedDate     pgtype.Timestamp `db:"film_allocated_date" json:"film_allocated_date"`
-	ShopState             string           `db:"shop_state" json:"shop_state"`
-	ShopCompanyName       string           `db:"shop_company_name" json:"shop_company_name"`
-	ShopName              string           `db:"shop_name" json:"shop_name"`
-	ShopAddress           string           `db:"shop_address" json:"shop_address"`
+	CreatedAt             time.Time        `db:"created_at" json:"createdAt"`
+	UpdatedAt             time.Time        `db:"updated_at" json:"updatedAt"`
+	CustomerName          string           `db:"customer_name" json:"customerName"`
+	CustomerEmail         string           `db:"customer_email" json:"customerEmail"`
+	CustomerContact       string           `db:"customer_contact" json:"customerContact"`
+	CarBrand              string           `db:"car_brand" json:"carBrand"`
+	CarModel              string           `db:"car_model" json:"carModel"`
+	CarPlateNo            string           `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo          string           `db:"car_chassis_no" json:"carChassisNo"`
+	WarrantyImageUrl      string           `db:"warranty_image_url" json:"warrantyImageUrl"`
+	InstallationDate      pgtype.Date      `db:"installation_date" json:"installationDate"`
+	ReferenceNo           string           `db:"reference_no" json:"referenceNo"`
+	WarrantyNo            string           `db:"warranty_no" json:"warrantyNo"`
+	CarPartName           string           `db:"car_part_name" json:"carPartName"`
+	CarPartDescription    pgtype.Text      `db:"car_part_description" json:"carPartDescription"`
+	AllocatedFilmQuantity int32            `db:"allocated_film_quantity" json:"allocatedFilmQuantity"`
+	FilmAllocatedDate     pgtype.Timestamp `db:"film_allocated_date" json:"filmAllocatedDate"`
+	ShopState             string           `db:"shop_state" json:"shopState"`
+	ShopCompanyName       string           `db:"shop_company_name" json:"shopCompanyName"`
+	ShopName              string           `db:"shop_name" json:"shopName"`
+	ShopAddress           string           `db:"shop_address" json:"shopAddress"`
 }
 
 type Product struct {
 	ID             uuid.UUID   `db:"id" json:"id"`
-	ProductNameID  uuid.UUID   `db:"product_name_id" json:"product_name_id"`
-	ProductBrandID uuid.UUID   `db:"product_brand_id" json:"product_brand_id"`
-	WarrantyYears  int32       `db:"warranty_years" json:"warranty_years"`
-	FilmSerialNo   string      `db:"film_serial_no" json:"film_serial_no"`
-	FilmQuantity   int32       `db:"film_quantity" json:"film_quantity"`
-	FilmShipmentNo string      `db:"film_shipment_no" json:"film_shipment_no"`
-	IsActive       pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt      time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt      time.Time   `db:"updated_at" json:"updated_at"`
+	ProductNameID  uuid.UUID   `db:"product_name_id" json:"productNameId"`
+	ProductBrandID uuid.UUID   `db:"product_brand_id" json:"productBrandId"`
+	WarrantyYears  int32       `db:"warranty_years" json:"warrantyYears"`
+	FilmSerialNo   string      `db:"film_serial_no" json:"filmSerialNo"`
+	FilmQuantity   int32       `db:"film_quantity" json:"filmQuantity"`
+	FilmShipmentNo string      `db:"film_shipment_no" json:"filmShipmentNo"`
+	IsActive       pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt      time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt      time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type ProductAllocation struct {
 	ID            uuid.UUID        `db:"id" json:"id"`
-	ProductID     uuid.UUID        `db:"product_id" json:"product_id"`
-	ShopID        uuid.UUID        `db:"shop_id" json:"shop_id"`
-	FilmQuantity  int32            `db:"film_quantity" json:"film_quantity"`
-	AllocatedDate pgtype.Timestamp `db:"allocated_date" json:"allocated_date"`
-	CreatedAt     time.Time        `db:"created_at" json:"created_at"`
-	UpdatedAt     time.Time        `db:"updated_at" json:"updated_at"`
+	ProductID     uuid.UUID        `db:"product_id" json:"productId"`
+	ShopID        uuid.UUID        `db:"shop_id" json:"shopId"`
+	FilmQuantity  int32            `db:"film_quantity" json:"filmQuantity"`
+	AllocatedDate pgtype.Timestamp `db:"allocated_date" json:"allocatedDate"`
+	CreatedAt     time.Time        `db:"created_at" json:"createdAt"`
+	UpdatedAt     time.Time        `db:"updated_at" json:"updatedAt"`
 }
 
 type ProductBrand struct {
 	ID        uuid.UUID   `db:"id" json:"id"`
 	Name      string      `db:"name" json:"name"`
-	IsActive  pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time   `db:"updated_at" json:"updated_at"`
+	IsActive  pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type ProductName struct {
 	ID              uuid.UUID   `db:"id" json:"id"`
-	ProductSeriesID uuid.UUID   `db:"product_series_id" json:"product_series_id"`
+	ProductSeriesID uuid.UUID   `db:"product_series_id" json:"productSeriesId"`
 	Name            string      `db:"name" json:"name"`
-	IsActive        pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt       time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt       time.Time   `db:"updated_at" json:"updated_at"`
+	IsActive        pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt       time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt       time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type ProductSeries struct {
 	ID            uuid.UUID   `db:"id" json:"id"`
-	ProductTypeID uuid.UUID   `db:"product_type_id" json:"product_type_id"`
+	ProductTypeID uuid.UUID   `db:"product_type_id" json:"productTypeId"`
 	Name          string      `db:"name" json:"name"`
-	IsActive      pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt     time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt     time.Time   `db:"updated_at" json:"updated_at"`
+	IsActive      pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt     time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt     time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type ProductType struct {
 	ID        uuid.UUID   `db:"id" json:"id"`
-	BrandID   uuid.UUID   `db:"brand_id" json:"brand_id"`
+	BrandID   uuid.UUID   `db:"brand_id" json:"brandId"`
 	Name      string      `db:"name" json:"name"`
-	IsActive  pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time   `db:"updated_at" json:"updated_at"`
+	IsActive  pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type Shop struct {
 	ID                     uuid.UUID   `db:"id" json:"id"`
-	StateID                uuid.UUID   `db:"state_id" json:"state_id"`
-	CompanyName            string      `db:"company_name" json:"company_name"`
-	CompanyRegistrationNo  string      `db:"company_registration_no" json:"company_registration_no"`
-	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"company_license_image_url"`
-	CompanyEmail           string      `db:"company_email" json:"company_email"`
-	CompanyContact         string      `db:"company_contact" json:"company_contact"`
-	CompanyWebsite         pgtype.Text `db:"company_website" json:"company_website"`
+	StateID                uuid.UUID   `db:"state_id" json:"stateId"`
+	CompanyName            string      `db:"company_name" json:"companyName"`
+	CompanyRegistrationNo  string      `db:"company_registration_no" json:"companyRegistrationNo"`
+	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"companyLicenseImageUrl"`
+	CompanyEmail           string      `db:"company_email" json:"companyEmail"`
+	CompanyContact         string      `db:"company_contact" json:"companyContact"`
+	CompanyWebsite         pgtype.Text `db:"company_website" json:"companyWebsite"`
 	Name                   string      `db:"name" json:"name"`
 	Type                   string      `db:"type" json:"type"`
 	Address                string      `db:"address" json:"address"`
-	ImageUrl               string      `db:"image_url" json:"image_url"`
-	PicName                string      `db:"pic_name" json:"pic_name"`
-	PicContact             string      `db:"pic_contact" json:"pic_contact"`
-	PicEmail               string      `db:"pic_email" json:"pic_email"`
-	PicPosition            string      `db:"pic_position" json:"pic_position"`
+	ImageUrl               string      `db:"image_url" json:"imageUrl"`
+	PicName                string      `db:"pic_name" json:"picName"`
+	PicContact             string      `db:"pic_contact" json:"picContact"`
+	PicEmail               string      `db:"pic_email" json:"picEmail"`
+	PicPosition            string      `db:"pic_position" json:"picPosition"`
 	Username               string      `db:"username" json:"username"`
-	LoginHashPassword      string      `db:"login_hash_password" json:"login_hash_password"`
-	IsActive               pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt              time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt              time.Time   `db:"updated_at" json:"updated_at"`
+	LoginHashPassword      string      `db:"login_hash_password" json:"loginHashPassword"`
+	IsActive               pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt              time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt              time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type ShopDetail struct {
-	ShopID                 uuid.UUID   `db:"shop_id" json:"shop_id"`
-	CompanyName            string      `db:"company_name" json:"company_name"`
-	CompanyRegistrationNo  string      `db:"company_registration_no" json:"company_registration_no"`
-	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"company_license_image_url"`
-	CompanyEmail           string      `db:"company_email" json:"company_email"`
-	CompanyContact         string      `db:"company_contact" json:"company_contact"`
-	CompanyWebsite         pgtype.Text `db:"company_website" json:"company_website"`
+	ShopID                 uuid.UUID   `db:"shop_id" json:"shopId"`
+	CompanyName            string      `db:"company_name" json:"companyName"`
+	CompanyRegistrationNo  string      `db:"company_registration_no" json:"companyRegistrationNo"`
+	CompanyLicenseImageUrl string      `db:"company_license_image_url" json:"companyLicenseImageUrl"`
+	CompanyEmail           string      `db:"company_email" json:"companyEmail"`
+	CompanyContact         string      `db:"company_contact" json:"companyContact"`
+	CompanyWebsite         pgtype.Text `db:"company_website" json:"companyWebsite"`
 	Name                   string      `db:"name" json:"name"`
 	Type                   string      `db:"type" json:"type"`
 	Address                string      `db:"address" json:"address"`
-	ImageUrl               string      `db:"image_url" json:"image_url"`
-	PicName                string      `db:"pic_name" json:"pic_name"`
-	PicContact             string      `db:"pic_contact" json:"pic_contact"`
-	PicEmail               string      `db:"pic_email" json:"pic_email"`
-	PicPosition            string      `db:"pic_position" json:"pic_position"`
-	LoginHashPassword      string      `db:"login_hash_password" json:"login_hash_password"`
-	IsActive               pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt              time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt              time.Time   `db:"updated_at" json:"updated_at"`
-	StateID                uuid.UUID   `db:"state_id" json:"state_id"`
-	StateName              string      `db:"state_name" json:"state_name"`
+	ImageUrl               string      `db:"image_url" json:"imageUrl"`
+	PicName                string      `db:"pic_name" json:"picName"`
+	PicContact             string      `db:"pic_contact" json:"picContact"`
+	PicEmail               string      `db:"pic_email" json:"picEmail"`
+	PicPosition            string      `db:"pic_position" json:"picPosition"`
+	LoginHashPassword      string      `db:"login_hash_password" json:"loginHashPassword"`
+	IsActive               pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt              time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt              time.Time   `db:"updated_at" json:"updatedAt"`
+	StateID                uuid.UUID   `db:"state_id" json:"stateId"`
+	StateName              string      `db:"state_name" json:"stateName"`
 }
 
 type State struct {
 	ID        uuid.UUID `db:"id" json:"id"`
 	Name      string    `db:"name" json:"name"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	CreatedAt time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
 }
 
 type VwProductDetail struct {
-	ProductID      uuid.UUID `db:"product_id" json:"product_id"`
-	ProductName    string    `db:"product_name" json:"product_name"`
-	ProductSeries  string    `db:"product_series" json:"product_series"`
-	ProductType    string    `db:"product_type" json:"product_type"`
-	ProductBrand   string    `db:"product_brand" json:"product_brand"`
-	WarrantyYears  int32     `db:"warranty_years" json:"warranty_years"`
-	FilmSerialNo   string    `db:"film_serial_no" json:"film_serial_no"`
-	FilmQuantity   int32     `db:"film_quantity" json:"film_quantity"`
-	FilmShipmentNo string    `db:"film_shipment_no" json:"film_shipment_no"`
-	CreatedAt      time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt      time.Time `db:"updated_at" json:"updated_at"`
+	ProductID      uuid.UUID `db:"product_id" json:"productId"`
+	ProductName    string    `db:"product_name" json:"productName"`
+	ProductSeries  string    `db:"product_series" json:"productSeries"`
+	ProductType    string    `db:"product_type" json:"productType"`
+	ProductBrand   string    `db:"product_brand" json:"productBrand"`
+	WarrantyYears  int32     `db:"warranty_years" json:"warrantyYears"`
+	FilmSerialNo   string    `db:"film_serial_no" json:"filmSerialNo"`
+	FilmQuantity   int32     `db:"film_quantity" json:"filmQuantity"`
+	FilmShipmentNo string    `db:"film_shipment_no" json:"filmShipmentNo"`
+	CreatedAt      time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt      time.Time `db:"updated_at" json:"updatedAt"`
 }
 
 type Warranty struct {
 	ID                uuid.UUID   `db:"id" json:"id"`
-	CustomerName      string      `db:"customer_name" json:"customer_name"`
-	CustomerEmail     string      `db:"customer_email" json:"customer_email"`
-	CustomerContact   string      `db:"customer_contact" json:"customer_contact"`
-	CarBrand          string      `db:"car_brand" json:"car_brand"`
-	CarModel          string      `db:"car_model" json:"car_model"`
-	CarColor          string      `db:"car_color" json:"car_color"`
-	CarPlateNo        string      `db:"car_plate_no" json:"car_plate_no"`
-	CarChassisNo      string      `db:"car_chassis_no" json:"car_chassis_no"`
-	ShopAllocationsID uuid.UUID   `db:"shop_allocations_id" json:"shop_allocations_id"`
-	CarPartsID        uuid.UUID   `db:"car_parts_id" json:"car_parts_id"`
-	ImageUrl          string      `db:"image_url" json:"image_url"`
-	InstallationDate  pgtype.Date `db:"installation_date" json:"installation_date"`
-	ReferenceNo       string      `db:"reference_no" json:"reference_no"`
-	WarrantyNo        string      `db:"warranty_no" json:"warranty_no"`
-	CreatedAt         time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt         time.Time   `db:"updated_at" json:"updated_at"`
+	CustomerName      string      `db:"customer_name" json:"customerName"`
+	CustomerEmail     string      `db:"customer_email" json:"customerEmail"`
+	CustomerContact   string      `db:"customer_contact" json:"customerContact"`
+	CarBrand          string      `db:"car_brand" json:"carBrand"`
+	CarModel          string      `db:"car_model" json:"carModel"`
+	CarColor          string      `db:"car_color" json:"carColor"`
+	CarPlateNo        string      `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo      string      `db:"car_chassis_no" json:"carChassisNo"`
+	ShopAllocationsID uuid.UUID   `db:"shop_allocations_id" json:"shopAllocationsId"`
+	CarPartsID        uuid.UUID   `db:"car_parts_id" json:"carPartsId"`
+	ImageUrl          string      `db:"image_url" json:"imageUrl"`
+	InstallationDate  pgtype.Date `db:"installation_date" json:"installationDate"`
+	ReferenceNo       string      `db:"reference_no" json:"referenceNo"`
+	WarrantyNo        string      `db:"warranty_no" json:"warrantyNo"`
+	CreatedAt         time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt         time.Time   `db:"updated_at" json:"updatedAt"`
 }
 
 type WarrantyYear struct {
 	ID        uuid.UUID   `db:"id" json:"id"`
 	Years     int32       `db:"years" json:"years"`
-	IsActive  pgtype.Bool `db:"is_active" json:"is_active"`
-	CreatedAt time.Time   `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time   `db:"updated_at" json:"updated_at"`
+	IsActive  pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time   `db:"updated_at" json:"updatedAt"`
 }
