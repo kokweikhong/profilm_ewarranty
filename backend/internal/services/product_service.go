@@ -19,7 +19,7 @@ type ProductService interface {
 
 	CreateProductType(ctx context.Context, params *products.CreateProductTypeParams) (*products.ProductType, error)
 	GetProductTypeByID(ctx context.Context, id uuid.UUID) (*products.ProductType, error)
-	ListProductTypes(ctx context.Context) ([]*products.ProductType, error)
+	ListProductTypes(ctx context.Context) ([]*products.ListProductTypesRow, error)
 	ListProductTypesByBrand(ctx context.Context, brandID uuid.UUID) ([]*products.ProductType, error)
 	UpdateProductType(ctx context.Context, params *products.UpdateProductTypeParams) (*products.ProductType, error)
 	DeleteProductType(ctx context.Context, id uuid.UUID) error
@@ -296,8 +296,8 @@ func (r *productService) GetProductTypeByID(ctx context.Context, id uuid.UUID) (
 	return productType, nil
 }
 
-// ListProductTypes retrieves product types with pagination
-func (r *productService) ListProductTypes(ctx context.Context) ([]*products.ProductType, error) {
+// ListProductTypes retrieves product types with brand information
+func (r *productService) ListProductTypes(ctx context.Context) ([]*products.ListProductTypesRow, error) {
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to begin transaction: %w", err)

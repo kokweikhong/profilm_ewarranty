@@ -468,3 +468,35 @@ func FromProduct(product *products.Product) *ProductResponse {
 		UpdatedAt:      product.UpdatedAt,
 	}
 }
+
+// ProductDetailsResponse represents the detailed response payload for a product
+type ProductDetailsResponse struct {
+	ProductID      uuid.UUID `json:"id"`
+	ProductName    string    `json:"name"`
+	ProductSeries  string    `json:"series"`
+	ProductType    string    `json:"type"`
+	ProductBrand   string    `json:"brand"`
+	WarrantyYears  int32     `json:"warrantyYears"`
+	FilmSerialNo   string    `json:"filmSerialNo"`
+	FilmQuantity   int32     `json:"filmQuantity"`
+	FilmShipmentNo string    `json:"filmShipmentNo"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
+}
+
+// FromProductDetails converts SQLC ProductDetails to ProductDetailsResponse
+func FromProductDetails(details *products.VwProductDetail) *ProductDetailsResponse {
+	return &ProductDetailsResponse{
+		ProductID:      details.ProductID,
+		ProductName:    details.ProductName,
+		ProductSeries:  details.ProductSeries,
+		ProductType:    details.ProductType,
+		ProductBrand:   details.ProductBrand,
+		WarrantyYears:  details.WarrantyYears,
+		FilmSerialNo:   details.FilmSerialNo,
+		FilmQuantity:   details.FilmQuantity,
+		FilmShipmentNo: details.FilmShipmentNo,
+		CreatedAt:      details.CreatedAt,
+		UpdatedAt:      details.UpdatedAt,
+	}
+}

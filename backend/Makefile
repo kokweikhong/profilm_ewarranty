@@ -51,6 +51,13 @@ goose-status:
 sqlc-generate:
 	sqlc generate
 
+# Swagger commands
+swagger-generate:
+	swag init -g cmd/api/main.go
+
+swagger-serve: swagger-generate
+	go run cmd/api/main.go
+
 # Seeds commands
 build-seeds:
 	go build -o bin/seeds.exe ./cmd/seeds

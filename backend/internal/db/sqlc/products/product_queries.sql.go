@@ -7,8 +7,10 @@ package products
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createProduct = `-- name: CreateProduct :one
@@ -524,19 +526,31 @@ func (q *Queries) ListProductSeriesByType(ctx context.Context, productTypeID uui
 }
 
 const listProductTypes = `-- name: ListProductTypes :many
-SELECT id, brand_id, name, is_active, created_at, updated_at FROM product_types
-ORDER BY name ASC
+SELECT pt.id, pt.brand_id, pt.name, pt.is_active, pt.created_at, pt.updated_at, pb.name as brand_name
+FROM product_types pt
+JOIN product_brands pb ON pt.brand_id = pb.id
+ORDER BY pt.name ASC
 `
 
-func (q *Queries) ListProductTypes(ctx context.Context) ([]*ProductType, error) {
+type ListProductTypesRow struct {
+	ID        uuid.UUID   `db:"id" json:"id"`
+	BrandID   uuid.UUID   `db:"brand_id" json:"brandId"`
+	Name      string      `db:"name" json:"name"`
+	IsActive  pgtype.Bool `db:"is_active" json:"isActive"`
+	CreatedAt time.Time   `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time   `db:"updated_at" json:"updatedAt"`
+	BrandName string      `db:"brand_name" json:"brandName"`
+}
+
+func (q *Queries) ListProductTypes(ctx context.Context) ([]*ListProductTypesRow, error) {
 	rows, err := q.db.Query(ctx, listProductTypes)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ProductType{}
+	items := []*ListProductTypesRow{}
 	for rows.Next() {
-		var i ProductType
+		var i ListProductTypesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.BrandID,
@@ -544,6 +558,7 @@ func (q *Queries) ListProductTypes(ctx context.Context) ([]*ProductType, error) 
 			&i.IsActive,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.BrandName,
 		); err != nil {
 			return nil, err
 		}

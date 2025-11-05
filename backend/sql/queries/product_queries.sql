@@ -37,8 +37,10 @@ SELECT * FROM product_types
 WHERE brand_id = $1;
 
 -- name: ListProductTypes :many
-SELECT * FROM product_types
-ORDER BY name ASC;
+SELECT pt.*, pb.name as brand_name
+FROM product_types pt
+JOIN product_brands pb ON pt.brand_id = pb.id
+ORDER BY pt.name ASC;
 
 -- name: UpdateProductType :one
 UPDATE product_types

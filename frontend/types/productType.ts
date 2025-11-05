@@ -1,9 +1,10 @@
 export interface ProductType {
   id: string;
-  brand_id: string;
+  brandId: string;
   name: string;
+  brandName: string;
   description: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

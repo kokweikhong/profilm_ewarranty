@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/api/handlers"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // Router holds all the dependencies needed for routing
@@ -21,6 +22,20 @@ func NewRouter(handler *handlers.Handler) *Router {
 	}
 }
 
+// @title Swagger Example API
+// @version 1.0
+// @description This is a sample server Petstore server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host petstore.swagger.io
+// @BasePath /v2
 // SetupRoutes configures all the routes using Chi router
 func (r *Router) SetupRoutes() http.Handler {
 	router := chi.NewRouter()
@@ -51,8 +66,8 @@ func (r *Router) SetupRoutes() http.Handler {
 	router.Get("/health", r.healthCheck)
 
 	// Swagger documentation routes
-	router.Handle("/docs", r.Handler.Swagger.ServeSwaggerUI())
-	router.Handle("/swagger.yaml", r.Handler.Swagger.ServeSwaggerSpec())
+	router.HandleFunc("/docs/*", httpSwagger.WrapHandler)
+	router.HandleFunc("/swagger/*", httpSwagger.WrapHandler)
 
 	// API routes
 	router.Route("/api", func(api chi.Router) {
@@ -210,6 +225,13 @@ func (r *Router) setupClaimRoutes(router chi.Router) {
 }
 
 // healthCheck handles the health check endpoint
+// @Summary Health check
+// @Description Check if the API server is running
+// @Tags Health
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /health [get]
 func (r *Router) healthCheck(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

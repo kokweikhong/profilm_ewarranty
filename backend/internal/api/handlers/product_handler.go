@@ -67,6 +67,16 @@ func NewProductHandler(service services.ProductService) ProductHandler {
 }
 
 // CreateProductBrand handles the creation of a new product brand
+// @Summary Create a new product brand
+// @Description Create a new product brand in the system
+// @Tags Product Brands
+// @Accept json
+// @Produce json
+// @Param brand body dto.CreateProductBrandRequest true "Product brand object"
+// @Success 201 {object} dto.ProductBrandResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /products/brands [post]
 func (h *productHandler) CreateProductBrand(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateProductBrandRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -117,6 +127,14 @@ func (h *productHandler) GetProductBrandByID(w http.ResponseWriter, r *http.Requ
 }
 
 // ListProductBrands lists all product brands
+// @Summary List all product brands
+// @Description Retrieve a list of all product brands
+// @Tags Product Brands
+// @Accept json
+// @Produce json
+// @Success 200 {array} dto.ProductBrandResponse
+// @Failure 500 {object} map[string]string
+// @Router /products/brands [get]
 func (h *productHandler) ListProductBrands(w http.ResponseWriter, r *http.Request) {
 	brands, err := h.service.ListProductBrands(r.Context())
 	if err != nil {
@@ -918,7 +936,13 @@ func (h *productHandler) ListProductsWithDetails(w http.ResponseWriter, r *http.
 		return
 	}
 
-	utils.JSONResponse(w, http.StatusOK, products)
+	// Convert to response DTOs
+	var responses []*dto.ProductDetailsResponse
+	for _, product := range products {
+		responses = append(responses, dto.FromProductDetails(product))
+	}
+
+	utils.JSONResponse(w, http.StatusOK, responses)
 }
 
 // GetProductDetailsByID retrieves detailed information of a product by its ID

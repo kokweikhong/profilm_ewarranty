@@ -8,5 +8,4 @@ export interface ProductBrand {
 
 export interface ProductBrandCreateRequest {
   name: string;
-  is_active?: boolean;
 }

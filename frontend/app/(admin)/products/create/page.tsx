@@ -1,85 +1,83 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ProductBrandService } from "@/services/productBrandService";
 import { ProductTypeService } from "@/services/productTypeService";
 import { ProductSeriesService } from "@/services/productSeriesService";
 import { ProductNameService } from "@/services/productNameService";
+import { ProductService } from "@/services/productService";
+import { WarrantyYearService } from "@/services/warrantyYearService";
 import { ProductBrand } from "@/types/productBrand";
 import { ProductType } from "@/types/productType";
 import { ProductSeries } from "@/types/productSeries";
 import { ProductName } from "@/types/productName";
+import { ProductCreateRequest } from "@/types/product";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  productNameId: z.string().min(1, "Product Name is required"),
+  productBrandId: z.string().min(1, "Product Brand is required"),
+  warrantyYears: z.number().min(2, "Warranty Years must be at least 2"),
+  filmSerialNo: z.string().min(1, "Film Serial No is required"),
+  filmQuantity: z.number().min(1, "Film Quantity must be at least 1"),
+  // optional
+  // with default value
+  filmShipmentNo: z.string(),
+});
 
 export default function CreateProductPage() {
+  const router = useRouter();
+
   // State for dropdown options
   const [brands, setBrands] = useState<ProductBrand[]>([]);
   const [types, setTypes] = useState<ProductType[]>([]);
   const [series, setSeries] = useState<ProductSeries[]>([]);
   const [names, setNames] = useState<ProductName[]>([]);
+  const [warrantyYears, setWarrantyYears] = useState<number[]>([]);
 
   // State for selected values
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedTypeId, setSelectedTypeId] = useState<string>("");
   const [selectedSeriesId, setSelectedSeriesId] = useState<string>("");
-  const [selectedNameId, setSelectedNameId] = useState<string>("");
 
-  // Loading states
-  const [loading, setLoading] = useState(true);
-  const [typesLoading, setTypesLoading] = useState(false);
-  const [seriesLoading, setSeriesLoading] = useState(false);
-  const [namesLoading, setNamesLoading] = useState(false);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      productNameId: "",
+      productBrandId: "",
+      warrantyYears: 2,
+      filmSerialNo: "",
+      filmQuantity: 2,
+      filmShipmentNo: "",
+    },
+  });
 
-  // Error state
-  const [error, setError] = useState<string | null>(null);
-
-  // Global error handler
-  const handleError = (error: any, context: string) => {
-    console.error(`Error in ${context}:`, error);
-    setError(`Error loading ${context}: ${error.message || "Unknown error"}`);
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log("Form submitted with values:", values);
   };
-
-  // Handle global errors and browser extension conflicts
-  useEffect(() => {
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error("Unhandled Promise Rejection:", event.reason);
-      // Only set error if it seems related to our API calls
-      if (
-        event.reason &&
-        event.reason.message &&
-        (event.reason.message.includes("fetch") ||
-          event.reason.message.includes("network") ||
-          event.reason.message.includes("axios"))
-      ) {
-        setError(
-          "Network error occurred. Please check your connection and try again."
-        );
-      }
-    };
-
-    const handleError = (event: ErrorEvent) => {
-      console.error("Global error:", event.error);
-      // Don't show extension-related errors to user
-      if (
-        event.error &&
-        event.error.message &&
-        !event.error.message.includes("Extension") &&
-        !event.error.message.includes("chrome-extension")
-      ) {
-        setError("An unexpected error occurred. Please refresh and try again.");
-      }
-    };
-
-    window.addEventListener("unhandledrejection", handleUnhandledRejection);
-    window.addEventListener("error", handleError);
-
-    return () => {
-      window.removeEventListener(
-        "unhandledrejection",
-        handleUnhandledRejection
-      );
-      window.removeEventListener("error", handleError);
-    };
-  }, []);
 
   // Load brands on component mount
   useEffect(() => {
@@ -87,26 +85,30 @@ export default function CreateProductPage() {
 
     const loadBrands = async () => {
       try {
-        setLoading(true);
         const brandsData = await ProductBrandService.getAll();
-
         // Only update state if component is still mounted
         if (isMounted) {
           setBrands(brandsData);
         }
       } catch (error) {
         if (isMounted) {
-          handleError(error, "brands");
           setBrands([]);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
         }
       }
     };
 
+    const loadWarrantyYears = async () => {
+      try {
+        const warrantyYearsData = await WarrantyYearService.getAll();
+        setWarrantyYears(warrantyYearsData.map((year) => year.years));
+      } catch (error) {
+        console.error("Error loading warranty years:", error);
+        setWarrantyYears([]);
+      }
+    };
+
     loadBrands();
+    loadWarrantyYears();
 
     // Cleanup function to prevent memory leaks
     return () => {
@@ -126,19 +128,17 @@ export default function CreateProductPage() {
           setSeries([]);
           setSelectedSeriesId("");
           setNames([]);
-          setSelectedNameId("");
         }
         return;
       }
 
       try {
         if (isMounted) {
-          setTypesLoading(true);
           setSelectedTypeId(""); // Reset type selection
           setSeries([]); // Clear series
           setSelectedSeriesId(""); // Reset series selection
           setNames([]); // Clear names
-          setSelectedNameId(""); // Reset name selection
+          form.setValue("productNameId", ""); // Reset name selection
         }
 
         const typesData = await ProductTypeService.getByBrandId(
@@ -152,10 +152,6 @@ export default function CreateProductPage() {
         console.error("Error loading types:", error);
         if (isMounted) {
           setTypes([]);
-        }
-      } finally {
-        if (isMounted) {
-          setTypesLoading(false);
         }
       }
     };
@@ -176,13 +172,14 @@ export default function CreateProductPage() {
         if (isMounted) {
           setSeries([]);
           setSelectedSeriesId("");
+          setNames([]);
+          form.setValue("productNameId", ""); // Reset name selection
         }
         return;
       }
 
       try {
         if (isMounted) {
-          setSeriesLoading(true);
           setSelectedSeriesId(""); // Reset series selection
         }
 
@@ -191,16 +188,13 @@ export default function CreateProductPage() {
         );
 
         if (isMounted) {
+          form.setValue("productNameId", ""); // Reset name selection
           setSeries(seriesData);
         }
       } catch (error) {
         console.error("Error loading series:", error);
         if (isMounted) {
           setSeries([]);
-        }
-      } finally {
-        if (isMounted) {
-          setSeriesLoading(false);
         }
       }
     };
@@ -220,17 +214,12 @@ export default function CreateProductPage() {
       if (!selectedSeriesId) {
         if (isMounted) {
           setNames([]);
-          setSelectedNameId("");
         }
         return;
       }
 
       try {
-        if (isMounted) {
-          setNamesLoading(true);
-          setSelectedNameId(""); // Reset name selection
-        }
-
+        form.setValue("productNameId", ""); // Reset name selection
         const namesData = await ProductNameService.getBySeriesId(
           selectedSeriesId
         );
@@ -243,10 +232,6 @@ export default function CreateProductPage() {
         if (isMounted) {
           setNames([]);
         }
-      } finally {
-        if (isMounted) {
-          setNamesLoading(false);
-        }
       }
     };
 
@@ -257,156 +242,305 @@ export default function CreateProductPage() {
     };
   }, [selectedSeriesId]);
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Create Product</h1>
-        <p>Loading brands...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Create Product</h1>
-
-      {/* Error Display */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          <p>
-            <strong>Error:</strong> {error}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+            Create Product
+          </h1>
+          <p className="mt-1 text-sm text-gray-600 hidden sm:block">
+            Fill in the details below to create a new product entry
           </p>
-          <button
-            onClick={() => setError(null)}
-            className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-          >
-            Dismiss
-          </button>
         </div>
-      )}
+      </div>
 
-      <form>
-        {/* Product Brand Dropdown */}
-        <div className="mt-6">
-          <label className="block mb-2 font-medium" htmlFor="brand">
-            Product Brand *
-          </label>
-          <select
-            id="brand"
-            name="brand"
-            value={selectedBrandId}
-            onChange={(e) => setSelectedBrandId(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-            required
-          >
-            <option value="">Select a brand...</option>
-            {brands.map((brand) => (
-              <option key={brand.id} value={brand.id}>
-                {brand.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Form Container */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 lg:p-8">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6 sm:space-y-8"
+            >
+              {/* Product Brand - Full width with responsive styling */}
+              <FormField
+                control={form.control}
+                name="productBrandId"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">
+                      Product Brand *
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedBrandId(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger
+                          className="w-full h-10 sm:h-11 text-sm sm:text-base"
+                          data-form-type="other"
+                          data-lpignore="true"
+                        >
+                          <SelectValue placeholder="Select a brand..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Brands</SelectLabel>
+                            {brands.map((brand) => (
+                              <SelectItem key={brand.id} value={brand.id}>
+                                {brand.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>
+                      This is your public display name.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Product Type - Dependent on Brand */}
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-medium text-gray-700">
+                  Product Type *
+                </label>
+                <Select
+                  onValueChange={(value) => {
+                    setSelectedTypeId(value);
+                  }}
+                  disabled={!selectedBrandId}
+                >
+                  <SelectTrigger
+                    className="w-full h-10 sm:h-11 text-sm sm:text-base disabled:opacity-50"
+                    data-form-type="other"
+                    data-lpignore="true"
+                  >
+                    <SelectValue
+                      placeholder={
+                        !selectedBrandId
+                          ? "Please select a brand first..."
+                          : "Select a product type..."
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Types</SelectLabel>
+                      {types.map((type) => (
+                        <SelectItem key={type.id} value={type.id}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {/* Product Type Dropdown */}
-        <div className="mt-6">
-          <label className="block mb-2 font-medium" htmlFor="type">
-            Product Type *
-          </label>
-          <select
-            id="type"
-            name="type"
-            value={selectedTypeId}
-            onChange={(e) => setSelectedTypeId(e.target.value)}
-            disabled={!selectedBrandId || typesLoading}
-            className="border border-gray-300 rounded px-3 py-2 w-full disabled:bg-gray-100 disabled:cursor-not-allowed"
-            required
-          >
-            <option value="">
-              {!selectedBrandId
-                ? "Please select a brand first..."
-                : typesLoading
-                ? "Loading types..."
-                : "Select a type..."}
-            </option>
-            {types.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
+              {/* Product Series - Dependent on Type */}
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-medium text-gray-700">
+                  Product Series *
+                </label>
+                <Select
+                  onValueChange={(value) => {
+                    setSelectedSeriesId(value);
+                  }}
+                  disabled={!selectedTypeId}
+                >
+                  <SelectTrigger
+                    className="w-full h-10 sm:h-11 text-sm sm:text-base disabled:opacity-50"
+                    data-form-type="other"
+                    data-lpignore="true"
+                  >
+                    <SelectValue
+                      placeholder={
+                        !selectedTypeId
+                          ? "Please select a type first..."
+                          : "Select a product series..."
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Series</SelectLabel>
+                      {series.map((seriesItem) => (
+                        <SelectItem key={seriesItem.id} value={seriesItem.id}>
+                          {seriesItem.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {/* Product Series Dropdown */}
-        <div className="mt-6">
-          <label className="block mb-2 font-medium" htmlFor="series">
-            Product Series *
-          </label>
-          <select
-            id="series"
-            name="series"
-            value={selectedSeriesId}
-            onChange={(e) => setSelectedSeriesId(e.target.value)}
-            disabled={!selectedTypeId || seriesLoading}
-            className="border border-gray-300 rounded px-3 py-2 w-full disabled:bg-gray-100 disabled:cursor-not-allowed"
-            required
-          >
-            <option value="">
-              {!selectedTypeId
-                ? "Please select a type first..."
-                : seriesLoading
-                ? "Loading series..."
-                : "Select a series..."}
-            </option>
-            {series.map((seriesItem) => (
-              <option key={seriesItem.id} value={seriesItem.id}>
-                {seriesItem.name}
-              </option>
-            ))}
-          </select>
-        </div>
+              {/* Product Name - Dependent on Series */}
+              <FormField
+                control={form.control}
+                name="productNameId"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">
+                      Product Name *
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={!selectedSeriesId}
+                      >
+                        <SelectTrigger className="w-full h-10 sm:h-11 text-sm sm:text-base disabled:opacity-50">
+                          <SelectValue
+                            placeholder={"Select a product name..."}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Names</SelectLabel>
+                            {names.map((nameItem) => (
+                              <SelectItem key={nameItem.id} value={nameItem.id}>
+                                {nameItem.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        {/* Product Name Dropdown */}
-        <div className="mt-6">
-          <label className="block mb-2 font-medium" htmlFor="name">
-            Product Name *
-          </label>
-          <select
-            id="name"
-            name="name"
-            value={selectedNameId}
-            onChange={(e) => setSelectedNameId(e.target.value)}
-            disabled={!selectedSeriesId || namesLoading}
-            className="border border-gray-300 rounded px-3 py-2 w-full disabled:bg-gray-100 disabled:cursor-not-allowed"
-            required
-          >
-            <option value="">
-              {!selectedSeriesId
-                ? "Please select a series first..."
-                : namesLoading
-                ? "Loading names..."
-                : "Select a name..."}
-            </option>
-            {names.map((nameItem) => (
-              <option key={nameItem.id} value={nameItem.id}>
-                {nameItem.name}
-              </option>
-            ))}
-          </select>
-        </div>
+              {/* Input Fields Grid - Responsive Layout */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <FormField
+                  control={form.control}
+                  name="warrantyYears"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm sm:text-base font-medium text-gray-700">
+                        Warranty Years *
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
+                          value={field.value.toString()}
+                        >
+                          <SelectTrigger className="w-full h-10 sm:h-11 text-sm sm:text-base py-5 m-0">
+                            <SelectValue placeholder="Select warranty years..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Warranty Years</SelectLabel>
+                              {warrantyYears.map((year) => (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {year} {year > 1 ? "years" : "year"}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        {/* Debug Info (remove in production) */}
-        <div className="mt-6 p-4 bg-gray-100 rounded text-sm">
-          <p>
-            <strong>Selected:</strong>
-          </p>
-          <p>Brand ID: {selectedBrandId || "None"}</p>
-          <p>Type ID: {selectedTypeId || "None"}</p>
-          <p>Series ID: {selectedSeriesId || "None"}</p>
-          <p>Available Types: {types.length}</p>
-          <p>Available Series: {series.length}</p>
+                <FormField
+                  control={form.control}
+                  name="filmQuantity"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm sm:text-base font-medium text-gray-700">
+                        Film Quantity *
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          className="h-10 sm:h-11 text-sm sm:text-base"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Full-width fields */}
+              <FormField
+                control={form.control}
+                name="filmSerialNo"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">
+                      Film Serial Number *
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="h-10 sm:h-11 text-sm sm:text-base"
+                        data-form-type="other"
+                        data-lpignore="true"
+                        autoComplete="off"
+                        {...field}
+                        placeholder="Enter film serial number"
+                        maxLength={100}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="filmShipmentNo"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">
+                      Film Shipment Number{" "}
+                      <span className="text-gray-500">(Optional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="h-10 sm:h-11 text-sm sm:text-base"
+                        data-form-type="other"
+                        data-lpignore="true"
+                        autoComplete="off"
+                        {...field}
+                        placeholder="Enter film shipment number"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="pt-4 sm:pt-6 border-t border-gray-200">
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto sm:min-w-[150px] h-10 sm:h-11 text-sm sm:text-base"
+                >
+                  Create Product
+                </Button>
+              </div>
+            </form>
+          </Form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

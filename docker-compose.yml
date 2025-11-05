@@ -28,11 +28,14 @@ services:
       dockerfile: backend/Dockerfile
     container_name: profilm_ewarranty_api
     ports:
-      - "8080:8080"
+      - "8080:8082"
+    env_file:
+      - backend/.env
     environment:
+      # Override the DATABASE_URL from .env to use Docker service name
       DATABASE_URL: postgresql://profilm_admin:uTVy0o1WZk@postgres:5432/profilm_ewarranty?sslmode=disable
-      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
-      ENVIRONMENT: development
+      # Set the port explicitly for Docker
+      PORT: 8082
     depends_on:
       - postgres
     networks:

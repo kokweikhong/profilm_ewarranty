@@ -1,0 +1,118 @@
+basePath: /
+definitions:
+  dto.CreateProductBrandRequest:
+    properties:
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  dto.ProductBrandResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8082
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API server for ProFilm eWarranty system.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: ProFilm eWarranty API
+  version: "1.0"
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check if the API server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - Health
+  /products/brands:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all product brands
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ProductBrandResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all product brands
+      tags:
+      - Product Brands
+    post:
+      consumes:
+      - application/json
+      description: Create a new product brand in the system
+      parameters:
+      - description: Product brand object
+        in: body
+        name: brand
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProductBrandRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ProductBrandResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new product brand
+      tags:
+      - Product Brands
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

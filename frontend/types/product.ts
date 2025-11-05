@@ -27,14 +27,12 @@ export interface ProductDetails {
 }
 
 export interface ProductCreateRequest {
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  brand: string;
-  model: string;
-  warrantyPeriod: number;
-  status?: "active" | "inactive";
+  productNameId: string;
+  productBrandId: string;
+  warrantyYears: number;
+  filmSerialNo: string;
+  filmQuantity: number;
+  filmShipmentNo: string;
 }
 
 export interface ProductUpdateRequest extends Partial<ProductCreateRequest> {

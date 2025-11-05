@@ -1,5 +1,6 @@
 import apiClient from "@/lib/api/client";
 import { ProductBrand } from "@/types/productBrand";
+import { ProductBrandCreateRequest } from "@/types/productBrand";
 
 export class ProductBrandService {
   private static readonly BASE_PATH = "/products/brands";
@@ -16,10 +17,12 @@ export class ProductBrandService {
     return response.data;
   }
 
-  // public static async create(data: ProductBrandCreateRequest): Promise<ProductBrand> {
-  //     const response = await apiClient.post<ProductBrand>(this.BASE_PATH, data);
-  //     return response.data;
-  // }
+  public static async create(
+    data: ProductBrandCreateRequest
+  ): Promise<ProductBrand> {
+    const response = await apiClient.post<ProductBrand>(this.BASE_PATH, data);
+    return response.data;
+  }
 
   // public static async update(id: string, data: ProductBrandCreateRequest): Promise<ProductBrand | null> {
   //     const response = await apiClient.put<ProductBrand>(`${this.BASE_PATH}/${id}`, data);

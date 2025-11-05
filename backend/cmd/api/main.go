@@ -1,9 +1,30 @@
+// ProFilm eWarranty API
+// @title           ProFilm eWarranty API
+// @version         1.0
+// @description     This is the API server for ProFilm eWarranty system.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8082
+// @BasePath  /
+
+// @securityDefinitions.basic  BasicAuth
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 package main
 
 import (
 	"log"
 	"net/http"
 
+	_ "github.com/kokweikhong/profilm_ewarranty/backend/docs"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/api"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/api/handlers"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/config"
@@ -47,8 +68,8 @@ func main() {
 	r := router.SetupRoutes()
 
 	// Start the server
-	log.Printf("Starting server on port %s...", cfg.Port)
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	log.Printf("Starting server on port %s...", "8082")
+	if err := http.ListenAndServe(":8082", r); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 
