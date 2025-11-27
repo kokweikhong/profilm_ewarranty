@@ -92,26 +92,26 @@ const people = [
     role: "Member",
   },
 ];
-
 export default function Page() {
   return (
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold text-gray-900">Shops</h1>
+          <h1 className="text-base font-semibold text-gray-900">
+            Product Allocations
+          </h1>
           <p className="mt-2 text-sm text-gray-700">
-            A list of all the products in your account including their brand,
-            type, series, name, warranty, film serial number, film quantity, and
-            shipment number.
+            A list of all the product allocations in your account including
+            their serial numbers, quantities, and associated shops.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <a
-            href="/admin/shops/create"
+          <button
+            type="button"
             className="block rounded-md bg-primary px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            Add New Shop
-          </a>
+            Add New Product Allocation
+          </button>
         </div>
       </div>
       <div className="mt-8 flow-root">
@@ -125,98 +125,33 @@ export default function Page() {
                       scope="col"
                       className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
                     >
-                      Company Name
+                      Film Serial No.
                     </th>
                     <th
                       scope="col"
                       className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:table-cell"
                     >
-                      Company Registration No.
+                      Film Quantity
                     </th>
                     <th
                       scope="col"
                       className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter lg:table-cell"
                     >
-                      Company License Image
+                      Shop ID
                     </th>
                     <th
                       scope="col"
                       className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
                     >
-                      Company Contact No.
+                      Shop Branch Code
                     </th>
                     <th
                       scope="col"
                       className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
                     >
-                      Company Email
+                      Allocation Date
                     </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Company Website
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Shop Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Shop Address
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Shop State
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Branch Code
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Shop Image
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Position
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Contact
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Email
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Login Username
-                    </th>
+
                     <th
                       scope="col"
                       className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
@@ -268,21 +203,6 @@ export default function Page() {
                       >
                         {person.role}
                       </td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
                       <td
                         className={cn(
                           "px-3 py-4 text-sm whitespace-nowrap text-gray-500"

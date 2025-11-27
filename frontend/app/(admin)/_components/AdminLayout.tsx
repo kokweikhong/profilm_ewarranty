@@ -11,51 +11,12 @@ import {
   MenuItems,
   TransitionChild,
 } from "@headlessui/react";
-import {
-  Bars3Icon,
-  BellIcon,
-  CalendarIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
-  HomeIcon,
-  UsersIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-
-const navigation = [
-  { name: "Dashboard", href: "/admin", icon: HomeIcon, current: true },
-  {
-    name: "Products",
-    href: "/admin/products",
-    icon: UsersIcon,
-    current: false,
-  },
-  { name: "Shops", href: "/admin/shops", icon: FolderIcon, current: false },
-  {
-    name: "Warranties",
-    href: "/admin/warranties",
-    icon: CalendarIcon,
-    current: false,
-  },
-  {
-    name: "Claims",
-    href: "/admin/claims",
-    icon: DocumentDuplicateIcon,
-    current: false,
-  },
-];
-
-const userNavigation = [
-  { name: "Your profile", href: "#" },
-  { name: "Sign out", href: "#" },
-];
+import { navigation, userNavigation } from "@/constants/navigation";
 
 export default function AdminLayout({
   children,
@@ -66,8 +27,18 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   // Update current navigation item based on pathname
+  // also highlight sub-paths
+  // eg if /admin then will ignore other paths like /admin/products
+  // if /admin/products, will highlight /admin/products
+  // if /admin/products/create, will highlight /admin/products
   navigation.forEach((item) => {
-    item.current = item.href === pathname;
+    if (pathname === item.href) {
+      item.current = true;
+    } else if (item.href !== "/admin" && pathname.startsWith(item.href + "/")) {
+      item.current = true;
+    } else {
+      item.current = false;
+    }
   });
 
   return (
@@ -108,7 +79,7 @@ export default function AdminLayout({
                   alt="ProFilm eWarranty"
                   width={150}
                   height={50}
-                  className="h-12 w-auto"
+                  className="h-8 w-auto"
                 />
               </div>
               <nav className="relative flex flex-1 flex-col">
@@ -153,7 +124,7 @@ export default function AdminLayout({
               alt="ProFilm eWarranty"
               width={150}
               height={50}
-              className="h-12 w-auto"
+              className="h-8 w-auto"
             />
           </div>
           <nav className="flex flex-1 flex-col">
