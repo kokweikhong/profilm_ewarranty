@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "ProFilm eWarranty Admin",
   description: "...",
 };
+
 export default function RootLayout({
   children,
 }: {

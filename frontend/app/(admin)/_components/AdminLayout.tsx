@@ -27,6 +27,7 @@ import {
 } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: HomeIcon, current: true },
@@ -36,9 +37,19 @@ const navigation = [
     icon: UsersIcon,
     current: false,
   },
-  { name: "Shops", href: "#", icon: FolderIcon, current: false },
-  { name: "Warranties", href: "#", icon: CalendarIcon, current: false },
-  { name: "Claims", href: "#", icon: DocumentDuplicateIcon, current: false },
+  { name: "Shops", href: "/admin/shops", icon: FolderIcon, current: false },
+  {
+    name: "Warranties",
+    href: "/admin/warranties",
+    icon: CalendarIcon,
+    current: false,
+  },
+  {
+    name: "Claims",
+    href: "/admin/claims",
+    icon: DocumentDuplicateIcon,
+    current: false,
+  },
 ];
 
 const userNavigation = [
@@ -52,6 +63,13 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Update current navigation item based on pathname
+  navigation.forEach((item) => {
+    item.current = item.href === pathname;
+  });
+
   return (
     <div>
       <Dialog
@@ -83,12 +101,14 @@ export default function AdminLayout({
             </TransitionChild>
 
             {/* Sidebar component, swap this element with another sidebar if you like */}
-            <div className="relative flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10">
+            <div className="relative flex grow flex-col gap-y-5 overflow-y-auto bg-primary px-6 pb-4 ring-1 ring-white/10">
               <div className="relative flex h-16 shrink-0 items-center">
-                <img
-                  alt="Your Company"
-                  src="/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                  className="h-8 w-auto"
+                <Image
+                  src={"/profilm_logo.png"}
+                  alt="ProFilm eWarranty"
+                  width={150}
+                  height={50}
+                  className="h-12 w-auto"
                 />
               </div>
               <nav className="relative flex flex-1 flex-col">
@@ -184,27 +204,7 @@ export default function AdminLayout({
           />
 
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <form action="#" method="GET" className="grid flex-1 grid-cols-1">
-              <input
-                name="search"
-                placeholder="Search"
-                aria-label="Search"
-                className="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-800 sm:text-sm/6"
-              />
-              <MagnifyingGlassIcon
-                aria-hidden="true"
-                className="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-800"
-              />
-            </form>
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <button
-                type="button"
-                className="-m-2.5 p-2.5 text-gray-800 hover:text-gray-500"
-              >
-                <span className="sr-only">View notifications</span>
-                <BellIcon aria-hidden="true" className="size-6" />
-              </button>
-
+            <div className="flex items-center gap-x-4 lg:gap-x-6 ml-auto">
               {/* Separator */}
               <div
                 aria-hidden="true"
@@ -216,12 +216,7 @@ export default function AdminLayout({
                 <MenuButton className="relative flex items-center">
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
-                  <img
-                    alt=""
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    className="size-8 rounded-full bg-gray-50 outline -outline-offset-1 outline-black/5"
-                  />
-                  <span className="hidden lg:flex lg:items-center">
+                  <span className="flex items-center gap-x-3">
                     <span
                       aria-hidden="true"
                       className="ml-4 text-sm/6 font-semibold text-gray-900"
