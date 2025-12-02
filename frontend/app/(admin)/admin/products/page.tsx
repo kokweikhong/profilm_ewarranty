@@ -1,98 +1,68 @@
-import { cn } from "@/lib/utils";
+"use client";
 
-const people = [
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  {
-    name: "Courtney Henry",
-    title: "Designer",
-    email: "courtney.henry@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Tom Cook",
-    title: "Director of Product",
-    email: "tom.cook@example.com",
-    role: "Member",
-  },
-  {
-    name: "Whitney Francis",
-    title: "Copywriter",
-    email: "whitney.francis@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Leonard Krasner",
-    title: "Senior Designer",
-    email: "leonard.krasner@example.com",
-    role: "Owner",
-  },
-  {
-    name: "Floyd Miles",
-    title: "Principal Designer",
-    email: "floyd.miles@example.com",
-    role: "Member",
-  },
-  {
-    name: "Emily Selman",
-    title: "VP, User Experience",
-    email: "emily.selman@example.com",
-    role: "Member",
-  },
-  {
-    name: "Kristin Watson",
-    title: "VP, Human Resources",
-    email: "kristin.watson@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Emma Dorsey",
-    title: "Senior Developer",
-    email: "emma.dorsey@example.com",
-    role: "Member",
-  },
-  {
-    name: "Alicia Bell",
-    title: "Junior Copywriter",
-    email: "alicia.bell@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Jenny Wilson",
-    title: "Studio Artist",
-    email: "jenny.wilson@example.com",
-    role: "Owner",
-  },
-  {
-    name: "Anna Roberts",
-    title: "Partner, Creative",
-    email: "anna.roberts@example.com",
-    role: "Member",
-  },
-  {
-    name: "Benjamin Russel",
-    title: "Director, Print Operations",
-    email: "benjamin.russel@example.com",
-    role: "Member",
-  },
-  {
-    name: "Jeffrey Webb",
-    title: "Senior Art Director",
-    email: "jeffrey.webb@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Kathryn Murphy",
-    title: "Associate Creative Director",
-    email: "kathryn.murphy@example.com",
-    role: "Member",
-  },
-];
+import React, { useEffect, useMemo, useState } from "react";
+
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
+import { cn } from "@/lib/utils";
+import axios from "axios";
+import { ProductListResponse } from "@/types/productsType";
+import { productColumns } from "@/lib/tableColumns";
+import { DebounceInput } from "@/components/DebounceInput";
+import { TablePagination } from "@/components/TablePagination";
+import { getApiBaseUrl } from "@/lib/env";
+
+// get products from backend API
+async function fetchProducts() {
+  try {
+    const response = await axios.get<ProductListResponse[]>(
+      `${getApiBaseUrl()}/products`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [] as ProductListResponse[];
+  }
+}
+
 export default function Page() {
+  const [products, setProducts] = useState<ProductListResponse[]>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<any[]>([]);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0, // Current page index (starts at 0)
+    pageSize: 10, // Number of rows per page
+  });
+
+  const table = useReactTable({
+    data: products,
+    columns: productColumns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      globalFilter,
+      sorting,
+      pagination,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+  });
+
+  useEffect(() => {
+    fetchProducts().then((data) => setProducts(data));
+  }, []);
+
+  console.log("Products:", products);
   return (
     <div>
       <div className="sm:flex sm:items-center">
@@ -113,145 +83,80 @@ export default function Page() {
           </a>
         </div>
       </div>
+      <div className="my-4">
+        <DebounceInput
+          type="text"
+          placeholder="Search all columns..."
+          className="max-w-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:w-64 px-3 py-2"
+          value={globalFilter ?? ""}
+          onChange={(value) => setGlobalFilter(String(value))}
+        />
+      </div>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle">
             <div className="max-h-[calc(100vh-280px)] overflow-y-auto">
               <table className="min-w-full border-separate border-spacing-0">
                 <thead>
-                  <tr>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
-                    >
-                      Brand
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:table-cell"
-                    >
-                      Type
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter lg:table-cell"
-                    >
-                      Series
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Warranty
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Film Serial No.
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Film Quantity
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Shipment No.
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          scope="col"
+                          className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
+                        >
+                          {header.isPlaceholder ? null : (
+                            <div
+                              {...{
+                                className: header.column.getCanSort()
+                                  ? "cursor-pointer select-none flex items-center gap-2 hover:text-primary"
+                                  : "",
+                                onClick:
+                                  header.column.getToggleSortingHandler(),
+                              }}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                              {{
+                                asc: <ChevronUpIcon className="w-4 h-4" />,
+                                desc: <ChevronDownIcon className="w-4 h-4" />,
+                              }[header.column.getIsSorted() as string] ?? null}
+                            </div>
+                          )}
+                        </th>
+                      ))}
+                      <th
+                        scope="col"
+                        className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
+                      >
+                        Actions
+                      </th>
+                    </tr>
+                  ))}
                 </thead>
                 <tbody>
-                  {people.map((person, personIdx) => (
-                    <tr key={person.email}>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8"
-                        )}
-                      >
-                        {person.name}
-                      </td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "hidden px-3 py-4 text-sm whitespace-nowrap text-gray-500 sm:table-cell"
-                        )}
-                      >
-                        {person.title}
-                      </td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "hidden px-3 py-4 text-sm whitespace-nowrap text-gray-500 lg:table-cell"
-                        )}
-                      >
-                        {person.email}
-                      </td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      >
-                        {person.role}
-                      </td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-8 lg:pr-8"
-                        )}
-                      >
-                        <a
-                          href="#"
-                          className="text-primary hover:text-primary/90"
+                  {table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8"
                         >
-                          Edit<span className="sr-only">, {person.name}</span>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                      <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8">
+                        <a
+                          href={`/admin/products/edit/${row.original.productId}`}
+                          className="text-primary hover:underline"
+                        >
+                          Edit
                         </a>
                       </td>
                     </tr>
@@ -262,6 +167,7 @@ export default function Page() {
           </div>
         </div>
       </div>
+      <TablePagination table={table} />
     </div>
   );
 }

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "profilm_ewarranty",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

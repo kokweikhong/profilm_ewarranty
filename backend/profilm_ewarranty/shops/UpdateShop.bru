@@ -1,0 +1,38 @@
+meta {
+  name: UpdateShop
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/api/v1/shops/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": 1,
+    "companyName": "Profilm Testing 1",
+    "companyRegistrationNumber": "Company Registration Number Testing 11",
+    "companyLicenseImageUrl": "Company License Image Url",
+    "companyContactNumber": "0167785788",
+    "companyEmail": "profilm@gmail.com",
+    "shopName": "Profilm Shop Testing 1",
+    "shopAddress": "Shop Address Testing 1",
+    "msiaStateId": 1,
+    "branchCode": "JH",
+    "shopImageUrl": "Shop Image URL Testing 1",
+    "picName": "PIC Name Testing 1",
+    "picPosition": "PIC Position Testing 1",
+    "picContactNumber": "0167785788",
+    "picEmail": "picemail@email.com",
+    "loginUsername": "Username Testing 1",
+    "loginPasswordHash": "password"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

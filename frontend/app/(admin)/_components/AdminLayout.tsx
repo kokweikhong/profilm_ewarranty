@@ -224,6 +224,13 @@ export default function AdminLayout({
           <div className="px-4 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>
+
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="border-t border-gray-200 py-4 text-center text-sm/6 text-gray-500">
+          &copy; {new Date().getFullYear()} ProFilm eWarranty. All rights
+          reserved.
+        </div>
+      </div>
     </div>
   );
 }
