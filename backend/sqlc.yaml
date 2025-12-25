@@ -8,6 +8,16 @@ overrides:
         go_type: "time.Time"
       - column: "*.allocation_date"
         go_type: "time.Time"
+      - column: "*.installation_date"
+        go_type: "time.Time"
+      - column: "*.claim_date"
+        go_type: "time.Time"
+      - db_type: "date"
+        go_type:
+          import: "time"
+          type: "Time"
+          pointer: true
+        nullable: true
       - column: "*._id"
         go_type: "int32"
       - db_type: "int"
@@ -55,6 +65,39 @@ sql:
       go:
         package: "productallocations"
         out: "./internal/db/sqlc/productallocations"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_db_tags: true
+        emit_interface: true
+        emit_empty_slices: true
+        emit_pointers_for_null_types: true
+        emit_result_struct_pointers: true
+        emit_params_struct_pointers: true
+        json_tags_case_style: "camel"
+
+  - engine: "postgresql"
+    queries: "./internal/db/query/warranties.query.sql"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "warranties"
+        out: "./internal/db/sqlc/warranties"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_db_tags: true
+        emit_interface: true
+        emit_empty_slices: true
+        emit_pointers_for_null_types: true
+        emit_result_struct_pointers: true
+        emit_params_struct_pointers: true
+        json_tags_case_style: "camel"
+  - engine: "postgresql"
+    queries: "./internal/db/query/claims.query.sql"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "claims"
+        out: "./internal/db/sqlc/claims"
         sql_package: "pgx/v5"
         emit_json_tags: true
         emit_db_tags: true

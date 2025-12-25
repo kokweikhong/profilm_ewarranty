@@ -26,15 +26,12 @@ CREATE TABLE IF NOT EXISTS shops (
     pic_position VARCHAR(255) NOT NULL,
     pic_contact_number VARCHAR(50) NOT NULL DEFAULT '',
     pic_email VARCHAR(255) NOT NULL DEFAULT '',
-    login_username VARCHAR(100) UNIQUE NOT NULL,
-    login_password_hash VARCHAR(255) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_shops_company_registration_number ON shops(company_registration_number);
-CREATE INDEX idx_shops_login_username ON shops(login_username);
 -- +goose StatementEnd
 
 -- +goose Down

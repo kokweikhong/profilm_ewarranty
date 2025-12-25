@@ -12,11 +12,10 @@ type Querier interface {
 	CreateShop(ctx context.Context, arg *CreateShopParams) (*Shop, error)
 	GetMaxBranchCodeByStateCode(ctx context.Context, code string) (string, error)
 	GetMsiaStateByID(ctx context.Context, id int32) (*MsiaState, error)
-	GetShopByID(ctx context.Context, id int32) (*GetShopByIDRow, error)
+	GetShopByID(ctx context.Context, id int32) (*Shop, error)
+	GetShops(ctx context.Context) ([]*GetShopsRow, error)
 	ListMsiaStates(ctx context.Context) ([]*MsiaState, error)
-	ListShopsView(ctx context.Context) ([]*ShopsView, error)
 	UpdateShop(ctx context.Context, arg *UpdateShopParams) (*Shop, error)
-	UpdateShopPassword(ctx context.Context, arg *UpdateShopPasswordParams) (*Shop, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS product_allocations (
     product_id INT REFERENCES products(id) NOT NULL,
     shop_id INT REFERENCES shops(id) NOT NULL,
     film_quantity INT NOT NULL,
-    allocation_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    allocation_date DATE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

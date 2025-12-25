@@ -1,0 +1,26 @@
+meta {
+  name: UpdateProductAllocation
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/api/v1/product-allocations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": 1,
+    "productId": 1,
+    "shopId": 1,
+    "filmQuantity": 5,
+    "allocationDate": "2025-12-05T00:00:00Z"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

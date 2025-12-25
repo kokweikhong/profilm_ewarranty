@@ -14,11 +14,10 @@ import (
 type ShopsService interface {
 	ListMsiaStates(ctx context.Context) ([]*shops.MsiaState, error)
 	GetMsiaStateByID(ctx context.Context, id int32) (*shops.MsiaState, error)
-	ListShopsView(ctx context.Context) ([]*shops.ShopsView, error)
-	GetShopByID(ctx context.Context, id int32) (*shops.GetShopByIDRow, error)
+	GetShops(ctx context.Context) ([]*shops.GetShopsRow, error)
+	GetShopByID(ctx context.Context, id int32) (*shops.Shop, error)
 	CreateShop(ctx context.Context, arg *shops.CreateShopParams) (*shops.Shop, error)
 	UpdateShop(ctx context.Context, arg *shops.UpdateShopParams) (*shops.Shop, error)
-	UpdateShopPassword(ctx context.Context, shopID int32, newPasswordHash string) (*shops.Shop, error)
 	GenerateNextBranchCode(ctx context.Context, stateCode string) (string, error)
 }
 
@@ -44,13 +43,13 @@ func (s *shopsService) GetMsiaStateByID(ctx context.Context, id int32) (*shops.M
 	return s.q.GetMsiaStateByID(ctx, id)
 }
 
-// ListShopsView retrieves a list of shop views from the database.
-func (s *shopsService) ListShopsView(ctx context.Context) ([]*shops.ShopsView, error) {
-	return s.q.ListShopsView(ctx)
+// GetShops retrieves a list of shops from the database.
+func (s *shopsService) GetShops(ctx context.Context) ([]*shops.GetShopsRow, error) {
+	return s.q.GetShops(ctx)
 }
 
 // GetShopByID retrieves a shop by its ID from the database.
-func (s *shopsService) GetShopByID(ctx context.Context, id int32) (*shops.GetShopByIDRow, error) {
+func (s *shopsService) GetShopByID(ctx context.Context, id int32) (*shops.Shop, error) {
 	return s.q.GetShopByID(ctx, id)
 }
 
@@ -63,14 +62,6 @@ func (s *shopsService) CreateShop(ctx context.Context, arg *shops.CreateShopPara
 // UpdateShop updates an existing shop in the database.
 func (s *shopsService) UpdateShop(ctx context.Context, arg *shops.UpdateShopParams) (*shops.Shop, error) {
 	return s.q.UpdateShop(ctx, arg)
-}
-
-// UpdateShopPassword updates the password hash for a given shop.
-func (s *shopsService) UpdateShopPassword(ctx context.Context, shopID int32, newPasswordHash string) (*shops.Shop, error) {
-	return s.q.UpdateShopPassword(ctx, &shops.UpdateShopPasswordParams{
-		ID:                shopID,
-		LoginPasswordHash: newPasswordHash,
-	})
 }
 
 // GenerateNextBranchCode generates the next branch code for a given state.

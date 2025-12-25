@@ -9,60 +9,20 @@ FROM msia_states;
 
 -- name: GetMsiaStateByID :one
 SELECT
-    id,
-    name,
-    code,
-    created_at,
-    updated_at
+    *
 FROM msia_states
 WHERE id = $1;
 
--- name: ListShopsView :many
+-- name: GetShops :many
 SELECT
-    shop_id,
-    company_name,
-    company_registration_number,
-    company_contact_number,
-    company_email,
-    company_website_url,
-    shop_name,
-    shop_address,
-    msia_state_name,
-    branch_code,
-    shop_image_url,
-    pic_name,
-    pic_position,
-    pic_contact_number,
-    pic_email,
-    login_username,
-    is_active,
-    created_at,
-    updated_at
-FROM shops_view
+    *,
+    (SELECT name FROM msia_states WHERE id = s.msia_state_id) AS msia_state_name
+FROM shops s
 ORDER BY created_at DESC;
 
 -- name: GetShopByID :one
 SELECT
-    id,
-    company_name,
-    company_registration_number,
-    company_license_image_url,
-    company_contact_number,
-    company_email,
-    company_website_url,
-    shop_name,
-    shop_address,
-    msia_state_id,
-    branch_code,
-    shop_image_url,
-    pic_name,
-    pic_position,
-    pic_contact_number,
-    pic_email,
-    login_username,
-    is_active,
-    created_at,
-    updated_at
+    *
 FROM shops
 WHERE id = $1;
 
@@ -82,14 +42,10 @@ INSERT INTO shops (
     pic_name,
     pic_position,
     pic_contact_number,
-    pic_email,
-    login_username,
-    login_password_hash,
-    created_at,
-    updated_at
+    pic_email
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-    $11, $12, $13, $14, $15, $16, $17, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    $11, $12, $13, $14, $15
 )
 RETURNING *;
 
@@ -111,16 +67,7 @@ SET
     pic_position = $14,
     pic_contact_number = $15,
     pic_email = $16,
-    login_username = $17,
-    is_active = $18,
-    updated_at = CURRENT_TIMESTAMP
-WHERE id = $1
-RETURNING *;
-
--- name: UpdateShopPassword :one
-UPDATE shops
-SET
-    login_password_hash = $2,
+    is_active = $17,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;

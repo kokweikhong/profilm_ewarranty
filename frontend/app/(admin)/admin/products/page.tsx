@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   flexRender,
@@ -11,7 +11,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
-import { cn } from "@/lib/utils";
 import axios from "axios";
 import { ProductListResponse } from "@/types/productsType";
 import { productColumns } from "@/lib/tableColumns";

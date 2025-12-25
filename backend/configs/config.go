@@ -13,6 +13,7 @@ type Config struct {
 	Database DatabaseConfig
 	JWT      JWTConfig
 	Log      LogConfig
+	DOSpaces DOSpacesConfig
 }
 
 type ServerConfig struct {
@@ -37,6 +38,13 @@ type JWTConfig struct {
 
 type LogConfig struct {
 	Level string
+}
+
+type DOSpacesConfig struct {
+	SpacesKey    string
+	SpacesSecret string
+	Region       string
+	BucketName   string
 }
 
 // Load loads configuration from environment variables
@@ -64,6 +72,12 @@ func Load() (*Config, error) {
 		},
 		Log: LogConfig{
 			Level: getEnv("LOG_LEVEL", "info"),
+		},
+		DOSpaces: DOSpacesConfig{
+			SpacesKey:    getEnv("DO_SPACES_KEY", ""),
+			SpacesSecret: getEnv("DO_SPACES_SECRET", ""),
+			Region:       getEnv("DO_SPACES_REGION", ""),
+			BucketName:   getEnv("DO_SPACES_BUCKET", ""),
 		},
 	}
 

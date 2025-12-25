@@ -19,19 +19,25 @@ INSERT INTO product_allocations (
     created_at,
     updated_at
 ) VALUES (
-    $1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    $1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 )
 RETURNING id, product_id, shop_id, film_quantity, allocation_date, created_at, updated_at
 `
 
 type CreateProductAllocationParams struct {
-	ProductID    int32 `db:"product_id" json:"productId"`
-	ShopID       int32 `db:"shop_id" json:"shopId"`
-	FilmQuantity int32 `db:"film_quantity" json:"filmQuantity"`
+	ProductID      int32     `db:"product_id" json:"productId"`
+	ShopID         int32     `db:"shop_id" json:"shopId"`
+	FilmQuantity   int32     `db:"film_quantity" json:"filmQuantity"`
+	AllocationDate time.Time `db:"allocation_date" json:"allocationDate"`
 }
 
 func (q *Queries) CreateProductAllocation(ctx context.Context, arg *CreateProductAllocationParams) (*ProductAllocation, error) {
-	row := q.db.QueryRow(ctx, createProductAllocation, arg.ProductID, arg.ShopID, arg.FilmQuantity)
+	row := q.db.QueryRow(ctx, createProductAllocation,
+		arg.ProductID,
+		arg.ShopID,
+		arg.FilmQuantity,
+		arg.AllocationDate,
+	)
 	var i ProductAllocation
 	err := row.Scan(
 		&i.ID,
@@ -73,6 +79,76 @@ func (q *Queries) GetProductAllocationByID(ctx context.Context, id int32) (*Prod
 	return &i, err
 }
 
+const getProductsFromProductAllocationsByShopID = `-- name: GetProductsFromProductAllocationsByShopID :many
+SELECT
+    pa.id AS product_allocation_id,
+    p.id AS product_id,
+    pb.name AS brand_name,    
+    pt.name AS type_name,
+    ps.name AS series_name,
+    pn.name AS product_name,
+    p.warranty_in_months,
+    p.film_serial_number,
+    p.film_quantity,
+    p.shipment_number,
+    p.description
+FROM product_allocations pa
+JOIN products p ON pa.product_id = p.id
+JOIN product_names pn ON p.name_id = pn.id
+JOIN product_series ps ON pn.series_id = ps.id
+JOIN product_types pt ON ps.type_id = pt.id
+JOIN product_brands pb ON pt.brand_id = pb.id
+AND p.is_active = TRUE
+WHERE pa.shop_id = $1
+ORDER BY brand_name ASC
+`
+
+type GetProductsFromProductAllocationsByShopIDRow struct {
+	ProductAllocationID int32  `db:"product_allocation_id" json:"productAllocationId"`
+	ProductID           int32  `db:"product_id" json:"productId"`
+	BrandName           string `db:"brand_name" json:"brandName"`
+	TypeName            string `db:"type_name" json:"typeName"`
+	SeriesName          string `db:"series_name" json:"seriesName"`
+	ProductName         string `db:"product_name" json:"productName"`
+	WarrantyInMonths    int32  `db:"warranty_in_months" json:"warrantyInMonths"`
+	FilmSerialNumber    string `db:"film_serial_number" json:"filmSerialNumber"`
+	FilmQuantity        int32  `db:"film_quantity" json:"filmQuantity"`
+	ShipmentNumber      string `db:"shipment_number" json:"shipmentNumber"`
+	Description         string `db:"description" json:"description"`
+}
+
+func (q *Queries) GetProductsFromProductAllocationsByShopID(ctx context.Context, shopID int32) ([]*GetProductsFromProductAllocationsByShopIDRow, error) {
+	rows, err := q.db.Query(ctx, getProductsFromProductAllocationsByShopID, shopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetProductsFromProductAllocationsByShopIDRow{}
+	for rows.Next() {
+		var i GetProductsFromProductAllocationsByShopIDRow
+		if err := rows.Scan(
+			&i.ProductAllocationID,
+			&i.ProductID,
+			&i.BrandName,
+			&i.TypeName,
+			&i.SeriesName,
+			&i.ProductName,
+			&i.WarrantyInMonths,
+			&i.FilmSerialNumber,
+			&i.FilmQuantity,
+			&i.ShipmentNumber,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listProductAllocationsView = `-- name: ListProductAllocationsView :many
 SELECT
     allocation_id,
@@ -88,15 +164,27 @@ FROM product_allocations_view
 ORDER BY allocation_date DESC
 `
 
-func (q *Queries) ListProductAllocationsView(ctx context.Context) ([]*ProductAllocationsView, error) {
+type ListProductAllocationsViewRow struct {
+	AllocationID     int32     `db:"allocation_id" json:"allocationId"`
+	FilmSerialNumber string    `db:"film_serial_number" json:"filmSerialNumber"`
+	ProductName      string    `db:"product_name" json:"productName"`
+	ShopName         string    `db:"shop_name" json:"shopName"`
+	BranchCode       string    `db:"branch_code" json:"branchCode"`
+	FilmQuantity     int32     `db:"film_quantity" json:"filmQuantity"`
+	AllocationDate   time.Time `db:"allocation_date" json:"allocationDate"`
+	CreatedAt        time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt        time.Time `db:"updated_at" json:"updatedAt"`
+}
+
+func (q *Queries) ListProductAllocationsView(ctx context.Context) ([]*ListProductAllocationsViewRow, error) {
 	rows, err := q.db.Query(ctx, listProductAllocationsView)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ProductAllocationsView{}
+	items := []*ListProductAllocationsViewRow{}
 	for rows.Next() {
-		var i ProductAllocationsView
+		var i ListProductAllocationsViewRow
 		if err := rows.Scan(
 			&i.AllocationID,
 			&i.FilmSerialNumber,

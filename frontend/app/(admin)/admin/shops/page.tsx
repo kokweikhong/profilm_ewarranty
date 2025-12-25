@@ -1,108 +1,64 @@
-import { cn } from "@/lib/utils";
+"use client";
 
-const people = [
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  {
-    name: "Courtney Henry",
-    title: "Designer",
-    email: "courtney.henry@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Tom Cook",
-    title: "Director of Product",
-    email: "tom.cook@example.com",
-    role: "Member",
-  },
-  {
-    name: "Whitney Francis",
-    title: "Copywriter",
-    email: "whitney.francis@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Leonard Krasner",
-    title: "Senior Designer",
-    email: "leonard.krasner@example.com",
-    role: "Owner",
-  },
-  {
-    name: "Floyd Miles",
-    title: "Principal Designer",
-    email: "floyd.miles@example.com",
-    role: "Member",
-  },
-  {
-    name: "Emily Selman",
-    title: "VP, User Experience",
-    email: "emily.selman@example.com",
-    role: "Member",
-  },
-  {
-    name: "Kristin Watson",
-    title: "VP, Human Resources",
-    email: "kristin.watson@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Emma Dorsey",
-    title: "Senior Developer",
-    email: "emma.dorsey@example.com",
-    role: "Member",
-  },
-  {
-    name: "Alicia Bell",
-    title: "Junior Copywriter",
-    email: "alicia.bell@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Jenny Wilson",
-    title: "Studio Artist",
-    email: "jenny.wilson@example.com",
-    role: "Owner",
-  },
-  {
-    name: "Anna Roberts",
-    title: "Partner, Creative",
-    email: "anna.roberts@example.com",
-    role: "Member",
-  },
-  {
-    name: "Benjamin Russel",
-    title: "Director, Print Operations",
-    email: "benjamin.russel@example.com",
-    role: "Member",
-  },
-  {
-    name: "Jeffrey Webb",
-    title: "Senior Art Director",
-    email: "jeffrey.webb@example.com",
-    role: "Admin",
-  },
-  {
-    name: "Kathryn Murphy",
-    title: "Associate Creative Director",
-    email: "kathryn.murphy@example.com",
-    role: "Member",
-  },
-];
+import { useEffect, useState } from "react";
+
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
+import axios from "axios";
+import { Shop, ShopListResponse } from "@/types/shopsType";
+import { shopColumns } from "@/lib/tableColumns";
+import { DebounceInput } from "@/components/DebounceInput";
+import { TablePagination } from "@/components/TablePagination";
+import { getShopsViewApi, getShops } from "@/lib/apis/shopsApi";
 
 export default function Page() {
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<any[]>([]);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0, // Current page index (starts at 0)
+    pageSize: 10, // Number of rows per page
+  });
+
+  const table = useReactTable({
+    data: shops,
+    columns: shopColumns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      globalFilter,
+      sorting,
+      pagination,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+  });
+
+  useEffect(() => {
+    getShops().then((data) => setShops(data));
+  }, []);
+
+  console.log("Shops:", shops);
   return (
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-base font-semibold text-gray-900">Shops</h1>
           <p className="mt-2 text-sm text-gray-700">
-            A list of all the products in your account including their brand,
-            type, series, name, warranty, film serial number, film quantity, and
-            shipment number.
+            A list of all the shops in your account including their company
+            name, registration number, contact number, email, website URL, shop
+            name, shop address, state, branch code, PIC name, PIC position, PIC
+            contact number, PIC email, login username, and active status.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -114,193 +70,80 @@ export default function Page() {
           </a>
         </div>
       </div>
+      <div className="my-4">
+        <DebounceInput
+          type="text"
+          placeholder="Search all columns..."
+          className="max-w-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:w-64 px-3 py-2"
+          value={globalFilter ?? ""}
+          onChange={(value) => setGlobalFilter(String(value))}
+        />
+      </div>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle">
             <div className="max-h-[calc(100vh-280px)] overflow-y-auto">
               <table className="min-w-full border-separate border-spacing-0">
                 <thead>
-                  <tr>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
-                    >
-                      Company Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:table-cell"
-                    >
-                      Company Registration No.
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter lg:table-cell"
-                    >
-                      Company License Image
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Company Contact No.
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Company Email
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Company Website
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Shop Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                    >
-                      Shop Address
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Shop State
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Branch Code
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Shop Image
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Position
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Contact
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      PIC Email
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      Login Username
-                    </th>
-                    <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                    >
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          scope="col"
+                          className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
+                        >
+                          {header.isPlaceholder ? null : (
+                            <div
+                              {...{
+                                className: header.column.getCanSort()
+                                  ? "cursor-pointer select-none flex items-center gap-2 hover:text-primary"
+                                  : "",
+                                onClick:
+                                  header.column.getToggleSortingHandler(),
+                              }}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                              {{
+                                asc: <ChevronUpIcon className="w-4 h-4" />,
+                                desc: <ChevronDownIcon className="w-4 h-4" />,
+                              }[header.column.getIsSorted() as string] ?? null}
+                            </div>
+                          )}
+                        </th>
+                      ))}
+                      <th
+                        scope="col"
+                        className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
+                      >
+                        Actions
+                      </th>
+                    </tr>
+                  ))}
                 </thead>
                 <tbody>
-                  {people.map((person, personIdx) => (
-                    <tr key={person.email}>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8"
-                        )}
-                      >
-                        {person.name}
-                      </td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "hidden px-3 py-4 text-sm whitespace-nowrap text-gray-500 sm:table-cell"
-                        )}
-                      >
-                        {person.title}
-                      </td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "hidden px-3 py-4 text-sm whitespace-nowrap text-gray-500 lg:table-cell"
-                        )}
-                      >
-                        {person.email}
-                      </td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      >
-                        {person.role}
-                      </td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          "px-3 py-4 text-sm whitespace-nowrap text-gray-500"
-                        )}
-                      ></td>
-                      <td
-                        className={cn(
-                          personIdx !== people.length - 1
-                            ? "border-b border-gray-200"
-                            : "",
-                          "py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-8 lg:pr-8"
-                        )}
-                      >
-                        <a
-                          href="#"
-                          className="text-primary hover:text-primary/90"
+                  {table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8"
                         >
-                          Edit<span className="sr-only">, {person.name}</span>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                      <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8">
+                        <a
+                          href={`/admin/shops/edit/${row.original.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          Edit
                         </a>
                       </td>
                     </tr>
@@ -311,6 +154,7 @@ export default function Page() {
           </div>
         </div>
       </div>
+      <TablePagination table={table} />
     </div>
   );
 }

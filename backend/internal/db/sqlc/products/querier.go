@@ -16,7 +16,6 @@ type Querier interface {
 	ListProductSeries(ctx context.Context) ([]*ProductSeries, error)
 	ListProductTypes(ctx context.Context) ([]*ProductType, error)
 	ListProductsView(ctx context.Context) ([]*ProductsView, error)
-	ListWarrantyPeriods(ctx context.Context) ([]*WarrantyPeriod, error)
 	UpdateProduct(ctx context.Context, arg *UpdateProductParams) (*Product, error)
 }
 

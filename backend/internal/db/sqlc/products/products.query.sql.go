@@ -19,11 +19,9 @@ INSERT INTO products (
     film_serial_number,
     film_quantity,
     shipment_number,
-    description,
-    created_at,
-    updated_at
+    description
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
 RETURNING id, brand_id, type_id, series_id, name_id, warranty_in_months, film_serial_number, film_quantity, shipment_number, description, is_active, created_at, updated_at
 `
@@ -73,19 +71,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg *CreateProductParams) (
 
 const getProductByID = `-- name: GetProductByID :one
 SELECT
-    id,
-    brand_id,
-    type_id,
-    series_id,
-    name_id,
-    warranty_in_months,
-    film_serial_number,
-    film_quantity,
-    shipment_number,
-    description,
-    is_active,
-    created_at,
-    updated_at
+    id, brand_id, type_id, series_id, name_id, warranty_in_months, film_serial_number, film_quantity, shipment_number, description, is_active, created_at, updated_at
 FROM products
 WHERE id = $1
 `
@@ -305,42 +291,6 @@ func (q *Queries) ListProductsView(ctx context.Context) ([]*ProductsView, error)
 			&i.ShipmentNumber,
 			&i.Description,
 			&i.IsActive,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listWarrantyPeriods = `-- name: ListWarrantyPeriods :many
-SELECT
-    id,
-    period_years,
-    description,
-    created_at,
-    updated_at
-FROM warranty_periods
-`
-
-func (q *Queries) ListWarrantyPeriods(ctx context.Context) ([]*WarrantyPeriod, error) {
-	rows, err := q.db.Query(ctx, listWarrantyPeriods)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*WarrantyPeriod{}
-	for rows.Next() {
-		var i WarrantyPeriod
-		if err := rows.Scan(
-			&i.ID,
-			&i.PeriodYears,
-			&i.Description,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

@@ -4,7 +4,6 @@ import {
   ProductType,
   ProductSeries,
   ProductName,
-  WarrantyPeriod,
   Product,
 } from "@/types/productsType";
 import { getApiBaseUrl } from "@/lib/env";
@@ -47,13 +46,6 @@ export async function getProductSeriesApi(): Promise<ProductSeries[]> {
 export async function getProductNamesApi(): Promise<ProductName[]> {
   const response = await axios.get<ProductName[]>(
     `${getApiBaseUrl()}/products/names`
-  );
-  return response.data;
-}
-
-export async function getWarrantyPeriodsApi(): Promise<WarrantyPeriod[]> {
-  const response = await axios.get<WarrantyPeriod[]>(
-    `${getApiBaseUrl()}/products/warranty-periods`
   );
   return response.data;
 }

@@ -35,14 +35,6 @@ CREATE TABLE IF NOT EXISTS product_names (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS warranty_periods (
-    id SERIAL PRIMARY KEY,
-    period_years INT NOT NULL,
-    description TEXT NOT NULL DEFAULT '',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     brand_id INT REFERENCES product_brands(id) NOT NULL,
@@ -65,13 +57,11 @@ CREATE INDEX idx_product_brands_name ON product_brands(name);
 CREATE INDEX idx_product_types_name ON product_types(name);
 CREATE INDEX idx_product_series_name ON product_series(name);
 CREATE INDEX idx_product_names_name ON product_names(name);
-CREATE INDEX idx_warranty_periods_period_years ON warranty_periods(period_years);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS warranty_periods;
 DROP TABLE IF EXISTS product_names;
 DROP TABLE IF EXISTS product_series;
 DROP TABLE IF EXISTS product_types;

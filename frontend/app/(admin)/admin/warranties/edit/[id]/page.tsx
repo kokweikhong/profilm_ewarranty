@@ -1,0 +1,33 @@
+import {
+  getProductByIdApi,
+  getProductBrandsApi,
+  getProductTypesApi,
+  getProductSeriesApi,
+  getProductNamesApi,
+  getWarrantyPeriodsApi,
+} from "@/lib/apis/productsApi";
+import { getWarrantyByIdApi } from "@/lib/apis/warrantiesApi";
+import ProductForm from "../../_components/WarrantyForm";
+import { Suspense } from "react";
+import { formatDate } from "@/lib/utils";
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const warranty = await getWarrantyByIdApi(Number(id));
+  console.log("warranty:", warranty);
+  if (warranty) {
+    warranty.installationDate = formatDate(warranty.installationDate);
+  }
+
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProductForm warranty={warranty} mode="update" />
+      </Suspense>
+    </div>
+  );
+}

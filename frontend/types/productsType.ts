@@ -1,14 +1,14 @@
 export interface ProductListResponse {
   productId: number;
-  productName: string;
   brandName: string;
   typeName: string;
   seriesName: string;
-  description: string;
+  productName: string;
   warrantyPeriod: number;
   filmSerialNumber: string;
   filmQuantity: number;
   shipmentNumber: string;
+  description: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -53,6 +53,7 @@ export interface UpdateProductRequest {
   filmQuantity: number;
   shipmentNumber: string;
   description: string;
+  isActive: boolean;
 }
 
 export interface ProductBrand {
@@ -85,14 +86,6 @@ export interface ProductName {
   id: number;
   seriesId: number;
   name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface WarrantyPeriod {
-  id: number;
-  periodYears: number;
   description: string;
   createdAt: string;
   updatedAt: string;

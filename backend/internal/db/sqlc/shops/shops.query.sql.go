@@ -26,16 +26,12 @@ INSERT INTO shops (
     pic_name,
     pic_position,
     pic_contact_number,
-    pic_email,
-    login_username,
-    login_password_hash,
-    created_at,
-    updated_at
+    pic_email
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-    $11, $12, $13, $14, $15, $16, $17, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    $11, $12, $13, $14, $15
 )
-RETURNING id, company_name, company_registration_number, company_license_image_url, company_contact_number, company_email, company_website_url, shop_name, shop_address, msia_state_id, branch_code, shop_image_url, pic_name, pic_position, pic_contact_number, pic_email, login_username, login_password_hash, is_active, created_at, updated_at
+RETURNING id, company_name, company_registration_number, company_license_image_url, company_contact_number, company_email, company_website_url, shop_name, shop_address, msia_state_id, branch_code, shop_image_url, pic_name, pic_position, pic_contact_number, pic_email, is_active, created_at, updated_at
 `
 
 type CreateShopParams struct {
@@ -54,8 +50,6 @@ type CreateShopParams struct {
 	PicPosition               string `db:"pic_position" json:"picPosition"`
 	PicContactNumber          string `db:"pic_contact_number" json:"picContactNumber"`
 	PicEmail                  string `db:"pic_email" json:"picEmail"`
-	LoginUsername             string `db:"login_username" json:"loginUsername"`
-	LoginPasswordHash         string `db:"login_password_hash" json:"loginPasswordHash"`
 }
 
 func (q *Queries) CreateShop(ctx context.Context, arg *CreateShopParams) (*Shop, error) {
@@ -75,8 +69,6 @@ func (q *Queries) CreateShop(ctx context.Context, arg *CreateShopParams) (*Shop,
 		arg.PicPosition,
 		arg.PicContactNumber,
 		arg.PicEmail,
-		arg.LoginUsername,
-		arg.LoginPasswordHash,
 	)
 	var i Shop
 	err := row.Scan(
@@ -96,8 +88,6 @@ func (q *Queries) CreateShop(ctx context.Context, arg *CreateShopParams) (*Shop,
 		&i.PicPosition,
 		&i.PicContactNumber,
 		&i.PicEmail,
-		&i.LoginUsername,
-		&i.LoginPasswordHash,
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -123,11 +113,7 @@ func (q *Queries) GetMaxBranchCodeByStateCode(ctx context.Context, code string) 
 
 const getMsiaStateByID = `-- name: GetMsiaStateByID :one
 SELECT
-    id,
-    name,
-    code,
-    created_at,
-    updated_at
+    id, name, code, created_at, updated_at
 FROM msia_states
 WHERE id = $1
 `
@@ -147,56 +133,14 @@ func (q *Queries) GetMsiaStateByID(ctx context.Context, id int32) (*MsiaState, e
 
 const getShopByID = `-- name: GetShopByID :one
 SELECT
-    id,
-    company_name,
-    company_registration_number,
-    company_license_image_url,
-    company_contact_number,
-    company_email,
-    company_website_url,
-    shop_name,
-    shop_address,
-    msia_state_id,
-    branch_code,
-    shop_image_url,
-    pic_name,
-    pic_position,
-    pic_contact_number,
-    pic_email,
-    login_username,
-    is_active,
-    created_at,
-    updated_at
+    id, company_name, company_registration_number, company_license_image_url, company_contact_number, company_email, company_website_url, shop_name, shop_address, msia_state_id, branch_code, shop_image_url, pic_name, pic_position, pic_contact_number, pic_email, is_active, created_at, updated_at
 FROM shops
 WHERE id = $1
 `
 
-type GetShopByIDRow struct {
-	ID                        int32     `db:"id" json:"id"`
-	CompanyName               string    `db:"company_name" json:"companyName"`
-	CompanyRegistrationNumber string    `db:"company_registration_number" json:"companyRegistrationNumber"`
-	CompanyLicenseImageUrl    string    `db:"company_license_image_url" json:"companyLicenseImageUrl"`
-	CompanyContactNumber      string    `db:"company_contact_number" json:"companyContactNumber"`
-	CompanyEmail              string    `db:"company_email" json:"companyEmail"`
-	CompanyWebsiteUrl         string    `db:"company_website_url" json:"companyWebsiteUrl"`
-	ShopName                  string    `db:"shop_name" json:"shopName"`
-	ShopAddress               string    `db:"shop_address" json:"shopAddress"`
-	MsiaStateID               *int32    `db:"msia_state_id" json:"msiaStateId"`
-	BranchCode                string    `db:"branch_code" json:"branchCode"`
-	ShopImageUrl              string    `db:"shop_image_url" json:"shopImageUrl"`
-	PicName                   string    `db:"pic_name" json:"picName"`
-	PicPosition               string    `db:"pic_position" json:"picPosition"`
-	PicContactNumber          string    `db:"pic_contact_number" json:"picContactNumber"`
-	PicEmail                  string    `db:"pic_email" json:"picEmail"`
-	LoginUsername             string    `db:"login_username" json:"loginUsername"`
-	IsActive                  bool      `db:"is_active" json:"isActive"`
-	CreatedAt                 time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt                 time.Time `db:"updated_at" json:"updatedAt"`
-}
-
-func (q *Queries) GetShopByID(ctx context.Context, id int32) (*GetShopByIDRow, error) {
+func (q *Queries) GetShopByID(ctx context.Context, id int32) (*Shop, error) {
 	row := q.db.QueryRow(ctx, getShopByID, id)
-	var i GetShopByIDRow
+	var i Shop
 	err := row.Scan(
 		&i.ID,
 		&i.CompanyName,
@@ -214,12 +158,83 @@ func (q *Queries) GetShopByID(ctx context.Context, id int32) (*GetShopByIDRow, e
 		&i.PicPosition,
 		&i.PicContactNumber,
 		&i.PicEmail,
-		&i.LoginUsername,
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return &i, err
+}
+
+const getShops = `-- name: GetShops :many
+SELECT
+    id, company_name, company_registration_number, company_license_image_url, company_contact_number, company_email, company_website_url, shop_name, shop_address, msia_state_id, branch_code, shop_image_url, pic_name, pic_position, pic_contact_number, pic_email, is_active, created_at, updated_at,
+    (SELECT name FROM msia_states WHERE id = s.msia_state_id) AS msia_state_name
+FROM shops s
+ORDER BY created_at DESC
+`
+
+type GetShopsRow struct {
+	ID                        int32     `db:"id" json:"id"`
+	CompanyName               string    `db:"company_name" json:"companyName"`
+	CompanyRegistrationNumber string    `db:"company_registration_number" json:"companyRegistrationNumber"`
+	CompanyLicenseImageUrl    string    `db:"company_license_image_url" json:"companyLicenseImageUrl"`
+	CompanyContactNumber      string    `db:"company_contact_number" json:"companyContactNumber"`
+	CompanyEmail              string    `db:"company_email" json:"companyEmail"`
+	CompanyWebsiteUrl         string    `db:"company_website_url" json:"companyWebsiteUrl"`
+	ShopName                  string    `db:"shop_name" json:"shopName"`
+	ShopAddress               string    `db:"shop_address" json:"shopAddress"`
+	MsiaStateID               *int32    `db:"msia_state_id" json:"msiaStateId"`
+	BranchCode                string    `db:"branch_code" json:"branchCode"`
+	ShopImageUrl              string    `db:"shop_image_url" json:"shopImageUrl"`
+	PicName                   string    `db:"pic_name" json:"picName"`
+	PicPosition               string    `db:"pic_position" json:"picPosition"`
+	PicContactNumber          string    `db:"pic_contact_number" json:"picContactNumber"`
+	PicEmail                  string    `db:"pic_email" json:"picEmail"`
+	IsActive                  bool      `db:"is_active" json:"isActive"`
+	CreatedAt                 time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt                 time.Time `db:"updated_at" json:"updatedAt"`
+	MsiaStateName             string    `db:"msia_state_name" json:"msiaStateName"`
+}
+
+func (q *Queries) GetShops(ctx context.Context) ([]*GetShopsRow, error) {
+	rows, err := q.db.Query(ctx, getShops)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetShopsRow{}
+	for rows.Next() {
+		var i GetShopsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CompanyName,
+			&i.CompanyRegistrationNumber,
+			&i.CompanyLicenseImageUrl,
+			&i.CompanyContactNumber,
+			&i.CompanyEmail,
+			&i.CompanyWebsiteUrl,
+			&i.ShopName,
+			&i.ShopAddress,
+			&i.MsiaStateID,
+			&i.BranchCode,
+			&i.ShopImageUrl,
+			&i.PicName,
+			&i.PicPosition,
+			&i.PicContactNumber,
+			&i.PicEmail,
+			&i.IsActive,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.MsiaStateName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listMsiaStates = `-- name: ListMsiaStates :many
@@ -258,71 +273,6 @@ func (q *Queries) ListMsiaStates(ctx context.Context) ([]*MsiaState, error) {
 	return items, nil
 }
 
-const listShopsView = `-- name: ListShopsView :many
-SELECT
-    shop_id,
-    company_name,
-    company_registration_number,
-    company_contact_number,
-    company_email,
-    company_website_url,
-    shop_name,
-    shop_address,
-    msia_state_name,
-    branch_code,
-    shop_image_url,
-    pic_name,
-    pic_position,
-    pic_contact_number,
-    pic_email,
-    login_username,
-    is_active,
-    created_at,
-    updated_at
-FROM shops_view
-ORDER BY created_at DESC
-`
-
-func (q *Queries) ListShopsView(ctx context.Context) ([]*ShopsView, error) {
-	rows, err := q.db.Query(ctx, listShopsView)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*ShopsView{}
-	for rows.Next() {
-		var i ShopsView
-		if err := rows.Scan(
-			&i.ShopID,
-			&i.CompanyName,
-			&i.CompanyRegistrationNumber,
-			&i.CompanyContactNumber,
-			&i.CompanyEmail,
-			&i.CompanyWebsiteUrl,
-			&i.ShopName,
-			&i.ShopAddress,
-			&i.MsiaStateName,
-			&i.BranchCode,
-			&i.ShopImageUrl,
-			&i.PicName,
-			&i.PicPosition,
-			&i.PicContactNumber,
-			&i.PicEmail,
-			&i.LoginUsername,
-			&i.IsActive,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const updateShop = `-- name: UpdateShop :one
 UPDATE shops
 SET
@@ -341,11 +291,10 @@ SET
     pic_position = $14,
     pic_contact_number = $15,
     pic_email = $16,
-    login_username = $17,
-    is_active = $18,
+    is_active = $17,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, company_name, company_registration_number, company_license_image_url, company_contact_number, company_email, company_website_url, shop_name, shop_address, msia_state_id, branch_code, shop_image_url, pic_name, pic_position, pic_contact_number, pic_email, login_username, login_password_hash, is_active, created_at, updated_at
+RETURNING id, company_name, company_registration_number, company_license_image_url, company_contact_number, company_email, company_website_url, shop_name, shop_address, msia_state_id, branch_code, shop_image_url, pic_name, pic_position, pic_contact_number, pic_email, is_active, created_at, updated_at
 `
 
 type UpdateShopParams struct {
@@ -365,7 +314,6 @@ type UpdateShopParams struct {
 	PicPosition               string `db:"pic_position" json:"picPosition"`
 	PicContactNumber          string `db:"pic_contact_number" json:"picContactNumber"`
 	PicEmail                  string `db:"pic_email" json:"picEmail"`
-	LoginUsername             string `db:"login_username" json:"loginUsername"`
 	IsActive                  bool   `db:"is_active" json:"isActive"`
 }
 
@@ -387,7 +335,6 @@ func (q *Queries) UpdateShop(ctx context.Context, arg *UpdateShopParams) (*Shop,
 		arg.PicPosition,
 		arg.PicContactNumber,
 		arg.PicEmail,
-		arg.LoginUsername,
 		arg.IsActive,
 	)
 	var i Shop
@@ -408,51 +355,6 @@ func (q *Queries) UpdateShop(ctx context.Context, arg *UpdateShopParams) (*Shop,
 		&i.PicPosition,
 		&i.PicContactNumber,
 		&i.PicEmail,
-		&i.LoginUsername,
-		&i.LoginPasswordHash,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return &i, err
-}
-
-const updateShopPassword = `-- name: UpdateShopPassword :one
-UPDATE shops
-SET
-    login_password_hash = $2,
-    updated_at = CURRENT_TIMESTAMP
-WHERE id = $1
-RETURNING id, company_name, company_registration_number, company_license_image_url, company_contact_number, company_email, company_website_url, shop_name, shop_address, msia_state_id, branch_code, shop_image_url, pic_name, pic_position, pic_contact_number, pic_email, login_username, login_password_hash, is_active, created_at, updated_at
-`
-
-type UpdateShopPasswordParams struct {
-	ID                int32  `db:"id" json:"id"`
-	LoginPasswordHash string `db:"login_password_hash" json:"loginPasswordHash"`
-}
-
-func (q *Queries) UpdateShopPassword(ctx context.Context, arg *UpdateShopPasswordParams) (*Shop, error) {
-	row := q.db.QueryRow(ctx, updateShopPassword, arg.ID, arg.LoginPasswordHash)
-	var i Shop
-	err := row.Scan(
-		&i.ID,
-		&i.CompanyName,
-		&i.CompanyRegistrationNumber,
-		&i.CompanyLicenseImageUrl,
-		&i.CompanyContactNumber,
-		&i.CompanyEmail,
-		&i.CompanyWebsiteUrl,
-		&i.ShopName,
-		&i.ShopAddress,
-		&i.MsiaStateID,
-		&i.BranchCode,
-		&i.ShopImageUrl,
-		&i.PicName,
-		&i.PicPosition,
-		&i.PicContactNumber,
-		&i.PicEmail,
-		&i.LoginUsername,
-		&i.LoginPasswordHash,
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,

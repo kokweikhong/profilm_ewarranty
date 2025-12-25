@@ -7,14 +7,12 @@ import (
 )
 
 type Routes struct {
-	productHandler handlers.ProductsHandler
-	shopsHandler   handlers.ShopsHandler
+	handler handlers.HandlerInitializeParams
 }
 
-func NewRoutes(productHandler handlers.ProductsHandler, shopsHandler handlers.ShopsHandler) *Routes {
+func NewRoutes(handler handlers.HandlerInitializeParams) *Routes {
 	return &Routes{
-		productHandler: productHandler,
-		shopsHandler:   shopsHandler,
+		handler: handler,
 	}
 }
 
@@ -33,25 +31,81 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Route("/products", func(r chi.Router) {
-			r.Get("/", rt.productHandler.ListProductsView)
-			r.Get("/{id}", rt.productHandler.GetProductByID)
-			r.Post("/", rt.productHandler.CreateProduct)
-			r.Put("/{id}", rt.productHandler.UpdateProduct)
+			r.Get("/", rt.handler.ProductsHandler.ListProductsView)
+			r.Get("/{id}", rt.handler.ProductsHandler.GetProductByID)
+			r.Post("/", rt.handler.ProductsHandler.CreateProduct)
+			r.Put("/{id}", rt.handler.ProductsHandler.UpdateProduct)
 
-			r.Get("/brands", rt.productHandler.ListProductBrands)
-			r.Get("/types", rt.productHandler.GetProductTypes)
-			r.Get("/series", rt.productHandler.GetProductSeries)
-			r.Get("/names", rt.productHandler.GetProductNames)
-			r.Get("/warranty-periods", rt.productHandler.ListWarrantyPeriods)
+			r.Get("/brands", rt.handler.ProductsHandler.ListProductBrands)
+			r.Get("/types", rt.handler.ProductsHandler.GetProductTypes)
+			r.Get("/series", rt.handler.ProductsHandler.GetProductSeries)
+			r.Get("/names", rt.handler.ProductsHandler.GetProductNames)
 		})
 
 		r.Route("/shops", func(r chi.Router) {
-			r.Get("/states", rt.shopsHandler.ListMsiaStates)
-			r.Get("/", rt.shopsHandler.ListShopsView)
-			r.Get("/{id}", rt.shopsHandler.GetShopByID)
-			r.Post("/", rt.shopsHandler.CreateShop)
-			r.Put("/{id}", rt.shopsHandler.UpdateShop)
-			r.Put("/{id}/password", rt.shopsHandler.UpdateShopPassword)
+			r.Get("/states", rt.handler.ShopsHandler.ListMsiaStates)
+			// r.Get("/", rt.handler.ShopsHandler.ListShopsView)
+			r.Get("/", rt.handler.ShopsHandler.GetShops)
+			r.Get("/{id}", rt.handler.ShopsHandler.GetShopByID)
+			r.Post("/", rt.handler.ShopsHandler.CreateShop)
+			r.Put("/{id}", rt.handler.ShopsHandler.UpdateShop)
+
+			r.Get("/generate-branch-code/{state_code}", rt.handler.ShopsHandler.GenerateNextBranchCode)
+		})
+
+		r.Route("/product-allocations", func(r chi.Router) {
+			r.Get("/", rt.handler.ProductAllocationsHandler.ListProductAllocations)
+			r.Get("/{id}", rt.handler.ProductAllocationsHandler.GetProductAllocationByID)
+			r.Post("/", rt.handler.ProductAllocationsHandler.CreateProductAllocation)
+			r.Put("/{id}", rt.handler.ProductAllocationsHandler.UpdateProductAllocation)
+
+			r.Get("/products-by-shop/{shop_id}", rt.handler.ProductAllocationsHandler.GetProductsFromProductAllocationsByShopID)
+		})
+
+		r.Route("/warranties", func(r chi.Router) {
+			r.Get("/", rt.handler.WarrantiesHandler.ListWarranties)
+			r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyByID)
+			r.Post("/", rt.handler.WarrantiesHandler.CreateWarranty)
+			r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarranty)
+			r.Put("/{id}/approve", rt.handler.WarrantiesHandler.UpdateWarrantyApproval)
+
+			r.Get("/by-warranty-no/{warranty_no}", rt.handler.WarrantiesHandler.GetWarrantyByWarrantyNo)
+			r.Get("/by-car-plate-no/{car_plate_no}", rt.handler.WarrantiesHandler.GetWarrantiesByCarPlateNo)
+			// from q = query parameter
+			// eg: /api/v1/warranties/search?q=searchTerm
+			r.Get("/search", rt.handler.WarrantiesHandler.GetWarrantiesBySearchTerm)
+
+			r.Get("/car-parts", rt.handler.WarrantiesHandler.GetCarParts)
+
+			r.Route("/warranty-parts", func(r chi.Router) {
+				r.Post("/", rt.handler.WarrantiesHandler.CreateWarrantyPart)
+				r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarrantyPart)
+				r.Put("/{id}/approve", rt.handler.WarrantiesHandler.UpdateWarrantyPartApproval)
+				r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyPartsByWarrantyID)
+
+				r.Post("/batch-create", rt.handler.WarrantiesHandler.CreateWarrantyWithParts)
+				r.Put("/batch-update", rt.handler.WarrantiesHandler.UpdateWarrantyWithParts)
+			})
+		})
+
+		r.Route("/claims", func(r chi.Router) {
+			r.Get("/", rt.handler.ClaimsHandler.ListClaims)
+			r.Get("/{id}", rt.handler.ClaimsHandler.GetClaimByID)
+			r.Post("/", rt.handler.ClaimsHandler.CreateClaim)
+			r.Put("/{id}", rt.handler.ClaimsHandler.UpdateClaim)
+			r.Put("/{id}/approve", rt.handler.ClaimsHandler.UpdateClaimApproval)
+
+			r.Route("/claim-warranty-parts", func(r chi.Router) {
+				r.Get("/{id}", rt.handler.ClaimsHandler.ListClaimWarrantyPartsByClaimID)
+				r.Post("/", rt.handler.ClaimsHandler.CreateClaimWarrantyPart)
+				r.Put("/{id}", rt.handler.ClaimsHandler.UpdateClaimWarrantyPart)
+				r.Put("/{id}/approve", rt.handler.ClaimsHandler.UpdateClaimWarrantyPartApproval)
+			})
+		})
+
+		r.Route("/uploads", func(r chi.Router) {
+			r.Post("/file", rt.handler.UploadsHandler.UploadFile)
+			r.Post("/files", rt.handler.UploadsHandler.UploadMultipleFiles)
 		})
 	})
 }

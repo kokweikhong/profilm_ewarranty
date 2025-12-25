@@ -11,7 +11,8 @@ import (
 type Querier interface {
 	CreateProductAllocation(ctx context.Context, arg *CreateProductAllocationParams) (*ProductAllocation, error)
 	GetProductAllocationByID(ctx context.Context, id int32) (*ProductAllocation, error)
-	ListProductAllocationsView(ctx context.Context) ([]*ProductAllocationsView, error)
+	GetProductsFromProductAllocationsByShopID(ctx context.Context, shopID int32) ([]*GetProductsFromProductAllocationsByShopIDRow, error)
+	ListProductAllocationsView(ctx context.Context) ([]*ListProductAllocationsViewRow, error)
 	UpdateProductAllocation(ctx context.Context, arg *UpdateProductAllocationParams) (*ProductAllocation, error)
 }
 

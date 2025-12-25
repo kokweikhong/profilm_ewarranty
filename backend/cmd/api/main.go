@@ -35,12 +35,13 @@ func main() {
 	fmt.Println("Successfully connected to the database")
 
 	// Application initialization and server start logic goes here.
-	productService := services.NewProductsService(db)
-	productHandler := handlers.NewProductsHandler(productService)
-	shopsService := services.NewShopsService(db)
-	shopsHandler := handlers.NewShopsHandler(shopsService)
+	service, err := services.NewServiceInitializeParams(ctx, db)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to initialize services: %v", err))
+	}
+	handler := handlers.NewHandlerInitializeParams(service)
 	router := chi.NewRouter()
-	routes := server.NewRoutes(productHandler, shopsHandler)
+	routes := server.NewRoutes(*handler)
 	routes.RegisterRoutes(router)
 
 	fmt.Println("Server starting on :8080")

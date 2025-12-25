@@ -4,8 +4,7 @@ import {
   getProductTypesApi,
   getProductSeriesApi,
   getProductNamesApi,
-  getWarrantyPeriodsApi,
-} from "@/lib/productsApi";
+} from "@/lib/apis/productsApi";
 import ProductForm from "../../_components/ProductForm";
 import { Suspense } from "react";
 
@@ -20,7 +19,6 @@ export default async function Page({
   const types = await getProductTypesApi();
   const series = await getProductSeriesApi();
   const names = await getProductNamesApi();
-  const warranties = await getWarrantyPeriodsApi();
 
   console.log("brands:", brands);
 
@@ -33,7 +31,6 @@ export default async function Page({
           types={types}
           series={series}
           names={names}
-          warranties={warranties}
           mode="update"
         />
       </Suspense>

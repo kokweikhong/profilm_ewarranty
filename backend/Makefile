@@ -28,6 +28,11 @@ help:
 	@echo "  SQLC:"
 	@echo "    make sqlc-generate    - Generate Go code from SQL queries"
 	@echo ""
+	@echo "  Database Seeding:"
+	@echo "    make seed             - Seed database with 100 records"
+	@echo "    make seed-clean       - Clean and seed with 100 records"
+	@echo "    make seed-max         - Clean and seed with 150 records"
+	@echo ""
 	@echo "  Tools Installation:"
 	@echo "    make install-goose    - Install goose migration tool"
 	@echo "    make install-sqlc     - Install sqlc tool"
@@ -110,3 +115,14 @@ migrate-status:
 # Hot reload (requires air: go install github.com/cosmtrek/air@latest)
 dev:
 	air
+
+# Seeder commands
+seed:
+	go run cmd/seeder/main.go
+
+seed-clean:
+	@echo "Resetting database..."
+	$(MAKE) migrate-reset
+	$(MAKE) migrate-up
+	@echo "Seeding database..."
+	go run cmd/seeder/main.go

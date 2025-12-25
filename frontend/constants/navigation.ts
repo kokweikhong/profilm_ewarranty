@@ -1,43 +1,45 @@
-import {
-  CalendarIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
-  HomeIcon,
-  UsersIcon,
-} from "@heroicons/react/24/outline";
-
 type NavigationItem = {
   name: string;
   href: string;
-  icon: React.ComponentType<React.ComponentProps<"svg">>;
+  icon: string;
   current: boolean;
 };
 
 export const navigation: NavigationItem[] = [
-  { name: "Dashboard", href: "/admin", icon: HomeIcon, current: true },
+  {
+    name: "Dashboard",
+    href: "/admin",
+    icon: "/icons/dashboard.svg",
+    current: true,
+  },
   {
     name: "Products",
     href: "/admin/products",
-    icon: UsersIcon,
+    icon: "/icons/product.svg",
     current: false,
   },
   {
     name: "Product Allocations",
     href: "/admin/product-allocations",
-    icon: UsersIcon,
+    icon: "/icons/product-allocation.svg",
     current: false,
   },
-  { name: "Shops", href: "/admin/shops", icon: FolderIcon, current: false },
+  {
+    name: "Shops",
+    href: "/admin/shops",
+    icon: "/icons/shop.svg",
+    current: false,
+  },
   {
     name: "Warranties",
     href: "/admin/warranties",
-    icon: CalendarIcon,
+    icon: "/icons/warranty.svg",
     current: false,
   },
   {
     name: "Claims",
     href: "/admin/claims",
-    icon: DocumentDuplicateIcon,
+    icon: "/icons/claims.svg",
     current: false,
   },
 ];

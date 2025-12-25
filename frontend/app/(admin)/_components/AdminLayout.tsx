@@ -73,7 +73,7 @@ export default function AdminLayout({
 
             {/* Sidebar component, swap this element with another sidebar if you like */}
             <div className="relative flex grow flex-col gap-y-5 overflow-y-auto bg-primary px-6 pb-4 ring-1 ring-white/10">
-              <div className="relative flex h-16 shrink-0 items-center">
+              <a className="relative flex h-16 shrink-0 items-center" href="/">
                 <Image
                   src={"/profilm_logo.png"}
                   alt="ProFilm eWarranty"
@@ -81,7 +81,7 @@ export default function AdminLayout({
                   height={50}
                   className="h-8 w-auto"
                 />
-              </div>
+              </a>
               <nav className="relative flex flex-1 flex-col">
                 <ul role="list" className="flex flex-1 flex-col gap-y-7">
                   <li>
@@ -97,9 +97,17 @@ export default function AdminLayout({
                               "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold"
                             )}
                           >
-                            <item.icon
-                              aria-hidden="true"
-                              className="size-6 shrink-0"
+                            <Image
+                              src={item.icon}
+                              alt={item.name}
+                              width={24}
+                              height={24}
+                              className={cn(
+                                "size-6 shrink-0 transition-all duration-200",
+                                item.current
+                                  ? "brightness-0 invert"
+                                  : "group-hover:brightness-0 group-hover:invert"
+                              )}
                             />
                             {item.name}
                           </a>
@@ -118,7 +126,7 @@ export default function AdminLayout({
       <div className="hidden bg-primary ring-1 ring-white/10 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         {/* Sidebar component, swap this element with another sidebar if you like */}
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-primary px-6 pb-4">
-          <div className="flex h-16 shrink-0 items-center">
+          <a className="flex h-16 shrink-0 items-center" href="/">
             <Image
               src={"/profilm_logo.png"}
               alt="ProFilm eWarranty"
@@ -126,7 +134,7 @@ export default function AdminLayout({
               height={50}
               className="h-8 w-auto"
             />
-          </div>
+          </a>
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
               <li>
@@ -142,9 +150,17 @@ export default function AdminLayout({
                           "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold"
                         )}
                       >
-                        <item.icon
-                          aria-hidden="true"
-                          className="size-6 shrink-0"
+                        <Image
+                          src={item.icon}
+                          alt={item.name}
+                          width={24}
+                          height={24}
+                          className={cn(
+                            "size-6 shrink-0 transition-all duration-200",
+                            item.current
+                              ? "brightness-0 invert"
+                              : "group-hover:brightness-0 group-hover:invert"
+                          )}
                         />
                         {item.name}
                       </a>
@@ -184,7 +200,10 @@ export default function AdminLayout({
 
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
-                <MenuButton className="relative flex items-center">
+                <MenuButton
+                  className="relative flex items-center"
+                  suppressHydrationWarning
+                >
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
                   <span className="flex items-center gap-x-3">

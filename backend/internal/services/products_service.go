@@ -16,7 +16,6 @@ type ProductsService interface {
 	ListProductTypes(ctx context.Context) ([]*products.ProductType, error)
 	ListProductSeries(ctx context.Context) ([]*products.ProductSeries, error)
 	ListProductNames(ctx context.Context) ([]*products.ProductName, error)
-	ListWarrantyPeriods(ctx context.Context) ([]*products.WarrantyPeriod, error)
 }
 
 type productsService struct {
@@ -69,9 +68,4 @@ func (s *productsService) ListProductSeries(ctx context.Context) ([]*products.Pr
 // ListProductNames retrieves a list of product names from the database.
 func (s *productsService) ListProductNames(ctx context.Context) ([]*products.ProductName, error) {
 	return s.q.ListProductNames(ctx)
-}
-
-// ListWarrantyPeriods retrieves a list of warranty periods from the database.
-func (s *productsService) ListWarrantyPeriods(ctx context.Context) ([]*products.WarrantyPeriod, error) {
-	return s.q.ListWarrantyPeriods(ctx)
 }

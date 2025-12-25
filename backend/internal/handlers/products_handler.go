@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/kokweikhong/profilm_ewarranty/backend/internal/dto"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/handlers/dto"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/services"
 	"github.com/kokweikhong/profilm_ewarranty/backend/pkg/utils"
 )
@@ -36,9 +36,6 @@ type ProductsHandler interface {
 
 	// GetProductNames lists product names.
 	GetProductNames(w http.ResponseWriter, r *http.Request)
-
-	// ListWarrantyPeriods lists available warranty periods.
-	ListWarrantyPeriods(w http.ResponseWriter, r *http.Request)
 }
 
 type productsHandler struct {
@@ -82,13 +79,13 @@ func (h *productsHandler) GetProductByID(w http.ResponseWriter, r *http.Request)
 
 // CreateProduct creates a new product.
 func (h *productsHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	var req *dto.CreateProductRequest
+	var req dto.CreateProductRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	params := dto.ToCreateProductRequestParams(req)
+	params := req.ToCreateProductParams()
 
 	product, err := h.productsService.CreateProduct(r.Context(), params)
 	if err != nil {
@@ -96,18 +93,23 @@ func (h *productsHandler) CreateProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusCreated, product)
-
 }
 
 // UpdateProduct updates an existing product.
 func (h *productsHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	var req *dto.UpdateProductRequest
+	idParam := chi.URLParam(r, "id")
+	id, err := utils.ConvertParamToInt32(idParam)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid product ID")
+		return
+	}
+	var req dto.UpdateProductRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	params := dto.ToUpdateProductRequestParams(req)
+	params := req.ToUpdateProductParams(id)
 
 	product, err := h.productsService.UpdateProduct(r.Context(), params)
 	if err != nil {
@@ -156,15 +158,4 @@ func (h *productsHandler) GetProductNames(w http.ResponseWriter, r *http.Request
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, names)
-}
-
-// ListWarrantyPeriods lists available warranty periods.
-func (h *productsHandler) ListWarrantyPeriods(w http.ResponseWriter, r *http.Request) {
-	periods, err := h.productsService.ListWarrantyPeriods(r.Context())
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to list warranty periods")
-		return
-	}
-
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, periods)
 }

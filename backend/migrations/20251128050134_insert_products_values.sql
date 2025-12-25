@@ -103,17 +103,6 @@ INSERT INTO product_names (series_id, name, description) VALUES
 ((SELECT ps.id FROM product_series ps JOIN product_types pt ON ps.type_id = pt.id JOIN product_brands pb ON pt.brand_id = pb.id WHERE pb.name='ProFilm' AND pt.name='Paint Protection Film' AND ps.name='ProColor Series'), 'Rose Chameleon', 'Color-shifting rose paint protection film for a stylish look.'),
 ((SELECT ps.id FROM product_series ps JOIN product_types pt ON ps.type_id = pt.id JOIN product_brands pb ON pt.brand_id = pb.id WHERE pb.name='ProFilm' AND pt.name='Paint Protection Film' AND ps.name='ProColor Series'), 'Silver Diamond', 'Silver tinted paint protection film for a sleek appearance.'),
 ((SELECT ps.id FROM product_series ps JOIN product_types pt ON ps.type_id = pt.id JOIN product_brands pb ON pt.brand_id = pb.id WHERE pb.name='ProFilm' AND pt.name='Paint Protection Film' AND ps.name='Flagship Series'), 'Ultra Clear Pro X', 'Next-generation ultra-clear paint protection film with maximum durability and clarity.'); 
-
--- 1e. Warranty (mandatory)
--- - 5 Years
--- - 7 Years
--- - 10 Years
--- - 12 Years
-INSERT INTO warranty_periods (period_years, description) VALUES
-(5, '5-year warranty period for products.'),
-(7, '7-year warranty period for products.'),
-(10, '10-year warranty period for products.'),
-(12, '12-year warranty period for products.');
 -- +goose StatementEnd
 
 -- +goose Down
@@ -127,5 +116,4 @@ DELETE FROM product_names;
 DELETE FROM product_series;
 DELETE FROM product_types;
 DELETE FROM product_brands;
-DELETE FROM warranty_periods;
 -- +goose StatementEnd

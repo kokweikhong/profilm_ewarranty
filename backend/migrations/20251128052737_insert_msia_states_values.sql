@@ -43,7 +43,11 @@ INSERT INTO msia_states (name, code) VALUES
 
 -- +goose Down
 -- +goose StatementBegin
--- Delete shops first (child table that references msia_states)
+-- Delete in reverse dependency order
+-- product_allocations references both products and shops
+DELETE FROM product_allocations;
+
+-- shops references msia_states
 DELETE FROM shops;
 
 -- Then delete states

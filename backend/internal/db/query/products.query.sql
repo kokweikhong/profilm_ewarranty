@@ -18,19 +18,7 @@ ORDER BY created_at DESC;
 
 -- name: GetProductByID :one
 SELECT
-    id,
-    brand_id,
-    type_id,
-    series_id,
-    name_id,
-    warranty_in_months,
-    film_serial_number,
-    film_quantity,
-    shipment_number,
-    description,
-    is_active,
-    created_at,
-    updated_at
+    *
 FROM products
 WHERE id = $1;
 
@@ -44,11 +32,9 @@ INSERT INTO products (
     film_serial_number,
     film_quantity,
     shipment_number,
-    description,
-    created_at,
-    updated_at
+    description
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
 RETURNING *;
 
@@ -111,12 +97,3 @@ SELECT
     updated_at
 FROM product_names
 ORDER BY name;
-
--- name: ListWarrantyPeriods :many
-SELECT
-    id,
-    period_years,
-    description,
-    created_at,
-    updated_at
-FROM warranty_periods;
