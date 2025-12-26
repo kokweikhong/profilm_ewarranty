@@ -33,6 +33,9 @@ help:
 	@echo "    make seed-clean       - Clean and seed with 100 records"
 	@echo "    make seed-max         - Clean and seed with 150 records"
 	@echo ""
+	@echo "  Admin User:"
+	@echo "    make create-admin     - Create admin user (username: admin, password: admin@profilm)"
+	@echo ""
 	@echo "  Tools Installation:"
 	@echo "    make install-goose    - Install goose migration tool"
 	@echo "    make install-sqlc     - Install sqlc tool"
@@ -126,3 +129,7 @@ seed-clean:
 	$(MAKE) migrate-up
 	@echo "Seeding database..."
 	go run cmd/seeder/main.go
+
+# Create admin user
+create-admin:
+	go run cmd/create-admin/main.go

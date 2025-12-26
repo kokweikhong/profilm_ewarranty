@@ -1,4 +1,4 @@
-import axios from "axios";
+import apiClient from "@/lib/axios";
 import {
   ProductBrand,
   ProductType,
@@ -6,46 +6,33 @@ import {
   ProductName,
   Product,
 } from "@/types/productsType";
-import { getApiBaseUrl } from "@/lib/env";
 
-export async function getProductsApi() {
-  const response = await fetch(`${getApiBaseUrl()}/products`, {
-    cache: "no-store",
-  });
-  return response.json();
+export async function getProductsApi(): Promise<Product[]> {
+  const response = await apiClient.get("/products");
+  return response.data;
 }
 
 export async function getProductByIdApi(productId: number): Promise<Product> {
-  const response = await fetch(`${getApiBaseUrl()}/products/${productId}`, {
-    cache: "no-store",
-  });
-  return response.json();
+  const response = await apiClient.get<Product>(`/products/${productId}`);
+  return response.data;
 }
 
 export async function getProductBrandsApi(): Promise<ProductBrand[]> {
-  const response = await axios.get<ProductBrand[]>(
-    `${getApiBaseUrl()}/products/brands`
-  );
+  const response = await apiClient.get<ProductBrand[]>("/products/brands");
   return response.data;
 }
 
 export async function getProductTypesApi(): Promise<ProductType[]> {
-  const response = await axios.get<ProductType[]>(
-    `${getApiBaseUrl()}/products/types`
-  );
+  const response = await apiClient.get<ProductType[]>("/products/types");
   return response.data;
 }
 
 export async function getProductSeriesApi(): Promise<ProductSeries[]> {
-  const response = await axios.get<ProductSeries[]>(
-    `${getApiBaseUrl()}/products/series`
-  );
+  const response = await apiClient.get<ProductSeries[]>("/products/series");
   return response.data;
 }
 
 export async function getProductNamesApi(): Promise<ProductName[]> {
-  const response = await axios.get<ProductName[]>(
-    `${getApiBaseUrl()}/products/names`
-  );
+  const response = await apiClient.get<ProductName[]>("/products/names");
   return response.data;
 }

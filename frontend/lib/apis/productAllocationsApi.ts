@@ -1,5 +1,4 @@
-import axios from "axios";
-import { getApiBaseUrl } from "@/lib/env";
+import apiClient from "@/lib/axios";
 import {
   ProductAllocationsListResponse,
   ProductAllocation,
@@ -9,8 +8,8 @@ import {
 export async function getProductAllocationsApi(): Promise<
   ProductAllocationsListResponse[]
 > {
-  const response = await axios.get<ProductAllocationsListResponse[]>(
-    `${getApiBaseUrl()}/product-allocations`
+  const response = await apiClient.get<ProductAllocationsListResponse[]>(
+    "/product-allocations"
   );
   return response.data;
 }
@@ -18,8 +17,8 @@ export async function getProductAllocationsApi(): Promise<
 export async function getProductAllocationByIdApi(
   id: number
 ): Promise<ProductAllocation> {
-  const response = await axios.get<ProductAllocation>(
-    `${getApiBaseUrl()}/product-allocations/${id}`
+  const response = await apiClient.get<ProductAllocation>(
+    `/product-allocations/${id}`
   );
   return response.data;
 }
@@ -27,8 +26,8 @@ export async function getProductAllocationByIdApi(
 export async function getProductsFromAllocationByShopIdApi(
   shopId: number
 ): Promise<ProductsFromAllocationByShopIdResponse[]> {
-  const response = await axios.get<ProductsFromAllocationByShopIdResponse[]>(
-    `${getApiBaseUrl()}/product-allocations/products-by-shop/${shopId}`
-  );
+  const response = await apiClient.get<
+    ProductsFromAllocationByShopIdResponse[]
+  >(`/product-allocations/products-by-shop/${shopId}`);
   return response.data;
 }

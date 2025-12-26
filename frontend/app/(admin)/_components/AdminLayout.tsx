@@ -16,7 +16,8 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { navigation, userNavigation } from "@/constants/navigation";
+import { filterNavigationByRole, userNavigation } from "@/constants/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AdminLayout({
   children,
@@ -25,13 +26,17 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+
+  // Filter navigation based on user role
+  const allowedNavigation = filterNavigationByRole(user?.role);
 
   // Update current navigation item based on pathname
   // also highlight sub-paths
   // eg if /admin then will ignore other paths like /admin/products
   // if /admin/products, will highlight /admin/products
   // if /admin/products/create, will highlight /admin/products
-  navigation.forEach((item) => {
+  allowedNavigation.forEach((item) => {
     if (pathname === item.href) {
       item.current = true;
     } else if (item.href !== "/admin" && pathname.startsWith(item.href + "/")) {
@@ -86,7 +91,7 @@ export default function AdminLayout({
                 <ul role="list" className="flex flex-1 flex-col gap-y-7">
                   <li>
                     <ul role="list" className="-mx-2 space-y-1">
-                      {navigation.map((item) => (
+                      {allowedNavigation.map((item) => (
                         <li key={item.name}>
                           <a
                             href={item.href}
@@ -139,7 +144,7 @@ export default function AdminLayout({
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
               <li>
                 <ul role="list" className="-mx-2 space-y-1">
-                  {navigation.map((item) => (
+                  {allowedNavigation.map((item) => (
                     <li key={item.name}>
                       <a
                         href={item.href}
@@ -211,7 +216,7 @@ export default function AdminLayout({
                       aria-hidden="true"
                       className="ml-4 text-sm/6 font-semibold text-gray-900"
                     >
-                      Tom Cook
+                      {user?.username || "User"}
                     </span>
                     <ChevronDownIcon
                       aria-hidden="true"
@@ -225,12 +230,21 @@ export default function AdminLayout({
                 >
                   {userNavigation.map((item) => (
                     <MenuItem key={item.name}>
-                      <a
-                        href={item.href}
-                        className="block px-3 py-1 text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden"
-                      >
-                        {item.name}
-                      </a>
+                      {item.name === "Sign out" ? (
+                        <button
+                          onClick={logout}
+                          className="block w-full text-left px-3 py-1 text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden"
+                        >
+                          {item.name}
+                        </button>
+                      ) : (
+                        <a
+                          href={item.href}
+                          className="block px-3 py-1 text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden"
+                        >
+                          {item.name}
+                        </a>
+                      )}
                     </MenuItem>
                   ))}
                 </MenuItems>

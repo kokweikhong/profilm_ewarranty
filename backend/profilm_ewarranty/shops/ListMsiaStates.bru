@@ -1,13 +1,17 @@
 meta {
   name: ListMsiaStates
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
   url: http://localhost:8080/api/v1/shops/states
   body: none
-  auth: inherit
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJ0b2tlblR5cGUiOiJhY2Nlc3MiLCJleHAiOjE3NjY2NDM4MzMsImlhdCI6MTc2NjY0MjkzM30.MUWAG425fWE89hVKvGGJR92EK7VjQ_Gp6bFNe6ZzYbs
 }
 
 settings {

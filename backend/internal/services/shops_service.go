@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/shops"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/users"
+	"github.com/kokweikhong/profilm_ewarranty/backend/pkg/utils"
 )
 
 type ShopsService interface {
@@ -22,14 +24,16 @@ type ShopsService interface {
 }
 
 type shopsService struct {
-	db *pgxpool.Pool
-	q  *shops.Queries
+	db     *pgxpool.Pool
+	q      *shops.Queries
+	usersQ *users.Queries
 }
 
 func NewShopsService(db *pgxpool.Pool) ShopsService {
 	return &shopsService{
-		db: db,
-		q:  shops.New(db),
+		db:     db,
+		q:      shops.New(db),
+		usersQ: users.New(db),
 	}
 }
 
@@ -53,10 +57,41 @@ func (s *shopsService) GetShopByID(ctx context.Context, id int32) (*shops.Shop, 
 	return s.q.GetShopByID(ctx, id)
 }
 
-// CreateShop creates a new shop in the database.
+// CreateShop creates a new shop in the database and automatically creates a user with default password.
 func (s *shopsService) CreateShop(ctx context.Context, arg *shops.CreateShopParams) (*shops.Shop, error) {
+	// Create the shop
+	shop, err := s.q.CreateShop(ctx, arg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create shop: %w", err)
+	}
 
-	return s.q.CreateShop(ctx, arg)
+	// Hash the default password
+	defaultPassword := "password@profilm"
+
+	// Create username from shop name (lowercase, replace spaces with underscores)
+	username := strings.ToLower(shop.BranchCode)
+
+	hashPassword, err := utils.HashPassword(defaultPassword)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	// Create user for the shop with default password
+	userParams := &users.CreateUserParams{
+		ShopID:       &shop.ID,
+		Username:     username,
+		Role:         "shop_admin",
+		PasswordHash: hashPassword,
+	}
+
+	_, err = s.usersQ.CreateUser(ctx, userParams)
+	if err != nil {
+		// Log the error but don't fail the shop creation
+		// You might want to handle this differently in production
+		fmt.Printf("Warning: Failed to create user for shop %d: %v\n", shop.ID, err)
+	}
+
+	return shop, nil
 }
 
 // UpdateShop updates an existing shop in the database.

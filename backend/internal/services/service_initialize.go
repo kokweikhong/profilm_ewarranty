@@ -12,6 +12,7 @@ type ServiceInitializeParams struct {
 	ProductAllocationsService ProductAllocationsService
 	WarrantiesService         WarrantiesService
 	ClaimsService             ClaimsService
+	UsersService              UsersService
 	UploadsService            UploadsService
 }
 
@@ -27,6 +28,7 @@ func NewServiceInitializeParams(ctx context.Context, db *pgxpool.Pool) (*Service
 		ProductAllocationsService: NewProductAllocationsService(db),
 		WarrantiesService:         NewWarrantiesService(db),
 		ClaimsService:             NewClaimsService(db),
+		UsersService:              NewUsersService(db),
 		UploadsService:            uploadsService,
 	}, nil
 }

@@ -1,36 +1,31 @@
-import axios from "axios";
+import apiClient from "@/lib/axios";
 import { MsiaState, ShopListResponse, Shop } from "@/types/shopsType";
-import { getApiBaseUrl } from "@/lib/env";
 
 export async function getMsiaStatesApi(): Promise<MsiaState[]> {
-  const response = await axios.get<MsiaState[]>(
-    `${getApiBaseUrl()}/shops/states`
-  );
+  const response = await apiClient.get<MsiaState[]>("/shops/states");
   return response.data;
 }
 
 export async function getShopsViewApi(): Promise<ShopListResponse[]> {
-  const response = await axios.get<ShopListResponse[]>(
-    `${getApiBaseUrl()}/shops`
-  );
+  const response = await apiClient.get<ShopListResponse[]>("/shops");
   return response.data;
 }
 
 export async function getShops(): Promise<Shop[]> {
-  const response = await axios.get<Shop[]>(`${getApiBaseUrl()}/shops`);
+  const response = await apiClient.get<Shop[]>("/shops");
   return response.data;
 }
 
 export async function getShopByIdApi(id: number): Promise<Shop> {
-  const response = await axios.get<Shop>(`${getApiBaseUrl()}/shops/${id}`);
+  const response = await apiClient.get<Shop>(`/shops/${id}`);
   return response.data;
 }
 
 export async function generateNextBranchCodeApi(
   stateCode: string
 ): Promise<string> {
-  const response = await axios.get<{ branch_code: string }>(
-    `${getApiBaseUrl()}/shops/generate-branch-code/${stateCode}`
+  const response = await apiClient.get<{ branch_code: string }>(
+    `/shops/generate-branch-code/${stateCode}`
   );
   return response.data.branch_code;
 }

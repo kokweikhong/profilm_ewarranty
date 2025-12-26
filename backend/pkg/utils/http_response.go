@@ -20,3 +20,9 @@ func NewHTTPErrorResponse(w http.ResponseWriter, code int, errMsg string) {
 	resp := map[string]string{"error": errMsg}
 	json.NewEncoder(w).Encode(resp)
 }
+
+// ParseJSONRequestBody parses the JSON request body into the provided struct.
+func ParseJSONRequestBody(r *http.Request, dst any) error {
+	decoder := json.NewDecoder(r.Body)
+	return decoder.Decode(dst)
+}

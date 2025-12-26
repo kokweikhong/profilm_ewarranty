@@ -1,13 +1,12 @@
-import axios from "axios";
-import { getApiBaseUrl } from "@/lib/env";
+import apiClient from "@/lib/axios";
 import { Claim } from "@/types/claimsType";
 
 export async function getClaimsApi(): Promise<Claim[]> {
-  const response = await axios.get<Claim[]>(`${getApiBaseUrl()}/claims`);
+  const response = await apiClient.get<Claim[]>("/claims");
   return response.data;
 }
 
 export async function getClaimByIdApi(id: number): Promise<Claim> {
-  const response = await axios.get<Claim>(`${getApiBaseUrl()}/claims/${id}`);
+  const response = await apiClient.get<Claim>(`/claims/${id}`);
   return response.data;
 }

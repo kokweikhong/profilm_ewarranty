@@ -164,6 +164,16 @@ type Shop struct {
 	UpdatedAt                 time.Time `db:"updated_at" json:"updatedAt"`
 }
 
+type User struct {
+	ID           int32     `db:"id" json:"id"`
+	ShopID       *int32    `db:"shop_id" json:"shopId"`
+	Username     string    `db:"username" json:"username"`
+	PasswordHash string    `db:"password_hash" json:"passwordHash"`
+	Role         string    `db:"role" json:"role"`
+	CreatedAt    time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updatedAt"`
+}
+
 type Warranty struct {
 	ID                   int32     `db:"id" json:"id"`
 	ShopID               int32     `db:"shop_id" json:"shopId"`

@@ -17,11 +17,12 @@ import { productColumns } from "@/lib/tableColumns";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
 import { getApiBaseUrl } from "@/lib/env";
+import apiClient from "@/lib/axios";
 
 // get products from backend API
 async function fetchProducts() {
   try {
-    const response = await axios.get<ProductListResponse[]>(
+    const response = await apiClient.get<ProductListResponse[]>(
       `${getApiBaseUrl()}/products`
     );
     return response.data;

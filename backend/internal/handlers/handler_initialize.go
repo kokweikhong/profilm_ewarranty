@@ -8,6 +8,7 @@ type HandlerInitializeParams struct {
 	ProductAllocationsHandler ProductAllocationsHandler
 	WarrantiesHandler         WarrantiesHandler
 	ClaimsHandler             ClaimsHandler
+	UsersHandler              UsersHandler
 	UploadsHandler            UploadsHandler
 }
 
@@ -18,6 +19,7 @@ func NewHandlerInitializeParams(service *services.ServiceInitializeParams) *Hand
 		ProductAllocationsHandler: NewProductAllocationsHandler(service.ProductAllocationsService),
 		WarrantiesHandler:         NewWarrantiesHandler(service.WarrantiesService),
 		ClaimsHandler:             NewClaimsHandler(service.ClaimsService),
+		UsersHandler:              NewUsersHandler(service.UsersService),
 		UploadsHandler:            NewUploadsHandler(service.UploadsService),
 	}
 }

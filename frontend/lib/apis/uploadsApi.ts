@@ -1,5 +1,4 @@
-import axios from "axios";
-import { getApiBaseUrl } from "../env";
+import apiClient from "@/lib/axios";
 
 // Uploads a file to the server and returns the file URL
 // folderParam := r.FormValue("folder") - backend
@@ -16,8 +15,8 @@ export async function uploadFile(file: File, folder: string): Promise<string> {
       type: file.type,
     });
 
-    const response = await axios.post<{ url: string }>(
-      `${getApiBaseUrl()}/uploads/file`,
+    const response = await apiClient.post<{ url: string }>(
+      "/uploads/file",
       formData,
       { headers: { "Content-Type": "multipart/form-data" } }
     );

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import AdminLayout from "./_components/AdminLayout";
-import { ToastProvider } from "@/contexts/ToastContext";
+import RoleGuard from "@/components/RoleGuard";
 
 export const metadata: Metadata = {
   title: "ProFilm eWarranty Admin",
@@ -13,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ToastProvider>
+    <RoleGuard>
       <AdminLayout>{children}</AdminLayout>
-    </ToastProvider>
+    </RoleGuard>
   );
 }
