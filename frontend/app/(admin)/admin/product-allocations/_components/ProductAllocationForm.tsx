@@ -9,7 +9,7 @@ import {
   CreateProductAllocationRequest,
   UpdateProductAllocationRequest,
 } from "@/types/productAllocationsType";
-import { ProductListResponse } from "@/types/productsType";
+import { ProductListResponse, Product } from "@/types/productsType";
 import { ProductAllocation } from "@/types/productAllocationsType";
 import {
   createProductAllocationAction,
@@ -20,7 +20,7 @@ import { ShopListResponse } from "@/types/shopsType";
 
 type Props = {
   productAllocation?: ProductAllocation | null;
-  products: ProductListResponse[];
+  products: Product[];
   shops: ShopListResponse[];
   mode?: "create" | "update";
 };
@@ -131,7 +131,7 @@ export default function ProductAllocationForm({
     const getDisplayValue = (key: string, value: any) => {
       switch (key) {
         case "productId":
-          const product = products.find((p) => p.productId === Number(value));
+          const product = products.find((p) => p.id === Number(value));
           return product ? product.filmSerialNumber : "N/A";
         case "shopId":
           const shop = shops.find((s) => s.shopId === Number(value));
@@ -212,7 +212,7 @@ export default function ProductAllocationForm({
                   >
                     <option value="">Select a product</option>
                     {products.map((product) => (
-                      <option key={product.productId} value={product.productId}>
+                      <option key={product.id} value={product.id}>
                         {product.filmSerialNumber}
                       </option>
                     ))}

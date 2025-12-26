@@ -1,0 +1,20 @@
+meta {
+  name: ListProductsView copy
+  type: http
+  seq: 9
+}
+
+get {
+  url: http://167.172.77.244:8080/api/v1/products
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJ0b2tlblR5cGUiOiJhY2Nlc3MiLCJleHAiOjE3NjY3MzE0MzgsImlhdCI6MTc2NjczMDUzOH0.WoicdoWO6YDL3Ta2xKY8CJhYnnDNGCP_-X31oZCJAg8
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

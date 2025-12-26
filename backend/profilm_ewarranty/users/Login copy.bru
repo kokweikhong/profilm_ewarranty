@@ -1,0 +1,23 @@
+meta {
+  name: Login copy
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/api/v1/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "admin",
+    "password": "admin@profilm"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
