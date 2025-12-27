@@ -1,35 +1,52 @@
-import {
-  getProductByIdApi,
-  getProductBrandsApi,
-  getProductTypesApi,
-  getProductSeriesApi,
-  getProductNamesApi,
-  // getWarrantyPeriodsApi,
-} from "@/lib/apis/productsApi";
-import { getWarrantyByIdApi } from "@/lib/apis/warrantiesApi";
-import ProductForm from "../../_components/WarrantyForm";
-import { Suspense } from "react";
-import { formatDate } from "@/lib/utils";
-import { getCarPartsApi } from "@/lib/apis/warrantiesApi";
+"use client";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const warranty = await getWarrantyByIdApi(Number(id));
-  const carParts = await getCarPartsApi();
-  console.log("warranty:", warranty);
-  if (warranty) {
-    warranty.installationDate = formatDate(warranty.installationDate);
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { getWarrantyByIdApi, getCarPartsApi } from "@/lib/apis/warrantiesApi";
+import WarrantyForm from "../../_components/WarrantyForm";
+import { formatDate } from "@/lib/utils";
+import { Warranty, CarPart } from "@/types/warrantiesType";
+
+export default function Page() {
+  const params = useParams();
+  const id = params.id as string;
+  const [warranty, setWarranty] = useState<Warranty | null>(null);
+  const [carParts, setCarParts] = useState<CarPart[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [warrantyData, carPartsData] = await Promise.all([
+          getWarrantyByIdApi(Number(id)),
+          getCarPartsApi(),
+        ]);
+
+        if (warrantyData) {
+          warrantyData.installationDate = formatDate(
+            warrantyData.installationDate
+          );
+        }
+
+        setWarranty(warrantyData);
+        setCarParts(carPartsData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <Suspense fallback={<div>Loading...</div>}>
-        <ProductForm warranty={warranty} carParts={carParts} mode="update" />
-      </Suspense>
+      <WarrantyForm warranty={warranty} carParts={carParts} mode="update" />
     </div>
   );
 }

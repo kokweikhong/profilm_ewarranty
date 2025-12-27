@@ -4,6 +4,8 @@ import { getProductAllocationByIdApi } from "@/lib/apis/productAllocationsApi";
 import ProductAllocationForm from "../../_components/ProductAllocationForm";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({
   params,
 }: {

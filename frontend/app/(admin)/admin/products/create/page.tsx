@@ -7,6 +7,8 @@ import {
 import ProductForm from "../_components/ProductForm";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const brands = await getProductBrandsApi();
   const types = await getProductTypesApi();

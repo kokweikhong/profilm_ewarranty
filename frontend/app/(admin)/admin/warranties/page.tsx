@@ -26,7 +26,7 @@ export default function Page() {
     pageSize: 10, // Number of rows per page
   });
 
-  const table = useReactTable({
+  const table = useReactTable<WarrantyView>({
     data: warranties,
     columns: warrantyColumns,
     getCoreRowModel: getCoreRowModel(),

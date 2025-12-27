@@ -208,7 +208,7 @@ export const productAllocationColumns = [
   }),
 ];
 
-const warrantyColumnHelper = createColumnHelper<Warranty>();
+const warrantyColumnHelper = createColumnHelper<WarrantyView>();
 export const warrantyColumns = [
   warrantyColumnHelper.accessor("clientName", {
     header: "Client Name",
@@ -265,21 +265,21 @@ export const warrantyColumns = [
     cell: (info) => info.getValue(),
     enableSorting: true,
   }),
-  warrantyColumnHelper.accessor("invoiceAttachmentUrl", {
-    header: "Invoice Attachment URL",
-    cell: (info) => info.getValue(),
-    enableSorting: true,
-  }),
-  warrantyColumnHelper.accessor("isActive", {
-    header: "Active",
-    cell: (info) => (info.getValue() ? "Yes" : "No"),
-    enableSorting: true,
-  }),
-  warrantyColumnHelper.accessor("isApproved", {
-    header: "Approved",
-    cell: (info) => (info.getValue() ? "Yes" : "No"),
-    enableSorting: true,
-  }),
+  // warrantyColumnHelper.accessor("invoiceAttachmentUrl", {
+  //   header: "Invoice Attachment URL",
+  //   cell: (info) => info.getValue(),
+  //   enableSorting: true,
+  // }),
+  // warrantyColumnHelper.accessor("isActive", {
+  //   header: "Active",
+  //   cell: (info) => (info.getValue() ? "Yes" : "No"),
+  //   enableSorting: true,
+  // }),
+  // warrantyColumnHelper.accessor("isApproved", {
+  //   header: "Approved",
+  //   cell: (info) => (info.getValue() ? "Yes" : "No"),
+  //   enableSorting: true,
+  // }),
   warrantyColumnHelper.accessor("createdAt", {
     header: "Created At",
     cell: (info) => new Date(info.getValue()).toLocaleDateString(),

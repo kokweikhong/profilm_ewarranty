@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import ShopForm from "../../_components/ShopForm";
 import { getMsiaStatesApi, getShopByIdApi } from "@/lib/apis/shopsApi";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({
   params,
 }: {

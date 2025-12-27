@@ -16,7 +16,7 @@ import {
   updateProductAllocationAction,
 } from "@/actions/productAllocationsAction";
 import { camelToNormalCase } from "@/lib/utils";
-import { ShopListResponse } from "@/types/shopsType";
+import { Shop, ShopListResponse } from "@/types/shopsType";
 
 type Props = {
   productAllocation?: ProductAllocation | null;

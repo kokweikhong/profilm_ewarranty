@@ -3,6 +3,8 @@ import WarrantyForm from "../_components/WarrantyForm";
 import { Suspense } from "react";
 import { getProductsFromAllocationByShopIdApi } from "@/lib/apis/productAllocationsApi";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const carParts = await getCarPartsApi();
   const productsFromAllocation = await getProductsFromAllocationByShopIdApi(1); // Example shopId
