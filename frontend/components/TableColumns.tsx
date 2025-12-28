@@ -542,15 +542,15 @@ export const WarrantyColumns = [
 
 const claimColumnHelper = createColumnHelper<Claim>();
 export const ClaimColumns = [
-  claimColumnHelper.accessor("id", {
-    header: "ID",
-    cell: (info) => (
-      <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-        #{info.getValue()}
-      </span>
-    ),
-    enableSorting: true,
-  }),
+  // claimColumnHelper.accessor("id", {
+  //   header: "ID",
+  //   cell: (info) => (
+  //     <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+  //       #{info.getValue()}
+  //     </span>
+  //   ),
+  //   enableSorting: true,
+  // }),
   claimColumnHelper.accessor("claimNo", {
     header: "Claim No.",
     cell: (info) => (
@@ -558,15 +558,15 @@ export const ClaimColumns = [
     ),
     enableSorting: true,
   }),
-  claimColumnHelper.accessor("warrantyId", {
-    header: "Warranty",
-    cell: (info) => (
-      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-        #{info.getValue()}
-      </span>
-    ),
-    enableSorting: true,
-  }),
+  // claimColumnHelper.accessor("warrantyId", {
+  //   header: "Warranty",
+  //   cell: (info) => (
+  //     <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+  //       #{info.getValue()}
+  //     </span>
+  //   ),
+  //   enableSorting: true,
+  // }),
   claimColumnHelper.accessor("claimDate", {
     header: "Claim Date",
     cell: (info) => (

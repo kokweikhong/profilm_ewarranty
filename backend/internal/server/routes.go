@@ -92,6 +92,9 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarranty)
 				r.Put("/{id}/approve", rt.handler.WarrantiesHandler.UpdateWarrantyApproval)
 
+				// New route to generate next warranty number
+				r.Get("/generate-warranty-no/{branch_code}-{installation_date}", rt.handler.WarrantiesHandler.GenerateNextWarrantyNo)
+
 				r.Get("/car-parts", rt.handler.WarrantiesHandler.GetCarParts)
 
 				r.Route("/warranty-parts", func(r chi.Router) {

@@ -47,8 +47,8 @@ type UploadMultipleFilesResponse struct {
 
 // UploadFile handles single file upload
 func (h *uploadsHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
-	// Parse multipart form with 10MB max memory
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
+	// Parse multipart form with 50MB max memory
+	if err := r.ParseMultipartForm(50 << 20); err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Failed to parse multipart form")
 		return
 	}
@@ -68,9 +68,9 @@ func (h *uploadsHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Validate file size (10MB max)
-	if header.Size > 10<<20 {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "File size exceeds 10MB limit")
+	// Validate file size (50MB max)
+	if header.Size > 50<<20 {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "File size exceeds 50MB limit")
 		return
 	}
 
@@ -157,9 +157,9 @@ func (h *uploadsHandler) UploadMultipleFiles(w http.ResponseWriter, r *http.Requ
 
 	// Process each file
 	for _, fileHeader := range files {
-		// Validate file size (10MB max per file)
-		if fileHeader.Size > 10<<20 {
-			utils.NewHTTPErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("File %s exceeds 10MB limit", fileHeader.Filename))
+		// Validate file size (50MB max per file)
+		if fileHeader.Size > 50<<20 {
+			utils.NewHTTPErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("File %s exceeds 50MB limit", fileHeader.Filename))
 			return
 		}
 

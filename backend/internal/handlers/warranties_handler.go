@@ -31,6 +31,8 @@ type WarrantiesHandler interface {
 
 	CreateWarrantyWithParts(w http.ResponseWriter, r *http.Request)
 	UpdateWarrantyWithParts(w http.ResponseWriter, r *http.Request)
+
+	GenerateNextWarrantyNo(w http.ResponseWriter, r *http.Request)
 }
 
 type warrantiesHandler struct {
@@ -333,4 +335,29 @@ func (h *warrantiesHandler) UpdateWarrantyWithParts(w http.ResponseWriter, r *ht
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, warranty)
+}
+
+// GenerateNextWarrantyNo generates the next warranty number.
+func (h *warrantiesHandler) GenerateNextWarrantyNo(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	branchCode := chi.URLParam(r, "branch_code")
+	installationDate := chi.URLParam(r, "installation_date") // expected format: YYYYMMDD
+	if branchCode == "" {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Branch code is required")
+		return
+	}
+	if installationDate == "" {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Installation date is required")
+		return
+	}
+	warrantyNo, err := h.warrantiesService.GenerateNextWarrantyNo(ctx, branchCode, installationDate)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	type GenerateWarrantyNoResponse struct {
+		WarrantyNo string `json:"warrantyNo"`
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, GenerateWarrantyNoResponse{WarrantyNo: warrantyNo})
 }

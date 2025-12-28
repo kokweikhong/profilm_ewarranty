@@ -44,3 +44,15 @@ export async function getCarPartsApi(): Promise<CarPart[]> {
   const response = await client.get<CarPart[]>("/warranties/car-parts");
   return response.data;
 }
+
+export async function generateNextWarrantyNoApi(
+  branchCode: string,
+  installationDate: string
+): Promise<{ warrantyNo: string }> {
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<{ warrantyNo: string }>(
+    `/warranties/generate-warranty-no/${branchCode}-${installationDate}`
+  );
+  return response.data;
+}

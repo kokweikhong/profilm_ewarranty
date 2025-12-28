@@ -242,8 +242,8 @@ export default function ProductAllocationForm({
                     className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
                   >
                     <option value="">Select a shop</option>
-                    {shops.map((shop) => (
-                      <option key={shop.shopId} value={shop.shopId}>
+                    {shops.map((shop, index) => (
+                      <option key={index} value={shop.shopId}>
                         {`${shop.branchCode} - ${shop.shopName}`}
                       </option>
                     ))}
