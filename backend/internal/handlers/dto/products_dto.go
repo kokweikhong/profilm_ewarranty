@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/products"
+import (
+	"time"
+
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/products"
+)
 
 // CreateProductRequest represents the request body for creating a product
 type CreateProductRequest struct {
@@ -61,14 +65,26 @@ func (r *UpdateProductRequest) ToUpdateProductParams(id int32) *products.UpdateP
 	}
 }
 
+// ProductDetialResponse represents the detailed response for a product
+type ProductDetialResponse struct {
+	ID               int32     `json:"id"`
+	WarrantyInMonths int32     `json:"warrantyInMonths"`
+	FilmSerialNumber string    `json:"filmSerialNumber"`
+	FilmQuantity     int32     `json:"filmQuantity"`
+	ShipmentNumber   string    `json:"shipmentNumber"`
+	Description      string    `json:"description"`
+	IsActive         bool      `json:"isActive"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
+	BrandName        string    `json:"brandName"`
+	TypeName         string    `json:"typeName"`
+	SeriesName       string    `json:"seriesName"`
+	ProductName      string    `json:"productName"`
+}
+
 // ProductResponse wraps the products.Product model for API responses
 type ProductResponse struct {
 	*products.Product
-}
-
-// ProductViewResponse wraps the products.ProductsView model for API responses
-type ProductViewResponse struct {
-	*products.ProductsView
 }
 
 // ProductBrandResponse wraps the products.ProductBrand model for API responses

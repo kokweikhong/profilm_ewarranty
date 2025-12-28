@@ -11,22 +11,24 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
-import { WarrantyView } from "@/types/warrantiesType";
+import { Warranty } from "@/types/warrantiesType";
 import { warrantyColumns } from "@/lib/tableColumns";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
 import { getWarrantiesApi } from "@/lib/apis/warrantiesApi";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Page() {
-  const [warranties, setWarranties] = useState<WarrantyView[]>([]);
+  const [warranties, setWarranties] = useState<Warranty[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<any[]>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0, // Current page index (starts at 0)
     pageSize: 10, // Number of rows per page
   });
+  const { user } = useAuth();
 
-  const table = useReactTable<WarrantyView>({
+  const table = useReactTable<Warranty>({
     data: warranties,
     columns: warrantyColumns,
     getCoreRowModel: getCoreRowModel(),
@@ -44,8 +46,15 @@ export default function Page() {
   });
 
   useEffect(() => {
-    getWarrantiesApi().then((data) => setWarranties(data));
-  }, []);
+    getWarrantiesApi().then((data) => {
+      // Filter warranties by shop_id if user is not admin
+      const filteredData =
+        user?.role !== "admin" && user?.shopId
+          ? data.filter((warranty) => warranty.shopId === user.shopId)
+          : data;
+      setWarranties(filteredData);
+    });
+  }, [user]);
 
   console.log("Warranties:", warranties);
   return (
@@ -138,7 +147,7 @@ export default function Page() {
                       ))}
                       <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8">
                         <a
-                          href={`/admin/warranties/edit/${row.original.warrantyId}`}
+                          href={`/admin/warranties/edit/${row.original.id}`}
                           className="text-primary hover:underline"
                         >
                           Edit

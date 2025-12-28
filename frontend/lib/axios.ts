@@ -9,14 +9,33 @@ const apiClient = axios.create({
   },
 });
 
+// Helper function to get token from cookies (works in both client and server)
+function getTokenFromCookies(): string | null {
+  if (typeof document !== "undefined") {
+    // Client-side: use document.cookie
+    const cookies = document.cookie.split("; ");
+    const tokenCookie = cookies.find((c) => c.startsWith("accessToken="));
+    return tokenCookie ? tokenCookie.split("=")[1] : null;
+  }
+  return null;
+}
+
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
+    let token: string | null = null;
+
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+      // Client-side: try localStorage first, then cookies
+      token = localStorage.getItem("accessToken") || getTokenFromCookies();
+    } else {
+      // Server-side: check if token is passed through headers (we'll set this up)
+      // For now, server-side requests won't have automatic token injection
+      // They need to be handled differently
+    }
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -82,5 +101,25 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Server-side API client factory that accepts a token
+export function createServerApiClient(token?: string) {
+  const serverClient = axios.create({
+    baseURL: getApiBaseUrl(),
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  return serverClient;
+}
+
+// Helper to get server API client with token from cookies
+export async function getServerApiClient() {
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
+  return createServerApiClient(token);
+}
 
 export default apiClient;

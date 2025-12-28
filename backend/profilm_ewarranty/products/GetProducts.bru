@@ -1,0 +1,20 @@
+meta {
+  name: GetProducts
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://localhost:8080/api/v1/products/all
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJ0b2tlblR5cGUiOiJhY2Nlc3MiLCJleHAiOjE3NjY4NDkwMDQsImlhdCI6MTc2Njg0ODEwNH0.BuK925I9WyOYj9YnGipCIKaDd8ZrQMurFZ__9ZutP2Y
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

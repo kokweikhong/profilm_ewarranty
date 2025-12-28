@@ -126,22 +126,6 @@ type ProductType struct {
 	UpdatedAt   time.Time `db:"updated_at" json:"updatedAt"`
 }
 
-type ProductsView struct {
-	ProductID        int32     `db:"product_id" json:"productId"`
-	BrandName        string    `db:"brand_name" json:"brandName"`
-	TypeName         string    `db:"type_name" json:"typeName"`
-	SeriesName       string    `db:"series_name" json:"seriesName"`
-	ProductName      string    `db:"product_name" json:"productName"`
-	WarrantyPeriod   int32     `db:"warranty_period" json:"warrantyPeriod"`
-	FilmSerialNumber string    `db:"film_serial_number" json:"filmSerialNumber"`
-	FilmQuantity     int32     `db:"film_quantity" json:"filmQuantity"`
-	ShipmentNumber   string    `db:"shipment_number" json:"shipmentNumber"`
-	Description      string    `db:"description" json:"description"`
-	IsActive         bool      `db:"is_active" json:"isActive"`
-	CreatedAt        time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt        time.Time `db:"updated_at" json:"updatedAt"`
-}
-
 type Shop struct {
 	ID                        int32     `db:"id" json:"id"`
 	CompanyName               string    `db:"company_name" json:"companyName"`

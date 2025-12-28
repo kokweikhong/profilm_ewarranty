@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { getProductsApi } from "@/lib/apis/productsApi";
 import { getShopsViewApi } from "@/lib/apis/shopsApi";
 import ProductAllocationForm from "../_components/ProductAllocationForm";
-import { Product } from "@/types/productsType";
+import { Product, ProductDetailResponse } from "@/types/productsType";
 import { ShopListResponse } from "@/types/shopsType";
 
 export default function Page() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductDetailResponse[]>([]);
   const [shops, setShops] = useState<ShopListResponse[]>([]);
   const [loading, setLoading] = useState(true);
 

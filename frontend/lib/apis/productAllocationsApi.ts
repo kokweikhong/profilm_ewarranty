@@ -1,4 +1,4 @@
-import apiClient from "@/lib/axios";
+import apiClient, { getServerApiClient } from "@/lib/axios";
 import {
   ProductAllocationsListResponse,
   ProductAllocation,
@@ -8,7 +8,9 @@ import {
 export async function getProductAllocationsApi(): Promise<
   ProductAllocationsListResponse[]
 > {
-  const response = await apiClient.get<ProductAllocationsListResponse[]>(
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<ProductAllocationsListResponse[]>(
     "/product-allocations"
   );
   return response.data;
@@ -17,7 +19,9 @@ export async function getProductAllocationsApi(): Promise<
 export async function getProductAllocationByIdApi(
   id: number
 ): Promise<ProductAllocation> {
-  const response = await apiClient.get<ProductAllocation>(
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<ProductAllocation>(
     `/product-allocations/${id}`
   );
   return response.data;
@@ -26,8 +30,10 @@ export async function getProductAllocationByIdApi(
 export async function getProductsFromAllocationByShopIdApi(
   shopId: number
 ): Promise<ProductsFromAllocationByShopIdResponse[]> {
-  const response = await apiClient.get<
-    ProductsFromAllocationByShopIdResponse[]
-  >(`/product-allocations/products-by-shop/${shopId}`);
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<ProductsFromAllocationByShopIdResponse[]>(
+    `/product-allocations/products-by-shop/${shopId}`
+  );
   return response.data;
 }

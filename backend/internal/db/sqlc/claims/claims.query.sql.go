@@ -113,6 +113,43 @@ func (q *Queries) GetClaimByID(ctx context.Context, id int32) (*Claim, error) {
 	return &i, err
 }
 
+const getClaimsByShopID = `-- name: GetClaimsByShopID :many
+SELECT
+    c.id, c.warranty_id, c.claim_no, c.claim_date, c.is_approved, c.created_at, c.updated_at
+FROM claims c
+JOIN warranties w ON c.warranty_id = w.id
+WHERE w.shop_id = $1
+ORDER BY c.created_at DESC
+`
+
+func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*Claim, error) {
+	rows, err := q.db.Query(ctx, getClaimsByShopID, shopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Claim{}
+	for rows.Next() {
+		var i Claim
+		if err := rows.Scan(
+			&i.ID,
+			&i.WarrantyID,
+			&i.ClaimNo,
+			&i.ClaimDate,
+			&i.IsApproved,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listClaimWarrantyPartsByClaimID = `-- name: ListClaimWarrantyPartsByClaimID :many
 SELECT
     id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at

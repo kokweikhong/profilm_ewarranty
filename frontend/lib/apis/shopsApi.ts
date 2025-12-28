@@ -1,23 +1,31 @@
-import apiClient from "@/lib/axios";
+import apiClient, { getServerApiClient } from "@/lib/axios";
 import { MsiaState, ShopListResponse, Shop } from "@/types/shopsType";
 
 export async function getMsiaStatesApi(): Promise<MsiaState[]> {
-  const response = await apiClient.get<MsiaState[]>("/shops/states");
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<MsiaState[]>("/shops/states");
   return response.data;
 }
 
 export async function getShopsViewApi(): Promise<ShopListResponse[]> {
-  const response = await apiClient.get<ShopListResponse[]>("/shops");
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<ShopListResponse[]>("/shops");
   return response.data;
 }
 
 export async function getShops(): Promise<Shop[]> {
-  const response = await apiClient.get<Shop[]>("/shops");
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<Shop[]>("/shops");
   return response.data;
 }
 
 export async function getShopByIdApi(id: number): Promise<Shop> {
-  const response = await apiClient.get<Shop>(`/shops/${id}`);
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<Shop>(`/shops/${id}`);
   return response.data;
 }
 

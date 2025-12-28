@@ -54,7 +54,7 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 			})
 
 			r.Route("/products", func(r chi.Router) {
-				r.Get("/", rt.handler.ProductsHandler.ListProductsView)
+				r.Get("/", rt.handler.ProductsHandler.GetProducts)
 				r.Get("/{id}", rt.handler.ProductsHandler.GetProductByID)
 				r.Post("/", rt.handler.ProductsHandler.CreateProduct)
 				r.Put("/{id}", rt.handler.ProductsHandler.UpdateProduct)
@@ -106,6 +106,7 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 			})
 
 			r.Route("/claims", func(r chi.Router) {
+				r.Get("/by-shop/{shop_id}", rt.handler.ClaimsHandler.GetClaimsByShopID)
 				r.Get("/", rt.handler.ClaimsHandler.ListClaims)
 				r.Get("/{id}", rt.handler.ClaimsHandler.GetClaimByID)
 				r.Post("/", rt.handler.ClaimsHandler.CreateClaim)

@@ -8,6 +8,7 @@ import (
 )
 
 type ClaimsService interface {
+	GetClaimsByShopID(ctx context.Context, shopID int32) ([]*claims.Claim, error)
 	ListClaims(ctx context.Context) ([]*claims.Claim, error)
 	GetClaimByID(ctx context.Context, id int32) (*claims.Claim, error)
 	CreateClaim(ctx context.Context, arg *claims.CreateClaimParams) (*claims.Claim, error)
@@ -30,6 +31,11 @@ func NewClaimsService(db *pgxpool.Pool) ClaimsService {
 		db: db,
 		q:  claims.New(db),
 	}
+}
+
+// GetClaimsByShopID retrieves claims associated with a specific shop ID from the database.
+func (s *claimsService) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*claims.Claim, error) {
+	return s.q.GetClaimsByShopID(ctx, shopID)
 }
 
 // ListClaims retrieves a list of claims from the database.

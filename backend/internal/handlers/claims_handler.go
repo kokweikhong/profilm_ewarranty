@@ -12,6 +12,8 @@ import (
 
 // ClaimsHandler defines the HTTP contract for claim-related endpoints.
 type ClaimsHandler interface {
+	// GetClaimsByShopID returns claims associated with a specific shop ID.
+	GetClaimsByShopID(w http.ResponseWriter, r *http.Request)
 	// ListClaimsView returns a list of claims from the view.
 	ListClaims(w http.ResponseWriter, r *http.Request)
 	// GetClaimByID returns a single claim by ID.
@@ -41,6 +43,23 @@ func NewClaimsHandler(claimsService services.ClaimsService) ClaimsHandler {
 	return &claimsHandler{
 		claimsService: claimsService,
 	}
+}
+
+// GetClaimsByShopID returns claims associated with a specific shop ID.
+func (h *claimsHandler) GetClaimsByShopID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	shopIDStr := chi.URLParam(r, "shop_id")
+	shopID, err := utils.ConvertParamToInt32(shopIDStr)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid shop ID")
+		return
+	}
+	claimsList, err := h.claimsService.GetClaimsByShopID(ctx, shopID)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to get claims by shop ID")
+		return
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, claimsList)
 }
 
 // ListClaims returns a list of claims from the view.

@@ -15,9 +15,11 @@ import { claimColumns } from "@/lib/tableColumns";
 import { Claim } from "@/types/claimsType";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
-import { getClaimsApi } from "@/lib/apis/claimsApi";
+import { getClaimsByShopIdApi } from "@/lib/apis/claimsApi";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Page() {
+  const { user } = useAuth();
   const [claims, setClaims] = useState<Claim[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<any[]>([]);
@@ -44,8 +46,10 @@ export default function Page() {
   });
 
   useEffect(() => {
-    getClaimsApi().then((data) => setClaims(data));
-  }, []);
+    if (user?.shopId) {
+      getClaimsByShopIdApi(user.shopId).then((data) => setClaims(data));
+    }
+  }, [user?.shopId]);
 
   console.log("Claims:", claims);
   return (

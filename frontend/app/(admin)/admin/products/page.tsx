@@ -12,28 +12,16 @@ import {
 } from "@tanstack/react-table";
 import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
-import { ProductListResponse } from "@/types/productsType";
+import { ProductDetailResponse } from "@/types/productsType";
 import { productColumns } from "@/lib/tableColumns";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
 import { getApiBaseUrl } from "@/lib/env";
 import apiClient from "@/lib/axios";
-
-// get products from backend API
-async function fetchProducts() {
-  try {
-    const response = await apiClient.get<ProductListResponse[]>(
-      `${getApiBaseUrl()}/products`
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    return [] as ProductListResponse[];
-  }
-}
+import { getProductsApi } from "@/lib/apis/productsApi";
 
 export default function Page() {
-  const [products, setProducts] = useState<ProductListResponse[]>([]);
+  const [products, setProducts] = useState<ProductDetailResponse[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<any[]>([]);
   const [pagination, setPagination] = useState({
@@ -59,7 +47,7 @@ export default function Page() {
   });
 
   useEffect(() => {
-    fetchProducts().then((data) => setProducts(data));
+    getProductsApi().then((data) => setProducts(data));
   }, []);
 
   console.log("Products:", products);
@@ -153,7 +141,7 @@ export default function Page() {
                       ))}
                       <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8">
                         <a
-                          href={`/admin/products/edit/${row.original.productId}`}
+                          href={`/admin/products/edit/${row.original.id}`}
                           className="text-primary hover:underline"
                         >
                           Edit

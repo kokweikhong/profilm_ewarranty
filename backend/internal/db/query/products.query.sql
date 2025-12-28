@@ -1,20 +1,12 @@
--- name: ListProductsView :many
+-- name: GetProducts :many
 SELECT
-    product_id,
-    brand_name,
-    type_name,
-    series_name,
-    product_name,
-    warranty_period,
-    film_serial_number,
-    film_quantity,
-    shipment_number,
-    description,
-    is_active,
-    created_at,
-    updated_at
-FROM products_view
-ORDER BY created_at DESC;
+    *,
+    (SELECT name FROM product_brands WHERE id = p.brand_id) AS brand_name,
+    (SELECT name FROM product_types WHERE id = p.type_id) AS type_name,
+    (SELECT name FROM product_series WHERE id = p.series_id) AS series_name,
+    (SELECT name FROM product_names WHERE id = p.name_id) AS product_name
+FROM products p
+ORDER BY p.created_at DESC;
 
 -- name: GetProductByID :one
 SELECT

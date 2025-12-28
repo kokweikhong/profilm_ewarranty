@@ -9,7 +9,7 @@ import {
   CreateProductAllocationRequest,
   UpdateProductAllocationRequest,
 } from "@/types/productAllocationsType";
-import { ProductListResponse, Product } from "@/types/productsType";
+import { ProductDetailResponse } from "@/types/productsType";
 import { ProductAllocation } from "@/types/productAllocationsType";
 import {
   createProductAllocationAction,
@@ -20,7 +20,7 @@ import { Shop, ShopListResponse } from "@/types/shopsType";
 
 type Props = {
   productAllocation?: ProductAllocation | null;
-  products: Product[];
+  products: ProductDetailResponse[];
   shops: ShopListResponse[];
   mode?: "create" | "update";
 };

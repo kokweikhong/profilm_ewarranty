@@ -13,8 +13,8 @@ import (
 // ProductsHandler defines the HTTP contract for product-related endpoints.
 // It is framework-agnostic and can be wired to chi, gin, echo, etc.
 type ProductsHandler interface {
-	// ListProductsView returns a list of products from the view.
-	ListProductsView(w http.ResponseWriter, r *http.Request)
+	// GetProducts returns a list of products.
+	GetProducts(w http.ResponseWriter, r *http.Request)
 
 	// GetProductByID returns a single product by ID.
 	GetProductByID(w http.ResponseWriter, r *http.Request)
@@ -48,15 +48,35 @@ func NewProductsHandler(productsService services.ProductsService) ProductsHandle
 	}
 }
 
-// ListProductsView returns a list of products from the view.
-func (h *productsHandler) ListProductsView(w http.ResponseWriter, r *http.Request) {
-	productViews, err := h.productsService.ListProductsView(r.Context())
+// GetProducts returns a list of products.
+func (h *productsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
+	products, err := h.productsService.GetProducts(r.Context())
 	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to list products")
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to get products")
 		return
 	}
 
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, productViews)
+	productsResponse := make([]dto.ProductDetialResponse, 0, len(products))
+	for _, p := range products {
+		productResp := dto.ProductDetialResponse{
+			ID:               p.ID,
+			WarrantyInMonths: p.WarrantyInMonths,
+			FilmSerialNumber: p.FilmSerialNumber,
+			FilmQuantity:     p.FilmQuantity,
+			ShipmentNumber:   p.ShipmentNumber,
+			Description:      p.Description,
+			IsActive:         p.IsActive,
+			CreatedAt:        p.CreatedAt,
+			UpdatedAt:        p.UpdatedAt,
+			BrandName:        p.BrandName,
+			TypeName:         p.TypeName,
+			SeriesName:       p.SeriesName,
+			ProductName:      p.ProductName,
+		}
+		productsResponse = append(productsResponse, productResp)
+	}
+
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, productsResponse)
 }
 
 // GetProductByID returns a single product by ID.

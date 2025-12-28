@@ -11,11 +11,11 @@ import (
 type Querier interface {
 	CreateProduct(ctx context.Context, arg *CreateProductParams) (*Product, error)
 	GetProductByID(ctx context.Context, id int32) (*Product, error)
+	GetProducts(ctx context.Context) ([]*GetProductsRow, error)
 	ListProductBrands(ctx context.Context) ([]*ProductBrand, error)
 	ListProductNames(ctx context.Context) ([]*ProductName, error)
 	ListProductSeries(ctx context.Context) ([]*ProductSeries, error)
 	ListProductTypes(ctx context.Context) ([]*ProductType, error)
-	ListProductsView(ctx context.Context) ([]*ProductsView, error)
 	UpdateProduct(ctx context.Context, arg *UpdateProductParams) (*Product, error)
 }
 

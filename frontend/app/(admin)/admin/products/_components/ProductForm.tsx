@@ -65,7 +65,9 @@ export default function ProductForm({
           description: product.description,
           isActive: product.isActive,
         }
-      : undefined,
+      : {
+          isActive: true,
+        },
   });
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -482,20 +484,41 @@ export default function ProductForm({
               </div>
 
               {/* Is Active */}
-              <div className="col-span-full flex items-center gap-x-3">
-                <input
-                  {...register("isActive")}
-                  id="isActive"
-                  name="isActive"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/60 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
-                />
-                <label
-                  htmlFor="isActive"
-                  className="text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Active
-                </label>
+              <div className="col-span-full">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="isActive"
+                      className="text-sm font-semibold text-gray-900 dark:text-white"
+                    >
+                      Product Status
+                    </label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {mode === "create" || watch("isActive")
+                        ? "Product is active and visible"
+                        : "Product is inactive and hidden"}
+                    </p>
+                  </div>
+                  <label
+                    htmlFor="isActive"
+                    className={`relative inline-flex items-center ${
+                      mode === "create" ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+                    }`}
+                  >
+                    <input
+                      {...register("isActive")}
+                      id="isActive"
+                      type="checkbox"
+                      className="sr-only peer"
+                      defaultChecked={isEditMode ? product?.isActive : true}
+                      disabled={mode === "create"}
+                    />
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/40 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                    <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                      {mode === "create" || watch("isActive") ? "Active" : "Inactive"}
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>

@@ -1,13 +1,13 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { ProductListResponse } from "@/types/productsType";
+import { ProductDetailResponse } from "@/types/productsType";
 import { Shop, ShopListResponse } from "@/types/shopsType";
 import { ProductAllocationsListResponse } from "@/types/productAllocationsType";
-import { WarrantyView, Warranty } from "@/types/warrantiesType";
+import { Warranty } from "@/types/warrantiesType";
 import { Claim } from "@/types/claimsType";
 
-const productColumnHelper = createColumnHelper<ProductListResponse>();
+const productColumnHelper = createColumnHelper<ProductDetailResponse>();
 export const productColumns = [
-  productColumnHelper.accessor("productId", {
+  productColumnHelper.accessor("id", {
     header: "Product ID",
     cell: (info) => info.getValue(),
     enableSorting: true,
@@ -32,7 +32,7 @@ export const productColumns = [
     cell: (info) => info.getValue(),
     enableSorting: true,
   }),
-  productColumnHelper.accessor("warrantyPeriod", {
+  productColumnHelper.accessor("warrantyInMonths", {
     header: "Warranty (months)",
     cell: (info) => info.getValue(),
     enableSorting: true,
@@ -208,7 +208,7 @@ export const productAllocationColumns = [
   }),
 ];
 
-const warrantyColumnHelper = createColumnHelper<WarrantyView>();
+const warrantyColumnHelper = createColumnHelper<Warranty>();
 export const warrantyColumns = [
   warrantyColumnHelper.accessor("clientName", {
     header: "Client Name",

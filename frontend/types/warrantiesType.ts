@@ -1,30 +1,3 @@
-// WarrantyView represents a warranty with joined data from the view
-export interface WarrantyView {
-  warrantyId: number;
-  clientName: string;
-  clientContact: string;
-  clientEmail: string;
-  carBrand: string;
-  carModel: string;
-  carColour: string;
-  carPlateNo: string;
-  carChassisNo: string;
-  productAllocationId: number;
-  productBrand: string;
-  productType: string;
-  productName: string;
-  warrantyInMonths: number;
-  shopName: string;
-  branchCode: string;
-  carPart: string;
-  installationImageUrl: string;
-  installationDate: string; // ISO date string
-  referenceNo: string;
-  warrantyNo: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-}
-
 // Warranty represents the warranty entity
 export interface Warranty {
   id: number;

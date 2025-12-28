@@ -1,3 +1,11 @@
+-- name: GetClaimsByShopID :many
+SELECT
+    c.*
+FROM claims c
+JOIN warranties w ON c.warranty_id = w.id
+WHERE w.shop_id = $1
+ORDER BY c.created_at DESC;
+
 -- name: ListClaims :many
 SELECT
     *

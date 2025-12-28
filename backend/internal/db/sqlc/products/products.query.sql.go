@@ -7,6 +7,7 @@ package products
 
 import (
 	"context"
+	"time"
 )
 
 const createProduct = `-- name: CreateProduct :one
@@ -95,6 +96,75 @@ func (q *Queries) GetProductByID(ctx context.Context, id int32) (*Product, error
 		&i.UpdatedAt,
 	)
 	return &i, err
+}
+
+const getProducts = `-- name: GetProducts :many
+SELECT
+    id, brand_id, type_id, series_id, name_id, warranty_in_months, film_serial_number, film_quantity, shipment_number, description, is_active, created_at, updated_at,
+    (SELECT name FROM product_brands WHERE id = p.brand_id) AS brand_name,
+    (SELECT name FROM product_types WHERE id = p.type_id) AS type_name,
+    (SELECT name FROM product_series WHERE id = p.series_id) AS series_name,
+    (SELECT name FROM product_names WHERE id = p.name_id) AS product_name
+FROM products p
+ORDER BY p.created_at DESC
+`
+
+type GetProductsRow struct {
+	ID               int32     `db:"id" json:"id"`
+	BrandID          int32     `db:"brand_id" json:"brandId"`
+	TypeID           int32     `db:"type_id" json:"typeId"`
+	SeriesID         int32     `db:"series_id" json:"seriesId"`
+	NameID           int32     `db:"name_id" json:"nameId"`
+	WarrantyInMonths int32     `db:"warranty_in_months" json:"warrantyInMonths"`
+	FilmSerialNumber string    `db:"film_serial_number" json:"filmSerialNumber"`
+	FilmQuantity     int32     `db:"film_quantity" json:"filmQuantity"`
+	ShipmentNumber   string    `db:"shipment_number" json:"shipmentNumber"`
+	Description      string    `db:"description" json:"description"`
+	IsActive         bool      `db:"is_active" json:"isActive"`
+	CreatedAt        time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt        time.Time `db:"updated_at" json:"updatedAt"`
+	BrandName        string    `db:"brand_name" json:"brandName"`
+	TypeName         string    `db:"type_name" json:"typeName"`
+	SeriesName       string    `db:"series_name" json:"seriesName"`
+	ProductName      string    `db:"product_name" json:"productName"`
+}
+
+func (q *Queries) GetProducts(ctx context.Context) ([]*GetProductsRow, error) {
+	rows, err := q.db.Query(ctx, getProducts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetProductsRow{}
+	for rows.Next() {
+		var i GetProductsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.BrandID,
+			&i.TypeID,
+			&i.SeriesID,
+			&i.NameID,
+			&i.WarrantyInMonths,
+			&i.FilmSerialNumber,
+			&i.FilmQuantity,
+			&i.ShipmentNumber,
+			&i.Description,
+			&i.IsActive,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.BrandName,
+			&i.TypeName,
+			&i.SeriesName,
+			&i.ProductName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listProductBrands = `-- name: ListProductBrands :many
@@ -238,59 +308,6 @@ func (q *Queries) ListProductTypes(ctx context.Context) ([]*ProductType, error) 
 			&i.BrandID,
 			&i.Name,
 			&i.Description,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listProductsView = `-- name: ListProductsView :many
-SELECT
-    product_id,
-    brand_name,
-    type_name,
-    series_name,
-    product_name,
-    warranty_period,
-    film_serial_number,
-    film_quantity,
-    shipment_number,
-    description,
-    is_active,
-    created_at,
-    updated_at
-FROM products_view
-ORDER BY created_at DESC
-`
-
-func (q *Queries) ListProductsView(ctx context.Context) ([]*ProductsView, error) {
-	rows, err := q.db.Query(ctx, listProductsView)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*ProductsView{}
-	for rows.Next() {
-		var i ProductsView
-		if err := rows.Scan(
-			&i.ProductID,
-			&i.BrandName,
-			&i.TypeName,
-			&i.SeriesName,
-			&i.ProductName,
-			&i.WarrantyPeriod,
-			&i.FilmSerialNumber,
-			&i.FilmQuantity,
-			&i.ShipmentNumber,
-			&i.Description,
-			&i.IsActive,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

@@ -12,6 +12,7 @@ type Querier interface {
 	CreateClaim(ctx context.Context, arg *CreateClaimParams) (*Claim, error)
 	CreateClaimWarrantyPart(ctx context.Context, arg *CreateClaimWarrantyPartParams) (*ClaimWarrantyPart, error)
 	GetClaimByID(ctx context.Context, id int32) (*Claim, error)
+	GetClaimsByShopID(ctx context.Context, shopID int32) ([]*Claim, error)
 	ListClaimWarrantyPartsByClaimID(ctx context.Context, claimID int32) ([]*ClaimWarrantyPart, error)
 	ListClaims(ctx context.Context) ([]*Claim, error)
 	UpdateClaim(ctx context.Context, arg *UpdateClaimParams) (*Claim, error)

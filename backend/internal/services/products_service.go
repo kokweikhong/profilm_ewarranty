@@ -8,7 +8,7 @@ import (
 )
 
 type ProductsService interface {
-	ListProductsView(ctx context.Context) ([]*products.ProductsView, error)
+	GetProducts(ctx context.Context) ([]*products.GetProductsRow, error)
 	GetProductByID(ctx context.Context, id int32) (*products.Product, error)
 	CreateProduct(ctx context.Context, arg *products.CreateProductParams) (*products.Product, error)
 	UpdateProduct(ctx context.Context, arg *products.UpdateProductParams) (*products.Product, error)
@@ -30,9 +30,9 @@ func NewProductsService(db *pgxpool.Pool) ProductsService {
 	}
 }
 
-// ListProductsView retrieves a list of product views from the database.
-func (s *productsService) ListProductsView(ctx context.Context) ([]*products.ProductsView, error) {
-	return s.q.ListProductsView(ctx)
+// GetProducts retrieves a list of products from the database.
+func (s *productsService) GetProducts(ctx context.Context) ([]*products.GetProductsRow, error) {
+	return s.q.GetProducts(ctx)
 }
 
 // GetProductByID retrieves a product by its ID from the database.

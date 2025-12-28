@@ -1,10 +1,6 @@
-export interface ProductListResponse {
-  productId: number;
-  brandName: string;
-  typeName: string;
-  seriesName: string;
-  productName: string;
-  warrantyPeriod: number;
+export interface ProductDetailResponse {
+  id: number;
+  warrantyInMonths: number;
   filmSerialNumber: string;
   filmQuantity: number;
   shipmentNumber: string;
@@ -12,6 +8,10 @@ export interface ProductListResponse {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  brandName: string;
+  typeName: string;
+  seriesName: string;
+  productName: string;
 }
 
 export interface Product {
