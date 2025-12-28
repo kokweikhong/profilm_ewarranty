@@ -216,7 +216,7 @@ export default function AdminLayout({
                       aria-hidden="true"
                       className="ml-4 text-sm/6 font-semibold text-gray-900"
                     >
-                      {user?.username || "User"}
+                      {user?.username.toUpperCase() || "User"}
                     </span>
                     <ChevronDownIcon
                       aria-hidden="true"

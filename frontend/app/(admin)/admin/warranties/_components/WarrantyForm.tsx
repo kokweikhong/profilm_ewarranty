@@ -519,7 +519,7 @@ export default function WarrantyForm({
                           <div className="mt-4 space-y-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Product Allocation ID *
+                                Product *
                               </label>
                               {/* Select and options from productsFromAllocation */}
                               {/* options need to show brand name, type, series and product name and warranty in months */}
@@ -536,7 +536,7 @@ export default function WarrantyForm({
                                 className="mt-2 block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                               >
                                 <option value={0} disabled>
-                                  Select Product Allocation
+                                  Select Product
                                 </option>
                                 {productsFromAllocation &&
                                   productsFromAllocation.map((product) => (

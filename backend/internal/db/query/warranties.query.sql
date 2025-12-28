@@ -1,8 +1,11 @@
 -- name: ListWarranties :many
 SELECT
-    *
-FROM warranties
-ORDER BY created_at DESC;
+    w.*,
+    s.shop_name,
+    s.branch_code
+FROM warranties w
+JOIN shops s ON w.shop_id = s.id
+ORDER BY w.created_at DESC;
 
 -- name: GetWarrantyByID :one
 SELECT

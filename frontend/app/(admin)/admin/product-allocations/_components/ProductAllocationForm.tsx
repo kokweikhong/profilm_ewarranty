@@ -244,7 +244,7 @@ export default function ProductAllocationForm({
                     <option value="">Select a shop</option>
                     {shops.map((shop) => (
                       <option key={shop.shopId} value={shop.shopId}>
-                        {shop.branchCode}
+                        {`${shop.branchCode} - ${shop.shopName}`}
                       </option>
                     ))}
                   </select>

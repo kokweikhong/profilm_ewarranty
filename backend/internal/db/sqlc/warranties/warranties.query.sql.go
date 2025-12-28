@@ -422,20 +422,46 @@ func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID i
 
 const listWarranties = `-- name: ListWarranties :many
 SELECT
-    id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
-FROM warranties
-ORDER BY created_at DESC
+    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.is_approved, w.created_at, w.updated_at,
+    s.shop_name,
+    s.branch_code
+FROM warranties w
+JOIN shops s ON w.shop_id = s.id
+ORDER BY w.created_at DESC
 `
 
-func (q *Queries) ListWarranties(ctx context.Context) ([]*Warranty, error) {
+type ListWarrantiesRow struct {
+	ID                   int32     `db:"id" json:"id"`
+	ShopID               int32     `db:"shop_id" json:"shopId"`
+	ClientName           string    `db:"client_name" json:"clientName"`
+	ClientContact        string    `db:"client_contact" json:"clientContact"`
+	ClientEmail          string    `db:"client_email" json:"clientEmail"`
+	CarBrand             string    `db:"car_brand" json:"carBrand"`
+	CarModel             string    `db:"car_model" json:"carModel"`
+	CarColour            string    `db:"car_colour" json:"carColour"`
+	CarPlateNo           string    `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool      `db:"is_active" json:"isActive"`
+	IsApproved           bool      `db:"is_approved" json:"isApproved"`
+	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
+	ShopName             string    `db:"shop_name" json:"shopName"`
+	BranchCode           string    `db:"branch_code" json:"branchCode"`
+}
+
+func (q *Queries) ListWarranties(ctx context.Context) ([]*ListWarrantiesRow, error) {
 	rows, err := q.db.Query(ctx, listWarranties)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Warranty{}
+	items := []*ListWarrantiesRow{}
 	for rows.Next() {
-		var i Warranty
+		var i ListWarrantiesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ShopID,
@@ -455,6 +481,8 @@ func (q *Queries) ListWarranties(ctx context.Context) ([]*Warranty, error) {
 			&i.IsApproved,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ShopName,
+			&i.BranchCode,
 		); err != nil {
 			return nil, err
 		}

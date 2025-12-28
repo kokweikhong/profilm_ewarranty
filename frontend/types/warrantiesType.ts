@@ -20,6 +20,11 @@ export interface Warranty {
   updatedAt: string; // ISO date string
 }
 
+export interface WarrantyDetails extends Warranty {
+  shopName: string;
+  branchCode: string;
+}
+
 export interface WarrantyCarPart {
   productAllocationId: number;
   carPart: string;

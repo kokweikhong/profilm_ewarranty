@@ -9,7 +9,7 @@ import (
 )
 
 type WarrantiesService interface {
-	ListWarranties(ctx context.Context) ([]*warranties.Warranty, error)
+	ListWarranties(ctx context.Context) ([]*warranties.ListWarrantiesRow, error)
 	GetWarrantyByID(ctx context.Context, id int32) (*warranties.Warranty, error)
 	CreateWarranty(ctx context.Context, arg *warranties.CreateWarrantyParams) (*warranties.Warranty, error)
 	UpdateWarranty(ctx context.Context, arg *warranties.UpdateWarrantyParams) (*warranties.Warranty, error)
@@ -46,7 +46,7 @@ func NewWarrantiesService(db *pgxpool.Pool) WarrantiesService {
 }
 
 // ListWarranties retrieves a list of warranties from the database.
-func (s *warrantiesService) ListWarranties(ctx context.Context) ([]*warranties.Warranty, error) {
+func (s *warrantiesService) ListWarranties(ctx context.Context) ([]*warranties.ListWarrantiesRow, error) {
 	return s.q.ListWarranties(ctx)
 }
 
