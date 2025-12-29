@@ -90,8 +90,8 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyByID)
 				r.Post("/", rt.handler.WarrantiesHandler.CreateWarranty)
 				r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarranty)
-				r.Put("/{id}/approve", rt.handler.WarrantiesHandler.UpdateWarrantyApproval)
-
+				r.Put("/{id}/approval", rt.handler.WarrantiesHandler.UpdateWarrantyApproval)
+				r.Get("/{id}/details", rt.handler.WarrantiesHandler.GetWarrantyDetailsByID)
 				// New route to generate next warranty number
 				r.Get("/generate-warranty-no/{branch_code}-{installation_date}", rt.handler.WarrantiesHandler.GenerateNextWarrantyNo)
 
@@ -100,10 +100,10 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Route("/warranty-parts", func(r chi.Router) {
 					r.Post("/", rt.handler.WarrantiesHandler.CreateWarrantyPart)
 					r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarrantyPart)
-					r.Put("/{id}/approve", rt.handler.WarrantiesHandler.UpdateWarrantyPartApproval)
+					r.Put("/{id}/approval", rt.handler.WarrantiesHandler.UpdateWarrantyPartApproval)
 					r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyPartsByWarrantyID)
 
-					r.Post("/batch-create", rt.handler.WarrantiesHandler.CreateWarrantyWithParts)
+					// r.Post("/batch-create", rt.handler.WarrantiesHandler.CreateWarrantyWithParts)
 					r.Put("/batch-update", rt.handler.WarrantiesHandler.UpdateWarrantyWithParts)
 				})
 			})
@@ -114,7 +114,7 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Get("/{id}", rt.handler.ClaimsHandler.GetClaimByID)
 				r.Post("/", rt.handler.ClaimsHandler.CreateClaim)
 				r.Put("/{id}", rt.handler.ClaimsHandler.UpdateClaim)
-				r.Put("/{id}/approve", rt.handler.ClaimsHandler.UpdateClaimApproval)
+				r.Put("/{id}/approval", rt.handler.ClaimsHandler.UpdateClaimApproval)
 
 				r.Route("/claim-warranty-parts", func(r chi.Router) {
 					r.Get("/{id}", rt.handler.ClaimsHandler.ListClaimWarrantyPartsByClaimID)

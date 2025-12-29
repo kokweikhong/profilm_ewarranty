@@ -76,8 +76,36 @@ export interface CarPart {
 }
 
 export interface CreateWarrantyPartRequest {
+  productAllocationId: number;
+  carPartId: number;
+  installationImageUrl: string;
+}
+
+export interface CreateWarrantyWithPartsRequest {
+  warranty: CreateWarrantyRequest;
+  parts: CreateWarrantyPartRequest[];
+}
+
+export interface WarrantyPartDetails {
+  id: number;
   warrantyId: number;
   productAllocationId: number;
   carPartId: number;
   installationImageUrl: string;
+  isApproved: boolean;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  carPartName: string;
+  carPartCode: string;
+  filmSerialNumber: string;
+  warrantyInMonths: number;
+  productBrand: string;
+  productType: string;
+  productSeries: string;
+  productName: string;
+}
+
+export interface WarrantyWithPartsResponse {
+  warranty: Warranty;
+  parts: Array<WarrantyPartDetails>;
 }

@@ -11,7 +11,8 @@ import (
 type WarrantiesService interface {
 	ListWarranties(ctx context.Context) ([]*warranties.ListWarrantiesRow, error)
 	GetWarrantyByID(ctx context.Context, id int32) (*warranties.Warranty, error)
-	CreateWarranty(ctx context.Context, arg *warranties.CreateWarrantyParams) (*warranties.Warranty, error)
+	// CreateWarranty(ctx context.Context, arg *warranties.CreateWarrantyParams) (*warranties.Warranty, error)
+	CreateWarranty(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error)
 	UpdateWarranty(ctx context.Context, arg *warranties.UpdateWarrantyParams) (*warranties.Warranty, error)
 	UpdateWarrantyApproval(ctx context.Context, arg *warranties.UpdateWarrantyApprovalParams) (*warranties.Warranty, error)
 
@@ -25,9 +26,8 @@ type WarrantiesService interface {
 	CreateWarrantyPart(ctx context.Context, arg *warranties.CreateWarrantyPartParams) (*warranties.WarrantyPart, error)
 	UpdateWarrantyPart(ctx context.Context, arg *warranties.UpdateWarrantyPartParams) (*warranties.WarrantyPart, error)
 	UpdateWarrantyPartApproval(ctx context.Context, arg *warranties.UpdateWarrantyPartApprovalParams) (*warranties.WarrantyPart, error)
-	GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*warranties.WarrantyPart, error)
+	GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*warranties.GetWarrantyPartsByWarrantyIDRow, error)
 
-	CreateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error)
 	UpdateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.UpdateWarrantyParams, partsArgs []*warranties.UpdateWarrantyPartParams) (*warranties.Warranty, error)
 
 	GenerateNextWarrantyNo(ctx context.Context, branchCode string, installationDate string) (string, error)
@@ -55,9 +55,44 @@ func (s *warrantiesService) GetWarrantyByID(ctx context.Context, id int32) (*war
 	return s.q.GetWarrantyByID(ctx, id)
 }
 
-// CreateWarranty creates a new warranty in the database.
-func (s *warrantiesService) CreateWarranty(ctx context.Context, arg *warranties.CreateWarrantyParams) (*warranties.Warranty, error) {
-	return s.q.CreateWarranty(ctx, arg)
+// // CreateWarranty creates a new warranty in the database.
+// func (s *warrantiesService) CreateWarranty(ctx context.Context, arg *warranties.CreateWarrantyParams) (*warranties.Warranty, error) {
+// 	return s.q.CreateWarranty(ctx, arg)
+// }
+
+// CreateWarranty creates a new warranty along with its associated parts in a transaction.
+func (s *warrantiesService) CreateWarranty(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error) {
+	// use a transaction to ensure both warranty and parts are created successfully
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	qtx := warranties.New(tx)
+
+	warranty, err := qtx.CreateWarranty(ctx, warrantyArg)
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+
+	// Create parts associated with the warranty
+	for _, partArg := range partsArgs {
+		partArg.WarrantyID = warranty.ID
+	}
+
+	for _, partArg := range partsArgs {
+		_, err = qtx.CreateWarrantyPart(ctx, partArg)
+		if err != nil {
+			tx.Rollback(ctx)
+			return nil, err
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return warranty, nil
 }
 
 // UpdateWarranty updates an existing warranty in the database.
@@ -110,43 +145,8 @@ func (s *warrantiesService) UpdateWarrantyPartApproval(ctx context.Context, arg 
 }
 
 // GetWarrantyPartsByWarrantyID retrieves warranty parts by warranty ID from the database.
-func (s *warrantiesService) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*warranties.WarrantyPart, error) {
+func (s *warrantiesService) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*warranties.GetWarrantyPartsByWarrantyIDRow, error) {
 	return s.q.GetWarrantyPartsByWarrantyID(ctx, warrantyID)
-}
-
-// CreateWarrantyWithParts creates a new warranty along with its associated parts in a transaction.
-func (s *warrantiesService) CreateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error) {
-	// use a transaction to ensure both warranty and parts are created successfully
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	qtx := warranties.New(tx)
-
-	warranty, err := qtx.CreateWarranty(ctx, warrantyArg)
-	if err != nil {
-		tx.Rollback(ctx)
-		return nil, err
-	}
-
-	// Create parts associated with the warranty
-	for _, partArg := range partsArgs {
-		partArg.WarrantyID = warranty.ID
-	}
-
-	for _, partArg := range partsArgs {
-		_, err = qtx.CreateWarrantyPart(ctx, partArg)
-		if err != nil {
-			tx.Rollback(ctx)
-			return nil, err
-		}
-	}
-	if err := tx.Commit(ctx); err != nil {
-		return nil, err
-	}
-
-	return warranty, nil
 }
 
 // UpdateWarrantyWithParts updates an existing warranty along with its associated parts in a transaction.

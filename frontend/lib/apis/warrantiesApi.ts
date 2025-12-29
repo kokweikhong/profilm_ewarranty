@@ -1,11 +1,27 @@
 import apiClient, { getServerApiClient } from "@/lib/axios";
-import { Warranty, CarPart, WarrantyDetails } from "@/types/warrantiesType";
+import {
+  Warranty,
+  CarPart,
+  WarrantyDetails,
+  WarrantyWithPartsResponse,
+} from "@/types/warrantiesType";
 import { WarrantySearchResult, WarrantyPart } from "@/types/claimsType";
 
 export async function getWarrantiesApi(): Promise<WarrantyDetails[]> {
   const client =
     typeof window === "undefined" ? await getServerApiClient() : apiClient;
   const response = await client.get<WarrantyDetails[]>("/warranties");
+  return response.data;
+}
+
+export async function getWarrantiesWithPartsByIdApi(
+  id: number
+): Promise<WarrantyWithPartsResponse> {
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<WarrantyWithPartsResponse>(
+    `/warranties/${id}/details`
+  );
   return response.data;
 }
 

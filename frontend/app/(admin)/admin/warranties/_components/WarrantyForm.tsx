@@ -10,9 +10,8 @@ import {
   CarPart,
   Warranty,
   CreateWarrantyPartRequest,
-} from "@/types/warrantiesType";
-import {
   CreateWarrantyRequest,
+  CreateWarrantyWithPartsRequest,
   UpdateWarrantyRequest,
 } from "@/types/warrantiesType";
 import {
@@ -368,7 +367,6 @@ export default function WarrantyForm({
     const parts: CreateWarrantyPartRequest[] = Array.from(
       selectedCarParts.values()
     ).map((part) => ({
-      warrantyId: 0, // Will be set by backend after warranty creation
       productAllocationId: part.productAllocationId,
       carPartId: part.carPartId,
       installationImageUrl: part.installationImageUrl,
@@ -389,30 +387,33 @@ export default function WarrantyForm({
         const { installationImages, invoiceUrl } = await uploadAllFiles();
 
         // Update formData with uploaded invoice URL
-        const updatedFormData = {
+        const updatedWarranty: CreateWarrantyRequest = {
           ...formData,
           invoiceAttachmentUrl: invoiceUrl || formData.invoiceAttachmentUrl,
         };
 
         // Update warranty parts with uploaded installation image URLs
-        const updatedWarrantyParts = warrantyParts.map((part) => {
-          const uploadedImageUrl = installationImages.get(part.carPartId);
-          return {
-            ...part,
-            installationImageUrl: uploadedImageUrl || part.installationImageUrl,
-          };
-        });
+        const updatedWarrantyParts: CreateWarrantyPartRequest[] =
+          warrantyParts.map((part) => {
+            const uploadedImageUrl = installationImages.get(part.carPartId);
+            return {
+              ...part,
+              installationImageUrl:
+                uploadedImageUrl || part.installationImageUrl,
+            };
+          });
+
+        // Build the nested request structure
+        const requestData: CreateWarrantyWithPartsRequest = {
+          warranty: updatedWarranty,
+          parts: updatedWarrantyParts,
+        };
 
         // For create mode, send warranty data and parts
-        const result = await createWarrantyAction(updatedFormData);
+        const result = await createWarrantyAction(requestData);
 
         if (result && result.success) {
           showToast("Warranty created successfully!", "success");
-
-          // TODO: After warranty is created, send the warranty parts
-          // This would require a separate API call with the warranty ID
-          // For now, log the parts that would be sent
-          console.log("Warranty parts to be created:", updatedWarrantyParts);
 
           setTimeout(() => {
             router.push("/admin/warranties");

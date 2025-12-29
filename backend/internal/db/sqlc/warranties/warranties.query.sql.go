@@ -386,20 +386,54 @@ func (q *Queries) GetWarrantyByWarrantyNo(ctx context.Context, warrantyNo string
 
 const getWarrantyPartsByWarrantyID = `-- name: GetWarrantyPartsByWarrantyID :many
 SELECT
-    id, warranty_id, product_allocation_id, car_part_id, installation_image_url, is_approved, created_at, updated_at
-FROM warranty_parts
-WHERE warranty_id = $1
+    wp.id, wp.warranty_id, wp.product_allocation_id, wp.car_part_id, wp.installation_image_url, wp.is_approved, wp.created_at, wp.updated_at,
+    cp.name AS car_part_name,
+    cp.code AS car_part_code,
+    p.film_serial_number,
+    p.warranty_in_months,
+    pb.name AS product_brand,
+    pt.name AS product_type,
+    ps.name AS product_series,
+    pn.name AS product_name
+FROM warranty_parts wp
+JOIN car_parts cp ON wp.car_part_id = cp.id
+JOIN product_allocations pa ON wp.product_allocation_id = pa.id
+JOIN products p ON pa.product_id = p.id
+JOIN product_brands pb ON p.brand_id = pb.id
+JOIN product_types pt ON p.type_id = pt.id
+JOIN product_series ps ON p.series_id = ps.id
+JOIN product_names pn ON p.name_id = pn.id
+WHERE wp.warranty_id = $1
 `
 
-func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*WarrantyPart, error) {
+type GetWarrantyPartsByWarrantyIDRow struct {
+	ID                   int32     `db:"id" json:"id"`
+	WarrantyID           int32     `db:"warranty_id" json:"warrantyId"`
+	ProductAllocationID  int32     `db:"product_allocation_id" json:"productAllocationId"`
+	CarPartID            int32     `db:"car_part_id" json:"carPartId"`
+	InstallationImageUrl string    `db:"installation_image_url" json:"installationImageUrl"`
+	IsApproved           bool      `db:"is_approved" json:"isApproved"`
+	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
+	CarPartName          string    `db:"car_part_name" json:"carPartName"`
+	CarPartCode          string    `db:"car_part_code" json:"carPartCode"`
+	FilmSerialNumber     string    `db:"film_serial_number" json:"filmSerialNumber"`
+	WarrantyInMonths     int32     `db:"warranty_in_months" json:"warrantyInMonths"`
+	ProductBrand         string    `db:"product_brand" json:"productBrand"`
+	ProductType          string    `db:"product_type" json:"productType"`
+	ProductSeries        string    `db:"product_series" json:"productSeries"`
+	ProductName          string    `db:"product_name" json:"productName"`
+}
+
+func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*GetWarrantyPartsByWarrantyIDRow, error) {
 	rows, err := q.db.Query(ctx, getWarrantyPartsByWarrantyID, warrantyID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*WarrantyPart{}
+	items := []*GetWarrantyPartsByWarrantyIDRow{}
 	for rows.Next() {
-		var i WarrantyPart
+		var i GetWarrantyPartsByWarrantyIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.WarrantyID,
@@ -409,6 +443,14 @@ func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID i
 			&i.IsApproved,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.CarPartName,
+			&i.CarPartCode,
+			&i.FilmSerialNumber,
+			&i.WarrantyInMonths,
+			&i.ProductBrand,
+			&i.ProductType,
+			&i.ProductSeries,
+			&i.ProductName,
 		); err != nil {
 			return nil, err
 		}
@@ -654,18 +696,17 @@ UPDATE warranty_parts
 SET
     is_approved = $2,
     updated_at = CURRENT_TIMESTAMP
-WHERE warranty_id = $1 AND car_part_id = $3
+WHERE id = $1
 RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_image_url, is_approved, created_at, updated_at
 `
 
 type UpdateWarrantyPartApprovalParams struct {
-	WarrantyID int32 `db:"warranty_id" json:"warrantyId"`
+	ID         int32 `db:"id" json:"id"`
 	IsApproved bool  `db:"is_approved" json:"isApproved"`
-	CarPartID  int32 `db:"car_part_id" json:"carPartId"`
 }
 
 func (q *Queries) UpdateWarrantyPartApproval(ctx context.Context, arg *UpdateWarrantyPartApprovalParams) (*WarrantyPart, error) {
-	row := q.db.QueryRow(ctx, updateWarrantyPartApproval, arg.WarrantyID, arg.IsApproved, arg.CarPartID)
+	row := q.db.QueryRow(ctx, updateWarrantyPartApproval, arg.ID, arg.IsApproved)
 	var i WarrantyPart
 	err := row.Scan(
 		&i.ID,

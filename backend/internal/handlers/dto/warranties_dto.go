@@ -140,16 +140,13 @@ func (r *UpdateWarrantyPartRequest) ToUpdateWarrantyPartParams(id int32) *warran
 
 // UpdateWarrantyPartApprovalRequest represents the request body for updating warranty part approval
 type UpdateWarrantyPartApprovalRequest struct {
-	WarrantyID int32 `json:"warrantyId" binding:"required"`
-	CarPartID  int32 `json:"carPartId" binding:"required"`
-	IsApproved bool  `json:"isApproved"`
+	IsApproved bool `json:"isApproved"`
 }
 
 // ToUpdateWarrantyPartApprovalParams converts UpdateWarrantyPartApprovalRequest to warranties.UpdateWarrantyPartApprovalParams
-func (r *UpdateWarrantyPartApprovalRequest) ToUpdateWarrantyPartApprovalParams() *warranties.UpdateWarrantyPartApprovalParams {
+func (r *UpdateWarrantyPartApprovalRequest) ToUpdateWarrantyPartApprovalParams(id int32) *warranties.UpdateWarrantyPartApprovalParams {
 	return &warranties.UpdateWarrantyPartApprovalParams{
-		WarrantyID: r.WarrantyID,
-		CarPartID:  r.CarPartID,
+		ID:         id,
 		IsApproved: r.IsApproved,
 	}
 }
@@ -205,4 +202,10 @@ type WarrantyPartResponse struct {
 // CarPartResponse wraps the warranties.CarPart model for API responses
 type CarPartResponse struct {
 	*warranties.CarPart
+}
+
+// WarrantyDetailsResponse represents the detailed warranty response including parts
+type WarrantyDetailsResponse struct {
+	Warranty *warranties.Warranty                          `json:"warranty"`
+	Parts    []*warranties.GetWarrantyPartsByWarrantyIDRow `json:"parts"`
 }
