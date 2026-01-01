@@ -4,6 +4,7 @@ import { Shop, ShopListResponse } from "@/types/shopsType";
 import { ProductAllocationsListResponse } from "@/types/productAllocationsType";
 import { Warranty, WarrantyDetails } from "@/types/warrantiesType";
 import { ListClaimsResponse } from "@/types/claimsType";
+import { ListUsersResponse } from "@/types/usersType";
 
 const productColumnHelper = createColumnHelper<ProductDetailResponse>();
 export const ProductColumns = [
@@ -634,6 +635,98 @@ export const ClaimColumns = [
           month: "short",
           day: "numeric",
           year: "numeric",
+        })}
+      </span>
+    ),
+    enableSorting: true,
+  }),
+];
+
+const userColumnHelper = createColumnHelper<ListUsersResponse>();
+export const UserColumns = [
+  userColumnHelper.accessor("id", {
+    header: "ID",
+    cell: (info) => (
+      <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+        #{info.getValue()}
+      </span>
+    ),
+    enableSorting: true,
+  }),
+  userColumnHelper.accessor("username", {
+    header: "Username",
+    cell: (info) => (
+      <span className="font-semibold text-gray-900">{info.getValue()}</span>
+    ),
+    enableSorting: true,
+  }),
+  userColumnHelper.accessor("role", {
+    header: "Role",
+    cell: (info) => {
+      const role = info.getValue();
+      const roleConfig = {
+        admin: {
+          bg: "bg-purple-50",
+          text: "text-purple-700",
+          ring: "ring-purple-700/10",
+          label: "Admin",
+        },
+        shop_admin: {
+          bg: "bg-blue-50",
+          text: "text-blue-700",
+          ring: "ring-blue-700/10",
+          label: "Shop Admin",
+        },
+      };
+      const config = roleConfig[role as keyof typeof roleConfig] || {
+        bg: "bg-gray-50",
+        text: "text-gray-700",
+        ring: "ring-gray-500/10",
+        label: role,
+      };
+      return (
+        <span
+          className={`inline-flex items-center rounded-md ${config.bg} px-2 py-1 text-xs font-medium ${config.text} ring-1 ring-inset ${config.ring}`}
+        >
+          {config.label}
+        </span>
+      );
+    },
+    enableSorting: true,
+  }),
+  userColumnHelper.accessor("shopName", {
+    header: "Shop",
+    cell: (info) => {
+      const shopName = info.getValue();
+      return shopName ? (
+        <span className="text-gray-700">{shopName}</span>
+      ) : (
+        <span className="text-gray-400 italic">N/A</span>
+      );
+    },
+    enableSorting: true,
+  }),
+  userColumnHelper.accessor("createdAt", {
+    header: "Created",
+    cell: (info) => (
+      <span className="text-xs text-gray-500">
+        {new Date(info.getValue()).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}
+      </span>
+    ),
+    enableSorting: true,
+  }),
+  userColumnHelper.accessor("updatedAt", {
+    header: "Last Updated",
+    cell: (info) => (
+      <span className="text-xs text-gray-500">
+        {new Date(info.getValue()).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
         })}
       </span>
     ),

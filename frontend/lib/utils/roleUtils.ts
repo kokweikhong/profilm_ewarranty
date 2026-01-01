@@ -1,7 +1,7 @@
 import { navigation } from "@/constants/navigation";
 
 const allowedPathsForAllRoles = [
-  "/admin/users",
+  "/admin/users/profile",
   "/admin/users/update-password",
 ];
 

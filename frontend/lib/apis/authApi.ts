@@ -1,4 +1,5 @@
 import apiClient from "@/lib/axios";
+import { ListUsersResponse } from "@/types/usersType";
 
 export interface LoginRequest {
   username: string;
@@ -51,4 +52,13 @@ export async function updatePasswordApi(
   await apiClient.put(`/users/${userId}/password`, {
     newPassword,
   });
+}
+
+export async function getUsersApi(): Promise<ListUsersResponse[]> {
+  const response = await apiClient.get<ListUsersResponse[]>("/users");
+  return response.data;
+}
+
+export async function resetPasswordApi(userId: number): Promise<void> {
+  await apiClient.post(`/users/${userId}/reset-password`);
 }

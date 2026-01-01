@@ -28,3 +28,19 @@ SET
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
+
+-- name: ListUsers :many
+SELECT
+    u.*,
+    s.shop_name AS shop_name
+FROM users u
+LEFT JOIN shops s ON u.shop_id = s.id
+ORDER BY u.id ASC;
+
+-- name: ResetUserPassword :one
+UPDATE users
+SET
+    password_hash = $2,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;

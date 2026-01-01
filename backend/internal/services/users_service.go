@@ -13,6 +13,8 @@ type UsersService interface {
 	GetUserByUsername(ctx context.Context, username string) (*users.User, error)
 	CreateUser(ctx context.Context, shopID *int32, role, username, password string) (*users.User, error)
 	UpdateUserPassword(ctx context.Context, id int32, newPassword string) (*users.User, error)
+	ListUsers(ctx context.Context) ([]*users.ListUsersRow, error)
+	ResetUserPassword(ctx context.Context, id int32) (*users.User, error)
 }
 
 type usersService struct {
@@ -65,4 +67,25 @@ func (s *usersService) UpdateUserPassword(ctx context.Context, id int32, newPass
 	}
 
 	return s.q.UpdateUserPassword(ctx, params)
+}
+
+// ListUsers retrieves all users from the database.
+func (s *usersService) ListUsers(ctx context.Context) ([]*users.ListUsersRow, error) {
+	return s.q.ListUsers(ctx)
+}
+
+// ResetUserPassword resets a user's password in the database.
+func (s *usersService) ResetUserPassword(ctx context.Context, id int32) (*users.User, error) {
+	defaultPassword := "profilm@password" // Replace with your desired default password
+	passwordHash, err := utils.HashPassword(defaultPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	params := &users.ResetUserPasswordParams{
+		ID:           id,
+		PasswordHash: passwordHash,
+	}
+
+	return s.q.ResetUserPassword(ctx, params)
 }

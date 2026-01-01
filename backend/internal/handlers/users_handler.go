@@ -17,6 +17,8 @@ type UsersHandler interface {
 	UpdateUserPassword(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
 	RefreshToken(w http.ResponseWriter, r *http.Request)
+	ListUsers(w http.ResponseWriter, r *http.Request)
+	ResetUserPassword(w http.ResponseWriter, r *http.Request)
 }
 
 type usersHandler struct {
@@ -208,4 +210,33 @@ func (h *usersHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, response)
+}
+
+// ListUsers handles the HTTP request to list all users.
+func (h *usersHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	users, err := h.usersService.ListUsers(ctx)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to list users")
+		return
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, users)
+}
+
+// ResetUserPassword handles the HTTP request to reset a user's password.
+func (h *usersHandler) ResetUserPassword(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idParam := chi.URLParam(r, "id")
+	// Convert idParam to int32 and handle error (omitted for brevity)
+	userID, err := utils.ConvertParamToInt32(idParam)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+	user, err := h.usersService.ResetUserPassword(ctx, userID)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to reset user password")
+		return
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, user)
 }

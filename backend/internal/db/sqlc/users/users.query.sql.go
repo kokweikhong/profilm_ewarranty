@@ -7,6 +7,7 @@ package users
 
 import (
 	"context"
+	"time"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -79,6 +80,84 @@ WHERE username = $1
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.ShopID,
+		&i.Username,
+		&i.PasswordHash,
+		&i.Role,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT
+    u.id, u.shop_id, u.username, u.password_hash, u.role, u.created_at, u.updated_at,
+    s.shop_name AS shop_name
+FROM users u
+LEFT JOIN shops s ON u.shop_id = s.id
+ORDER BY u.id ASC
+`
+
+type ListUsersRow struct {
+	ID           int32     `db:"id" json:"id"`
+	ShopID       *int32    `db:"shop_id" json:"shopId"`
+	Username     string    `db:"username" json:"username"`
+	PasswordHash string    `db:"password_hash" json:"passwordHash"`
+	Role         string    `db:"role" json:"role"`
+	CreatedAt    time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updatedAt"`
+	ShopName     *string   `db:"shop_name" json:"shopName"`
+}
+
+func (q *Queries) ListUsers(ctx context.Context) ([]*ListUsersRow, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ListUsersRow{}
+	for rows.Next() {
+		var i ListUsersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ShopID,
+			&i.Username,
+			&i.PasswordHash,
+			&i.Role,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ShopName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const resetUserPassword = `-- name: ResetUserPassword :one
+UPDATE users
+SET
+    password_hash = $2,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, shop_id, username, password_hash, role, created_at, updated_at
+`
+
+type ResetUserPasswordParams struct {
+	ID           int32  `db:"id" json:"id"`
+	PasswordHash string `db:"password_hash" json:"passwordHash"`
+}
+
+func (q *Queries) ResetUserPassword(ctx context.Context, arg *ResetUserPasswordParams) (*User, error) {
+	row := q.db.QueryRow(ctx, resetUserPassword, arg.ID, arg.PasswordHash)
 	var i User
 	err := row.Scan(
 		&i.ID,

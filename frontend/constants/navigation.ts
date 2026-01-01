@@ -36,6 +36,13 @@ export const navigation: NavigationItem[] = [
     allowedRoles: ["admin"],
   },
   {
+    name: "Users",
+    href: "/admin/users",
+    icon: "/icons/users.svg",
+    current: false,
+    allowedRoles: ["admin"],
+  },
+  {
     name: "Warranties",
     href: "/admin/warranties",
     icon: "/icons/warranty.svg",
@@ -66,7 +73,7 @@ type UserNavigationItem = {
 };
 
 export const userNavigation: UserNavigationItem[] = [
-  { name: "Your profile", href: "/admin/users" },
+  { name: "Your profile", href: "/admin/users/profile" },
   { name: "Update password", href: "/admin/users/update-password" },
   { name: "Sign out", href: "#" },
 ];

@@ -49,6 +49,8 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Get("/by-username/{username}", rt.handler.UsersHandler.GetUserByUsername)
 				r.Post("/", rt.handler.UsersHandler.CreateUser)
 				r.Put("/{id}/password", rt.handler.UsersHandler.UpdateUserPassword)
+				r.Get("/", rt.handler.UsersHandler.ListUsers)
+				r.Post("/{id}/reset-password", rt.handler.UsersHandler.ResetUserPassword)
 			})
 
 			r.Route("/products", func(r chi.Router) {
