@@ -96,9 +96,32 @@ export default function WarrantyForm({
     watch,
     control,
     formState: { errors },
-  } = useForm<CreateWarrantyWithPartsRequest>({
+  } = useForm<CreateWarrantyWithPartsRequest | UpdateWarrantyWithPartsRequest>({
     defaultValues: isEditMode
-      ? data
+      ? {
+          warranty: {
+            id: data!.warranty.id,
+            shopId: data!.warranty.shopId,
+            clientName: data!.warranty.clientName,
+            clientContact: data!.warranty.clientContact,
+            clientEmail: data!.warranty.clientEmail,
+            carBrand: data!.warranty.carBrand,
+            carModel: data!.warranty.carModel,
+            carColour: data!.warranty.carColour,
+            carPlateNo: data!.warranty.carPlateNo,
+            carChassisNo: data!.warranty.carChassisNo,
+            installationDate: data!.warranty.installationDate, // Format: YYYY-MM-DD
+            referenceNo: data!.warranty.referenceNo, // Optional
+            warrantyNo: data!.warranty.warrantyNo,
+            invoiceAttachmentUrl: data!.warranty.invoiceAttachmentUrl,
+          },
+          parts: data.parts.map((part) => ({
+            partId: part.id,
+            carPartId: part.carPartId,
+            productAllocationId: part.productAllocationId,
+            installationImageUrl: part.installationImageUrl,
+          })),
+        }
       : {
           warranty: {
             // shopId: user.shopId,
@@ -118,10 +141,11 @@ export default function WarrantyForm({
     if (isEditMode && data?.parts && fields.length === 0) {
       data.parts.forEach((part) => {
         append({
+          partId: part.id,
           carPartId: part.carPartId,
           productAllocationId: part.productAllocationId,
           installationImageUrl: part.installationImageUrl,
-        });
+        } as any);
       });
     }
   }, [isEditMode, data, append, fields.length]);
@@ -185,7 +209,7 @@ export default function WarrantyForm({
     CreateWarrantyWithPartsRequest | UpdateWarrantyWithPartsRequest | null
   >(null);
   const [warrantyParts, setWarrantyParts] = useState<
-    CreateWarrantyPartRequest[]
+    (CreateWarrantyPartRequest | UpdateWarrantyPartRequest)[]
   >([]);
   const [uploadingImages, setUploadingImages] = useState<Map<number, boolean>>(
     new Map()
@@ -436,6 +460,10 @@ export default function WarrantyForm({
     // Clear validation errors if all is good
     setValidationErrors([]);
 
+    // Convert installation date to ISO 8601 format (RFC3339)
+    const installationDate = new Date(data.warranty.installationDate);
+    const formattedInstallationDate = installationDate.toISOString();
+
     // Prepare warranty data with proper structure
     const warrantyData: CreateWarrantyRequest = {
       shopId: user!.shopId!,
@@ -447,20 +475,36 @@ export default function WarrantyForm({
       carColour: data.warranty.carColour,
       carPlateNo: data.warranty.carPlateNo,
       carChassisNo: data.warranty.carChassisNo,
-      installationDate: data.warranty.installationDate,
+      installationDate: formattedInstallationDate,
       referenceNo: data.warranty.referenceNo || "",
       warrantyNo: data.warranty.warrantyNo,
       invoiceAttachmentUrl: data.warranty.invoiceAttachmentUrl,
     };
 
-    // Use parts from form data
-    const parts: CreateWarrantyPartRequest[] = data.parts.map((part) => ({
-      carPartId: part.carPartId,
-      productAllocationId: part.productAllocationId,
-      installationImageUrl: part.installationImageUrl || "",
-    }));
+    // Use parts from form data - different types for create vs update
+    const parts: (CreateWarrantyPartRequest | UpdateWarrantyPartRequest)[] =
+      data.parts.map((part, index) => {
+        const basePart: CreateWarrantyPartRequest = {
+          carPartId: part.carPartId,
+          productAllocationId: part.productAllocationId,
+          installationImageUrl: part.installationImageUrl || "",
+        };
 
-    setFormData({ warranty: warrantyData, parts });
+        // Include existing part ID in edit mode if available
+        if (isEditMode && index < fields.length) {
+          const originalPart = fields[index] as any;
+          if (originalPart?.partId) {
+            return {
+              ...basePart,
+              id: originalPart.partId,
+            } as UpdateWarrantyPartRequest;
+          }
+        }
+
+        return basePart;
+      });
+
+    setFormData({ warranty: warrantyData, parts: parts as any });
     setWarrantyParts(parts);
     setShowConfirmModal(true);
   };
@@ -477,17 +521,48 @@ export default function WarrantyForm({
           // Upload new files if any
           const { installationImages, invoiceUrl } = await uploadAllFiles();
 
+          // Convert installation date to ISO 8601 format (RFC3339)
+          const installationDate = new Date(formData.warranty.installationDate);
+          const formattedInstallationDate = installationDate.toISOString();
+
           const updatedWarranty: UpdateWarrantyRequest = {
             ...formData.warranty,
             id: data!.warranty.id,
+            installationDate: formattedInstallationDate,
             invoiceAttachmentUrl:
               invoiceUrl || formData.warranty.invoiceAttachmentUrl,
           };
 
+          // Map parts with updated image URLs and include existing part IDs
+          const updatedWarrantyParts: UpdateWarrantyPartRequest[] =
+            warrantyParts.map((part, index) => {
+              const uploadedImageUrl = installationImages.get(part.carPartId);
+              const updatePart = part as any;
+              const partId =
+                updatePart.id || fields[index]?.id || data!.parts[index]?.id;
+
+              if (!partId) {
+                console.error("Missing part ID for update:", part);
+                throw new Error(
+                  `Missing ID for warranty part: ${part.carPartId}`
+                );
+              }
+
+              return {
+                id: partId,
+                warrantyId: data!.warranty.id,
+                carPartId: part.carPartId,
+                productAllocationId: part.productAllocationId,
+                installationImageUrl:
+                  uploadedImageUrl || part.installationImageUrl,
+              };
+            });
+
           console.log("Updating warranty:", updatedWarranty);
+          console.log("Updating parts:", updatedWarrantyParts);
           const result = await updateWarrantyAction({
             warranty: updatedWarranty,
-            parts: warrantyParts,
+            parts: updatedWarrantyParts,
           });
 
           if (result && result.success) {
@@ -504,9 +579,14 @@ export default function WarrantyForm({
           // CREATE MODE: Create new warranty with parts
           const { installationImages, invoiceUrl } = await uploadAllFiles();
 
+          // Convert installation date to ISO 8601 format (RFC3339)
+          const installationDate = new Date(formData.warranty.installationDate);
+          const formattedInstallationDate = installationDate.toISOString();
+
           const updatedWarranty: CreateWarrantyRequest = {
             ...formData.warranty,
             shopId: user!.shopId!,
+            installationDate: formattedInstallationDate,
             invoiceAttachmentUrl:
               invoiceUrl || formData.warranty.invoiceAttachmentUrl,
           };
@@ -762,7 +842,7 @@ export default function WarrantyForm({
                               <img
                                 src={imageUrl}
                                 alt={`${carPart?.name} installation`}
-                                className="h-24 w-24 object-cover rounded border border-gray-300 dark:border-gray-600"
+                                className="h-24 w-24 object-contain rounded border border-gray-300 dark:border-gray-600"
                               />
                             </div>
                           )}

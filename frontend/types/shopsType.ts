@@ -7,7 +7,7 @@ export interface MsiaState {
 }
 
 export interface ShopListResponse {
-  shopId: number;
+  id: number;
   companyName: string;
   companyRegistrationNumber: string;
   companyContactNumber: string;

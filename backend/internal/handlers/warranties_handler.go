@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -319,13 +320,13 @@ func (h *warrantiesHandler) CreateWarrantyWithParts(w http.ResponseWriter, r *ht
 		return
 	}
 
-	warrantyParam, warrantyPartsParam, err := req.ToCreateWarrantyWithPartsParams()
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
+	// warrantyParam, warrantyPartsParam, err := req.ToCreateWarrantyWithPartsParams()
+	// if err != nil {
+	// 	utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
+	// 	return
+	// }
 
-	warranty, err := h.warrantiesService.CreateWarrantyWithParts(ctx, warrantyParam, warrantyPartsParam)
+	warranty, err := h.warrantiesService.CreateWarrantyWithParts(ctx, req.Warranty, req.Parts)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -372,17 +373,13 @@ func (h *warrantiesHandler) UpdateWarrantyWithParts(w http.ResponseWriter, r *ht
 	}
 	var req dto.UpdateWarrantyWithPartsRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Invalid request body: %v", err))
 		return
 	}
 
-	warrantyParam, warrantyPartsParam, err := req.ToUpdateWarrantyWithPartsParams(id)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
+	req.Warranty.ID = id
 
-	warranty, err := h.warrantiesService.UpdateWarrantyWithParts(ctx, warrantyParam, warrantyPartsParam)
+	warranty, err := h.warrantiesService.UpdateWarrantyWithParts(ctx, req.Warranty, req.Parts)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

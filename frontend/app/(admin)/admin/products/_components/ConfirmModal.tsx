@@ -78,7 +78,8 @@ export const ConfirmModal = ({
                       Active
                     </span>
                     <span className="text-gray-900 dark:text-white">
-                      {value ? "Yes" : "No"}
+                      {/* if data is CreateProductRequest (no id), isActive always Yes */}
+                      {"id" in formData ? (value ? "Yes" : "No") : "Yes"}
                     </span>
                   </div>
                 ) : (

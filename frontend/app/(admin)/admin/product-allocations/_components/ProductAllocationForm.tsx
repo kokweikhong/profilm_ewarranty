@@ -132,10 +132,12 @@ export default function ProductAllocationForm({
       switch (key) {
         case "productId":
           const product = products.find((p) => p.id === Number(value));
-          return product ? product.filmSerialNumber : "N/A";
+          return product
+            ? `${product.filmSerialNumber}\n${product.typeName}\n${product.seriesName}\n${product.productName}`
+            : "N/A";
         case "shopId":
-          const shop = shops.find((s) => s.shopId === Number(value));
-          return shop ? shop.branchCode : "N/A";
+          const shop = shops.find((s) => s.id === Number(value));
+          return shop ? `${shop.shopName} (${shop.branchCode})` : "N/A";
         default:
           return String(value);
       }
@@ -148,16 +150,19 @@ export default function ProductAllocationForm({
             Confirm Product Details
           </h3>
           <div className="space-y-3 text-sm">
-            {Object.entries(formData).map(([key, value]) => (
-              <div key={key} className="flex justify-between">
-                <span className="font-medium text-gray-700 dark:text-gray-300">
-                  {camelToNormalCase(key)}
-                </span>
-                <span className="text-gray-900 dark:text-white">
-                  {getDisplayValue(key, value)}
-                </span>
-              </div>
-            ))}
+            {Object.entries(formData).map(([key, value]) =>
+              // don't show id if contains id and don't show id
+              key === "id" ? null : (
+                <div key={key} className="flex justify-between">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {camelToNormalCase(key).split("Id")[0]}
+                  </span>
+                  <span className="text-gray-900 dark:text-white whitespace-pre-line">
+                    {getDisplayValue(key, value)}
+                  </span>
+                </div>
+              )
+            )}
           </div>
           <div className="flex gap-3 mt-6">
             <button
@@ -191,6 +196,8 @@ export default function ProductAllocationForm({
               Enter accurate product allocation information for warranty
               registration.
             </p>
+
+            <pre>{JSON.stringify(watch(), null, 2)}</pre>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               {/* Product ID */}
@@ -243,7 +250,7 @@ export default function ProductAllocationForm({
                   >
                     <option value="">Select a shop</option>
                     {shops.map((shop, index) => (
-                      <option key={index} value={shop.shopId}>
+                      <option key={index} value={shop.id}>
                         {`${shop.branchCode} - ${shop.shopName}`}
                       </option>
                     ))}

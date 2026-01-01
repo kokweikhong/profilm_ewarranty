@@ -90,8 +90,8 @@ func (q *Queries) CreateWarranty(ctx context.Context, arg *CreateWarrantyParams)
 const createWarrantyPart = `-- name: CreateWarrantyPart :one
 INSERT INTO warranty_parts (
     warranty_id,
-    product_allocation_id,
     car_part_id,
+    product_allocation_id,
     installation_image_url
 ) VALUES
     ( $1, $2, $3, $4 )
@@ -100,16 +100,16 @@ RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_imag
 
 type CreateWarrantyPartParams struct {
 	WarrantyID           int32  `db:"warranty_id" json:"warrantyId"`
-	ProductAllocationID  int32  `db:"product_allocation_id" json:"productAllocationId"`
 	CarPartID            int32  `db:"car_part_id" json:"carPartId"`
+	ProductAllocationID  int32  `db:"product_allocation_id" json:"productAllocationId"`
 	InstallationImageUrl string `db:"installation_image_url" json:"installationImageUrl"`
 }
 
 func (q *Queries) CreateWarrantyPart(ctx context.Context, arg *CreateWarrantyPartParams) (*WarrantyPart, error) {
 	row := q.db.QueryRow(ctx, createWarrantyPart,
 		arg.WarrantyID,
-		arg.ProductAllocationID,
 		arg.CarPartID,
+		arg.ProductAllocationID,
 		arg.InstallationImageUrl,
 	)
 	var i WarrantyPart
@@ -516,17 +516,19 @@ func (q *Queries) ListWarranties(ctx context.Context) ([]*ListWarrantiesRow, err
 const updateWarranty = `-- name: UpdateWarranty :one
 UPDATE warranties
 SET
-    client_name = $2,
-    client_contact = $3,
-    client_email = $4,
-    car_brand = $5,
-    car_model = $6,
-    car_colour = $7,
-    car_plate_no = $8,
-    car_chassis_no = $9,
-    installation_date = $10,
-    reference_no = $11,
-    invoice_attachment_url = $12,
+    shop_id = $2,
+    client_name = $3,
+    client_contact = $4,
+    client_email = $5,
+    car_brand = $6,
+    car_model = $7,
+    car_colour = $8,
+    car_plate_no = $9,
+    car_chassis_no = $10,
+    installation_date = $11,
+    reference_no = $12,
+    warranty_no = $13,
+    invoice_attachment_url = $14,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
@@ -534,6 +536,7 @@ RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car
 
 type UpdateWarrantyParams struct {
 	ID                   int32     `db:"id" json:"id"`
+	ShopID               int32     `db:"shop_id" json:"shopId"`
 	ClientName           string    `db:"client_name" json:"clientName"`
 	ClientContact        string    `db:"client_contact" json:"clientContact"`
 	ClientEmail          string    `db:"client_email" json:"clientEmail"`
@@ -544,12 +547,14 @@ type UpdateWarrantyParams struct {
 	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
 	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
 	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
 	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
 }
 
 func (q *Queries) UpdateWarranty(ctx context.Context, arg *UpdateWarrantyParams) (*Warranty, error) {
 	row := q.db.QueryRow(ctx, updateWarranty,
 		arg.ID,
+		arg.ShopID,
 		arg.ClientName,
 		arg.ClientContact,
 		arg.ClientEmail,
@@ -560,6 +565,7 @@ func (q *Queries) UpdateWarranty(ctx context.Context, arg *UpdateWarrantyParams)
 		arg.CarChassisNo,
 		arg.InstallationDate,
 		arg.ReferenceNo,
+		arg.WarrantyNo,
 		arg.InvoiceAttachmentUrl,
 	)
 	var i Warranty

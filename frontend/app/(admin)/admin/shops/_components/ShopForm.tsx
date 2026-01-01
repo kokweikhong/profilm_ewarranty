@@ -995,14 +995,51 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                   displayValue = value ? "Yes" : "No";
                 }
 
+                // Handle image fields with previews
+                const isImageField =
+                  key === "companyLicenseImageUrl" || key === "shopImageUrl";
+                const imagePreview =
+                  key === "companyLicenseImageUrl"
+                    ? companyLicenseImagePreview
+                    : key === "shopImageUrl"
+                    ? shopImagePreview
+                    : null;
+
                 return (
-                  <div key={key} className="col-span-2 sm:col-span-1">
+                  <div
+                    key={key}
+                    className={
+                      isImageField ? "col-span-2" : "col-span-2 sm:col-span-1"
+                    }
+                  >
                     <span className="block font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      {camelToNormalCase(key)}
+                      {key === "isActive"
+                        ? "Active"
+                        : camelToNormalCase(key)
+                            .split("Url")[0]
+                            .split("Id")[0]
+                            .trim()}
                     </span>
-                    <span className="block text-gray-900 dark:text-white wrap-break-word">
-                      {String(displayValue) || "-"}
-                    </span>
+                    {isImageField && imagePreview ? (
+                      <div className="mt-2 flex items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900">
+                        <Image
+                          src={imagePreview}
+                          alt={
+                            key === "companyLicenseImageUrl"
+                              ? "Company License"
+                              : "Shop Image"
+                          }
+                          width={200}
+                          height={150}
+                          className="max-h-40 w-auto object-contain rounded"
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <span className="block text-gray-900 dark:text-white wrap-break-word">
+                        {String(displayValue) || "-"}
+                      </span>
+                    )}
                   </div>
                 );
               })}

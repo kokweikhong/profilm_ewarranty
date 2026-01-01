@@ -36,17 +36,19 @@ RETURNING *;
 -- name: UpdateWarranty :one
 UPDATE warranties
 SET
-    client_name = $2,
-    client_contact = $3,
-    client_email = $4,
-    car_brand = $5,
-    car_model = $6,
-    car_colour = $7,
-    car_plate_no = $8,
-    car_chassis_no = $9,
-    installation_date = $10,
-    reference_no = $11,
-    invoice_attachment_url = $12,
+    shop_id = $2,
+    client_name = $3,
+    client_contact = $4,
+    client_email = $5,
+    car_brand = $6,
+    car_model = $7,
+    car_colour = $8,
+    car_plate_no = $9,
+    car_chassis_no = $10,
+    installation_date = $11,
+    reference_no = $12,
+    warranty_no = $13,
+    invoice_attachment_url = $14,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
@@ -76,8 +78,8 @@ ORDER BY name ASC;
 -- name: CreateWarrantyPart :one
 INSERT INTO warranty_parts (
     warranty_id,
-    product_allocation_id,
     car_part_id,
+    product_allocation_id,
     installation_image_url
 ) VALUES
     ( $1, $2, $3, $4 )

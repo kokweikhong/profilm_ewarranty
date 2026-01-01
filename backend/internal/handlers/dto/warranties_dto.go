@@ -153,40 +153,27 @@ func (r *UpdateWarrantyPartApprovalRequest) ToUpdateWarrantyPartApprovalParams(i
 
 // CreateWarrantyWithPartsRequest represents the request body for creating a warranty with parts
 type CreateWarrantyWithPartsRequest struct {
-	Warranty CreateWarrantyRequest       `json:"warranty" binding:"required"`
-	Parts    []CreateWarrantyPartRequest `json:"parts" binding:"required,dive"`
+	Warranty *warranties.CreateWarrantyParams       `json:"warranty" binding:"required"`
+	Parts    []*warranties.CreateWarrantyPartParams `json:"parts" binding:"required,dive"`
 }
 
 // ToCreateWarrantyWithPartsParams converts CreateWarrantyWithPartsRequest to warranties.CreateWarrantyParams and a slice of warranties.CreateWarrantyPartParams
-func (r *CreateWarrantyWithPartsRequest) ToCreateWarrantyWithPartsParams() (*warranties.CreateWarrantyParams, []*warranties.CreateWarrantyPartParams, error) {
-	warrantyParams, err := r.Warranty.ToCreateWarrantyParams()
-	if err != nil {
-		return nil, nil, err
-	}
-	var partsParams []*warranties.CreateWarrantyPartParams
-	for _, part := range r.Parts {
-		partsParams = append(partsParams, part.ToCreateWarrantyPartParams())
-	}
-	return warrantyParams, partsParams, nil
-}
+// func (r *CreateWarrantyWithPartsRequest) ToCreateWarrantyWithPartsParams() (*warranties.CreateWarrantyParams, []*warranties.CreateWarrantyPartParams, error) {
+// 	warrantyParams, err := r.Warranty.ToCreateWarrantyParams()
+// 	if err != nil {
+// 		return nil, nil, err
+// 	}
+// 	var partsParams []*warranties.CreateWarrantyPartParams
+// 	for _, part := range r.Parts {
+// 		partsParams = append(partsParams, part.ToCreateWarrantyPartParams())
+// 	}
+// 	return warrantyParams, partsParams, nil
+// }
 
 // UpdateWarrantyWithPartsRequest represents the request body for updating a warranty with parts
 type UpdateWarrantyWithPartsRequest struct {
-	Warranty UpdateWarrantyRequest       `json:"warranty" binding:"required"`
-	Parts    []UpdateWarrantyPartRequest `json:"parts" binding:"required,dive"`
-}
-
-// ToUpdateWarrantyWithPartsParams converts UpdateWarrantyWithPartsRequest to warranties.UpdateWarrantyParams and a slice of warranties.UpdateWarrantyPartParams
-func (r *UpdateWarrantyWithPartsRequest) ToUpdateWarrantyWithPartsParams(id int32) (*warranties.UpdateWarrantyParams, []*warranties.UpdateWarrantyPartParams, error) {
-	warrantyParams, err := r.Warranty.ToUpdateWarrantyParams(id)
-	if err != nil {
-		return nil, nil, err
-	}
-	var partsParams []*warranties.UpdateWarrantyPartParams
-	for _, part := range r.Parts {
-		partsParams = append(partsParams, part.ToUpdateWarrantyPartParams(part.ID))
-	}
-	return warrantyParams, partsParams, nil
+	Warranty *warranties.UpdateWarrantyParams       `json:"warranty" binding:"required"`
+	Parts    []*warranties.UpdateWarrantyPartParams `json:"parts" binding:"required,dive"`
 }
 
 // WarrantyResponse wraps the warranties.Warranty model for API responses
