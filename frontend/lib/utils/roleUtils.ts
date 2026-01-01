@@ -1,5 +1,10 @@
 import { navigation } from "@/constants/navigation";
 
+const allowedPathsForAllRoles = [
+  "/admin/users",
+  "/admin/users/update-password",
+];
+
 /**
  * Check if a user role has access to a specific route
  */
@@ -8,6 +13,11 @@ export function hasAccessToRoute(
   pathname: string
 ): boolean {
   if (!userRole) return false;
+
+  // Allow all authenticated users to access their profile
+  if (allowedPathsForAllRoles.includes(pathname)) {
+    return true;
+  }
 
   // Find the navigation item that matches the pathname
   const navItem = navigation.find((item) => {

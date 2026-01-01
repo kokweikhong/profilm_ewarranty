@@ -43,3 +43,12 @@ export async function refreshTokenApi(
   );
   return response.data;
 }
+
+export async function updatePasswordApi(
+  userId: number,
+  newPassword: string
+): Promise<void> {
+  await apiClient.put(`/users/${userId}/password`, {
+    newPassword,
+  });
+}

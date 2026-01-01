@@ -206,42 +206,83 @@ export default function AdminLayout({
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <MenuButton
-                  className="relative flex items-center"
+                  className="relative flex items-center gap-x-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors duration-200 focus:outline-none"
                   suppressHydrationWarning
                 >
-                  <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
-                  <span className="flex items-center gap-x-3">
-                    <span
-                      aria-hidden="true"
-                      className="ml-4 text-sm/6 font-semibold text-gray-900"
-                    >
-                      {user?.username.toUpperCase() || "User"}
+                  <div className="flex items-center gap-x-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-sm font-semibold">
+                      {user?.username?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                    <span className="hidden sm:block text-sm font-semibold text-gray-900 dark:text-white">
+                      {user?.username || "User"}
                     </span>
                     <ChevronDownIcon
                       aria-hidden="true"
-                      className="ml-2 size-5 text-gray-800"
+                      className="h-5 w-5 text-gray-500 dark:text-gray-400"
                     />
-                  </span>
+                  </div>
                 </MenuButton>
                 <MenuItems
                   transition
-                  className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg outline outline-gray-900/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
+                  className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white py-1 shadow-lg focus:outline-none transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
                 >
                   {userNavigation.map((item) => (
                     <MenuItem key={item.name}>
                       {item.name === "Sign out" ? (
                         <button
                           onClick={logout}
-                          className="block w-full text-left px-3 py-1 text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden"
+                          className="flex w-full items-center gap-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors data-focus:bg-gray-50"
                         >
+                          <svg
+                            className="h-5 w-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            />
+                          </svg>
                           {item.name}
                         </button>
                       ) : (
                         <a
                           href={item.href}
-                          className="block px-3 py-1 text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden"
+                          className="flex items-center gap-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors data-focus:bg-gray-50"
                         >
+                          {item.name === "Update password" ? (
+                            <svg
+                              className="h-5 w-5 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="h-5 w-5 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                              />
+                            </svg>
+                          )}
                           {item.name}
                         </a>
                       )}

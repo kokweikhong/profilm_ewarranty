@@ -66,6 +66,7 @@ type UserNavigationItem = {
 };
 
 export const userNavigation: UserNavigationItem[] = [
-  { name: "Your profile", href: "#" },
+  { name: "Your profile", href: "/admin/users" },
+  { name: "Update password", href: "/admin/users/update-password" },
   { name: "Sign out", href: "#" },
 ];
