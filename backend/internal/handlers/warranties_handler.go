@@ -12,15 +12,14 @@ import (
 
 type WarrantiesHandler interface {
 	ListWarranties(w http.ResponseWriter, r *http.Request)
-	GetWarrantyByID(w http.ResponseWriter, r *http.Request)
-	CreateWarranty(w http.ResponseWriter, r *http.Request)
-	UpdateWarranty(w http.ResponseWriter, r *http.Request)
+	// GetWarrantyByID(w http.ResponseWriter, r *http.Request)
+	// CreateWarranty(w http.ResponseWriter, r *http.Request)
 	UpdateWarrantyApproval(w http.ResponseWriter, r *http.Request)
 
-	GetWarrantyByWarrantyNo(w http.ResponseWriter, r *http.Request)
-	GetWarrantiesByCarPlateNo(w http.ResponseWriter, r *http.Request)
+	GetWarrantiesByExactSearch(w http.ResponseWriter, r *http.Request)
+	GetWarrantyWithPartsByID(w http.ResponseWriter, r *http.Request)
 
-	GetWarrantiesBySearchTerm(w http.ResponseWriter, r *http.Request)
+	GetWarrantiesWithPartsByShopID(w http.ResponseWriter, r *http.Request)
 
 	GetCarParts(w http.ResponseWriter, r *http.Request)
 
@@ -31,7 +30,7 @@ type WarrantiesHandler interface {
 
 	GetWarrantyDetailsByID(w http.ResponseWriter, r *http.Request)
 
-	// CreateWarrantyWithParts(w http.ResponseWriter, r *http.Request)
+	CreateWarrantyWithParts(w http.ResponseWriter, r *http.Request)
 	UpdateWarrantyWithParts(w http.ResponseWriter, r *http.Request)
 
 	GenerateNextWarrantyNo(w http.ResponseWriter, r *http.Request)
@@ -60,23 +59,23 @@ func (h *warrantiesHandler) ListWarranties(w http.ResponseWriter, r *http.Reques
 }
 
 // GetWarrantyByID returns a single warranty by ID.
-func (h *warrantiesHandler) GetWarrantyByID(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	// Get ID from URL path parameter
-	idStr := chi.URLParam(r, "id")
-	id, err := utils.ConvertParamToInt32(idStr)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid ID")
-		return
-	}
+// func (h *warrantiesHandler) GetWarrantyByID(w http.ResponseWriter, r *http.Request) {
+// 	ctx := r.Context()
+// 	// Get ID from URL path parameter
+// 	idStr := chi.URLParam(r, "id")
+// 	id, err := utils.ConvertParamToInt32(idStr)
+// 	if err != nil {
+// 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid ID")
+// 		return
+// 	}
 
-	warranty, err := h.warrantiesService.GetWarrantyByID(ctx, id)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, warranty)
-}
+// 	warranty, err := h.warrantiesService.GetWarrantyByID(ctx, id)
+// 	if err != nil {
+// 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
+// 		return
+// 	}
+// 	utils.NewHTTPSuccessResponse(w, http.StatusOK, warranty)
+// }
 
 // CreateWarranty creates a new warranty.
 // func (h *warrantiesHandler) CreateWarranty(w http.ResponseWriter, r *http.Request) {
@@ -98,35 +97,6 @@ func (h *warrantiesHandler) GetWarrantyByID(w http.ResponseWriter, r *http.Reque
 // 	}
 // 	utils.NewHTTPSuccessResponse(w, http.StatusCreated, warranty)
 // }
-
-// UpdateWarranty updates an existing warranty.
-func (h *warrantiesHandler) UpdateWarranty(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	// Get ID from URL path parameter
-	idStr := chi.URLParam(r, "id")
-	id, err := utils.ConvertParamToInt32(idStr)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid ID")
-		return
-	}
-
-	var req dto.UpdateWarrantyRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
-		return
-	}
-	params, err := req.ToUpdateWarrantyParams(id)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	warranty, err := h.warrantiesService.UpdateWarranty(ctx, params)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, warranty)
-}
 
 // UpdateWarrantyApproval updates the approval status of an existing warranty.
 func (h *warrantiesHandler) UpdateWarrantyApproval(w http.ResponseWriter, r *http.Request) {
@@ -152,56 +122,102 @@ func (h *warrantiesHandler) UpdateWarrantyApproval(w http.ResponseWriter, r *htt
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, warranty)
 }
 
-// GetWarrantyByWarrantyNo returns a warranty by warranty number.
-func (h *warrantiesHandler) GetWarrantyByWarrantyNo(w http.ResponseWriter, r *http.Request) {
+// GetWarrantyWithPartsByID returns a warranty along with its parts by ID.
+func (h *warrantiesHandler) GetWarrantyWithPartsByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	// Get warranty number from URL path parameter
-	warrantyNo := chi.URLParam(r, "warranty_no")
-	if warrantyNo == "" {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Warranty number is required")
+	// Get ID from URL path parameter
+	idStr := chi.URLParam(r, "id")
+	id, err := utils.ConvertParamToInt32(idStr)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
-	warranty, err := h.warrantiesService.GetWarrantyByWarrantyNo(ctx, warrantyNo)
+	warranty, err := h.warrantiesService.GetWarrantyByID(ctx, id)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, warranty)
-}
-
-// GetWarrantiesByCarPlateNo returns warranties by car plate number.
-func (h *warrantiesHandler) GetWarrantiesByCarPlateNo(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	// Get car plate number from URL path parameter
-	carPlateNo := chi.URLParam(r, "car_plate_no")
-	if carPlateNo == "" {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Car plate number is required")
-		return
-	}
-
-	warrantiesView, err := h.warrantiesService.GetWarrantiesByCarPlateNo(ctx, carPlateNo)
+	parts, err := h.warrantiesService.GetWarrantyPartsByWarrantyID(ctx, id)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, warrantiesView)
+
+	response := dto.WarrantyWithPartsResponse{
+		Warranty: warranty,
+		Parts:    parts,
+	}
+
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, response)
 }
 
-// GetWarrantiesBySearchTerm returns warranties matching a search term.
-func (h *warrantiesHandler) GetWarrantiesBySearchTerm(w http.ResponseWriter, r *http.Request) {
+// GetWarrantiesByExactSearch returns warranties matching an exact search term.
+func (h *warrantiesHandler) GetWarrantiesByExactSearch(w http.ResponseWriter, r *http.Request) {
+	var result []dto.WarrantyByExactSearchResponse
+	warrantyMap := make(map[int32]*dto.WarrantyByExactSearchResponse)
 	ctx := r.Context()
 	// Get search term from URL query parameter
-	searchTerm := r.URL.Query().Get("q")
+	searchTerm := chi.URLParam(r, "search_term")
 	if searchTerm == "" {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Search term is required")
+		// return empty list if search term is empty
+		utils.NewHTTPSuccessResponse(w, http.StatusOK, result)
 		return
 	}
-	warrantiesView, err := h.warrantiesService.GetWarrantiesBySearchTerm(ctx, searchTerm)
+	warranties, err := h.warrantiesService.GetWarrantiesByExactSearch(ctx, searchTerm)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, warrantiesView)
+
+	// Return the warranties with parts
+	for _, warranty := range warranties {
+		warrantyResp, exists := warrantyMap[warranty.ID]
+		if !exists {
+			parts, err := h.warrantiesService.GetWarrantyPartsByWarrantyID(ctx, warranty.ID)
+			if err != nil {
+				utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			warrantyResp = &dto.WarrantyByExactSearchResponse{
+				Warranty: warranty,
+				Parts:    parts,
+			}
+			warrantyMap[warranty.ID] = warrantyResp
+			result = append(result, *warrantyResp)
+		}
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, result)
+}
+
+// GetWarrantiesWithPartsByShopID returns warranties by shop ID.
+func (h *warrantiesHandler) GetWarrantiesWithPartsByShopID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	// Get shop ID from URL path parameter
+	shopIDStr := chi.URLParam(r, "shop_id")
+	shopID, err := utils.ConvertParamToInt32(shopIDStr)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid shop ID")
+		return
+	}
+	warranties, err := h.warrantiesService.GetWarrantiesByShopID(ctx, shopID)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	var result []dto.WarrantyWithPartsAndShopInfoResponse
+	for _, warranty := range warranties {
+		parts, err := h.warrantiesService.GetWarrantyPartsByWarrantyID(ctx, warranty.ID)
+		if err != nil {
+			utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		warrantyWithParts := dto.WarrantyWithPartsAndShopInfoResponse{
+			Warranty: warranty,
+			Parts:    parts,
+		}
+		result = append(result, warrantyWithParts)
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, result)
 }
 
 // GetCarParts returns a list of car parts.
@@ -294,8 +310,8 @@ func (h *warrantiesHandler) GetWarrantyPartsByWarrantyID(w http.ResponseWriter, 
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, warrantyParts)
 }
 
-// CreateWarranty creates a new warranty along with its parts.
-func (h *warrantiesHandler) CreateWarranty(w http.ResponseWriter, r *http.Request) {
+// CreateWarrantyWithParts creates a new warranty along with its parts.
+func (h *warrantiesHandler) CreateWarrantyWithParts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var req dto.CreateWarrantyWithPartsRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -309,7 +325,7 @@ func (h *warrantiesHandler) CreateWarranty(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	warranty, err := h.warrantiesService.CreateWarranty(ctx, warrantyParam, warrantyPartsParam)
+	warranty, err := h.warrantiesService.CreateWarrantyWithParts(ctx, warrantyParam, warrantyPartsParam)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

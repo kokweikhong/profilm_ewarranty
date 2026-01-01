@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,10 +12,13 @@ import {
   CreateWarrantyPartRequest,
   CreateWarrantyRequest,
   CreateWarrantyWithPartsRequest,
+  UpdateWarrantyWithPartsRequest,
   UpdateWarrantyRequest,
+  WarrantyWithPartsResponse,
+  UpdateWarrantyPartRequest,
 } from "@/types/warrantiesType";
 import {
-  createWarrantyAction,
+  createWarrantyWithPartsAction,
   updateWarrantyAction,
 } from "@/actions/warrantiesAction";
 import { ProductsFromAllocationByShopIdResponse } from "@/types/productAllocationsType";
@@ -25,7 +28,7 @@ import { generateNextWarrantyNoApi } from "@/lib/apis/warrantiesApi";
 import { uploadFile } from "@/lib/apis/uploadsApi";
 
 type Props = {
-  warranty?: Warranty | null;
+  data?: WarrantyWithPartsResponse | null;
   carParts: CarPart[];
   productsFromAllocation?: ProductsFromAllocationByShopIdResponse[];
   mode?: "create" | "update";
@@ -48,15 +51,38 @@ function formatDateForInput(dateString: string): string {
 }
 
 export default function WarrantyForm({
-  warranty,
+  data,
   carParts,
   productsFromAllocation,
   mode = "create",
 }: Props) {
-  const isEditMode = mode === "update" && warranty;
+  const isEditMode = mode === "update" && data;
   const router = useRouter();
   const { showToast } = useToast();
   const { user } = useAuth();
+
+  // Check if user is admin - admins cannot create/edit warranties
+  const isAdmin = user?.role === "admin";
+
+  if (isAdmin || (!isAdmin && !user?.shopId)) {
+    return (
+      <div className="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20">
+        <div className="flex">
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              Access Restricted
+            </h3>
+            <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+              <p>
+                Only shop users are allowed to create or edit warranties. Admin
+                users can only view warranty records.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // State for managing selected car parts with their details
   const [selectedCarParts, setSelectedCarParts] = useState<
@@ -68,80 +94,96 @@ export default function WarrantyForm({
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
-  } = useForm<CreateWarrantyRequest>({
+  } = useForm<CreateWarrantyWithPartsRequest>({
     defaultValues: isEditMode
-      ? {
-          shopId: warranty.shopId,
-          clientName: warranty.clientName,
-          clientContact: warranty.clientContact,
-          clientEmail: warranty.clientEmail,
-          carBrand: warranty.carBrand,
-          carModel: warranty.carModel,
-          carColour: warranty.carColour,
-          carPlateNo: warranty.carPlateNo,
-          carChassisNo: warranty.carChassisNo,
-          installationDate: warranty.installationDate,
-          referenceNo: warranty.referenceNo,
-          warrantyNo: warranty.warrantyNo,
-          invoiceAttachmentUrl: warranty.invoiceAttachmentUrl,
-        }
+      ? data
       : {
-          installationDate: new Date().toISOString().split("T")[0], // Default to today
+          warranty: {
+            // shopId: user.shopId,
+            installationDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+          },
+          parts: [],
         },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "parts",
+  });
+
+  // Initialize parts in edit mode
+  useEffect(() => {
+    if (isEditMode && data?.parts && fields.length === 0) {
+      data.parts.forEach((part) => {
+        append({
+          carPartId: part.carPartId,
+          productAllocationId: part.productAllocationId,
+          installationImageUrl: part.installationImageUrl,
+        });
+      });
+    }
+  }, [isEditMode, data, append, fields.length]);
 
   // Automatically set shopId from logged-in user in create mode
   useEffect(() => {
     if (!isEditMode && user?.shopId) {
-      setValue("shopId", user.shopId);
+      setValue("warranty.shopId", user.shopId);
       console.log("Set shopId to", user.shopId);
       // Automatically generate warranty number based on shop's branch code and installation date
-      if (!isEditMode) {
-        const generateWarrantyNo = async () => {
-          if (user.shopId && watch("installationDate")) {
-            try {
-              const branchCode = user.username.toUpperCase(); // Adjust if branchCode is different
-              const installationDate = watch("installationDate");
-              // date format YYYYMMDD
-              const formattedDate = formatDateForInput(installationDate);
-              const response = await generateNextWarrantyNoApi(
-                branchCode,
-                formattedDate
-              );
-              setValue("warrantyNo", response.warrantyNo);
-              console.log("Generated warranty number:", response.warrantyNo);
-            } catch (error) {
-              console.error("Failed to generate warranty number:", error);
-            }
+      const generateWarrantyNo = async () => {
+        const installationDate = watch("warranty.installationDate");
+        if (user.shopId && installationDate) {
+          try {
+            const branchCode = user.username.toUpperCase(); // Adjust if branchCode is different
+            // date format YYYYMMDD
+            const formattedDate = formatDateForInput(installationDate);
+            const response = await generateNextWarrantyNoApi(
+              branchCode,
+              formattedDate
+            );
+            setValue("warranty.warrantyNo", response.warrantyNo);
+            console.log("Generated warranty number:", response.warrantyNo);
+          } catch (error) {
+            console.error("Failed to generate warranty number:", error);
           }
-        };
-        generateWarrantyNo();
-      }
+        }
+      };
+      generateWarrantyNo();
     }
-  }, [isEditMode, user, setValue, watch]);
+  }, [isEditMode, user, setValue]);
 
   // Update warranty number when installation date changes in create mode
   useEffect(() => {
-    if (!isEditMode) {
-      const installationDate = watch("installationDate");
-      if (installationDate && user?.shopId) {
-        const branchCode = user.username.toUpperCase(); // Adjust if branchCode is different
-        const formattedDate = formatDateForInput(installationDate);
-        generateNextWarrantyNoApi(branchCode, formattedDate)
-          .then((response) => {
-            setValue("warrantyNo", response.warrantyNo);
-            console.log("Updated warranty number:", response.warrantyNo);
-          })
-          .catch((error) => {
-            console.error("Failed to update warranty number:", error);
-          });
-      }
+    if (!isEditMode && user?.shopId) {
+      const subscription = watch((value, { name }) => {
+        if (
+          name === "warranty.installationDate" &&
+          value.warranty?.installationDate
+        ) {
+          const branchCode = user.username.toUpperCase();
+          const formattedDate = formatDateForInput(
+            value.warranty.installationDate
+          );
+          generateNextWarrantyNoApi(branchCode, formattedDate)
+            .then((response) => {
+              setValue("warranty.warrantyNo", response.warrantyNo);
+              console.log("Updated warranty number:", response.warrantyNo);
+            })
+            .catch((error) => {
+              console.error("Failed to update warranty number:", error);
+            });
+        }
+      });
+      return () => subscription.unsubscribe();
     }
-  }, [isEditMode, watch("installationDate"), user, setValue]);
+  }, [isEditMode, user, setValue, watch]);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [formData, setFormData] = useState<CreateWarrantyRequest | null>(null);
+  const [formData, setFormData] = useState<
+    CreateWarrantyWithPartsRequest | UpdateWarrantyWithPartsRequest | null
+  >(null);
   const [warrantyParts, setWarrantyParts] = useState<
     CreateWarrantyPartRequest[]
   >([]);
@@ -185,7 +227,7 @@ export default function WarrantyForm({
     setInvoiceFile(file);
 
     // Set a temporary placeholder value to pass form validation
-    setValue("invoiceAttachmentUrl", "pending-upload");
+    setValue("warranty.invoiceAttachmentUrl", "pending-upload");
 
     // Create preview for images
     if (file.type.startsWith("image/")) {
@@ -284,19 +326,48 @@ export default function WarrantyForm({
 
   // Toggle car part selection
   const toggleCarPart = (carPartId: number, carPartName: string) => {
-    const newSelected = new Map(selectedCarParts);
-    if (newSelected.has(carPartId)) {
-      newSelected.delete(carPartId);
-    } else {
+    // Check if this part is already in the 'parts' field array
+    const index = fields.findIndex((field) => field.carPartId === carPartId);
+
+    if (index === -1) {
+      // If not found, ADD (Append) it
+      append({
+        carPartId: carPartId,
+        productAllocationId: 0,
+        installationImageUrl: "",
+      });
+      // Also update selectedCarParts for UI state
+      const newSelected = new Map(selectedCarParts);
       newSelected.set(carPartId, {
         carPartId,
         carPartName,
         productAllocationId: 0,
         installationImageUrl: "",
       });
+      setSelectedCarParts(newSelected);
+    } else {
+      // If found, REMOVE it
+      remove(index);
+      // Also remove from selectedCarParts
+      const newSelected = new Map(selectedCarParts);
+      newSelected.delete(carPartId);
+      setSelectedCarParts(newSelected);
     }
-    setSelectedCarParts(newSelected);
   };
+  // const toggleCarPart = (carPartId: number, carPartName: string) => {
+  //   const newSelected = new Map(selectedCarParts);
+  //   if (newSelected.has(carPartId)) {
+  //     newSelected.delete(carPartId);
+  //   } else {
+  //     newSelected.set(carPartId, {
+  //       carPartId,
+  //       carPartName,
+  //       productAllocationId: 0,
+  //       installationImageUrl: "",
+  //     });
+  //   }
+  //   setSelectedCarParts(newSelected);
+  // };
 
   // Update car part details
   const updateCarPartDetails = (
@@ -315,38 +386,40 @@ export default function WarrantyForm({
     }
   };
 
-  const onSubmit: SubmitHandler<CreateWarrantyRequest> = (data) => {
+  const onSubmit: SubmitHandler<CreateWarrantyWithPartsRequest> = (data) => {
     console.log("Form data before validation:", data);
     // Validate custom requirements
     const errors: string[] = [];
 
-    // Check if invoice file is selected
-    if (!invoiceFile) {
-      errors.push("Invoice attachment is required");
-    } else if (invoiceFileSizeError || invoiceFile.size >= MAX_FILE_SIZE) {
-      errors.push("Invoice file size exceeds 50MB limit");
+    // Check if invoice file is selected (only in create mode)
+    if (!isEditMode) {
+      if (!invoiceFile) {
+        errors.push("Invoice attachment is required");
+      } else if (invoiceFileSizeError || invoiceFile.size >= MAX_FILE_SIZE) {
+        errors.push("Invoice file size exceeds 50MB limit");
+      }
     }
 
     // Check if at least one car part is selected
-    if (selectedCarParts.size === 0) {
+    if (!data.parts || data.parts.length === 0) {
       errors.push("Please select at least one car part");
     }
 
     // Validate each selected car part
-    selectedCarParts.forEach((part, carPartId) => {
-      const carPart = carParts.find((cp) => cp.id === carPartId);
-      const carPartName = carPart?.name || `Car Part ${carPartId}`;
+    data.parts?.forEach((part, index) => {
+      const carPart = carParts.find((cp) => cp.id === part.carPartId);
+      const carPartName = carPart?.name || `Car Part ${part.carPartId}`;
 
       // Check if product is selected
       if (!part.productAllocationId || part.productAllocationId === 0) {
         errors.push(`${carPartName}: Product selection is required`);
       }
 
-      // Check if installation image is selected
-      if (!selectedFiles.has(carPartId)) {
+      // Check if installation image is selected (only in create mode or if new image uploaded)
+      if (!isEditMode && !selectedFiles.has(part.carPartId)) {
         errors.push(`${carPartName}: Installation image is required`);
-      } else {
-        const imageFile = selectedFiles.get(carPartId);
+      } else if (selectedFiles.has(part.carPartId)) {
+        const imageFile = selectedFiles.get(part.carPartId);
         if (imageFile && imageFile.size >= MAX_FILE_SIZE) {
           errors.push(`${carPartName}: Installation image exceeds 50MB limit`);
         }
@@ -363,16 +436,31 @@ export default function WarrantyForm({
     // Clear validation errors if all is good
     setValidationErrors([]);
 
-    // Generate warranty parts array from selected car parts
-    const parts: CreateWarrantyPartRequest[] = Array.from(
-      selectedCarParts.values()
-    ).map((part) => ({
-      productAllocationId: part.productAllocationId,
+    // Prepare warranty data with proper structure
+    const warrantyData: CreateWarrantyRequest = {
+      shopId: user!.shopId!,
+      clientName: data.warranty.clientName,
+      clientContact: data.warranty.clientContact,
+      clientEmail: data.warranty.clientEmail,
+      carBrand: data.warranty.carBrand,
+      carModel: data.warranty.carModel,
+      carColour: data.warranty.carColour,
+      carPlateNo: data.warranty.carPlateNo,
+      carChassisNo: data.warranty.carChassisNo,
+      installationDate: data.warranty.installationDate,
+      referenceNo: data.warranty.referenceNo || "",
+      warrantyNo: data.warranty.warrantyNo,
+      invoiceAttachmentUrl: data.warranty.invoiceAttachmentUrl,
+    };
+
+    // Use parts from form data
+    const parts: CreateWarrantyPartRequest[] = data.parts.map((part) => ({
       carPartId: part.carPartId,
-      installationImageUrl: part.installationImageUrl,
+      productAllocationId: part.productAllocationId,
+      installationImageUrl: part.installationImageUrl || "",
     }));
 
-    setFormData(data);
+    setFormData({ warranty: warrantyData, parts });
     setWarrantyParts(parts);
     setShowConfirmModal(true);
   };
@@ -382,51 +470,86 @@ export default function WarrantyForm({
 
     if (formData) {
       try {
-        // Upload all files first
         setIsUploading(true);
-        const { installationImages, invoiceUrl } = await uploadAllFiles();
 
-        // Update formData with uploaded invoice URL
-        const updatedWarranty: CreateWarrantyRequest = {
-          ...formData,
-          invoiceAttachmentUrl: invoiceUrl || formData.invoiceAttachmentUrl,
-        };
+        if (isEditMode) {
+          // EDIT MODE: Update existing warranty
+          // Upload new files if any
+          const { installationImages, invoiceUrl } = await uploadAllFiles();
 
-        // Update warranty parts with uploaded installation image URLs
-        const updatedWarrantyParts: CreateWarrantyPartRequest[] =
-          warrantyParts.map((part) => {
-            const uploadedImageUrl = installationImages.get(part.carPartId);
-            return {
-              ...part,
-              installationImageUrl:
-                uploadedImageUrl || part.installationImageUrl,
-            };
+          const updatedWarranty: UpdateWarrantyRequest = {
+            ...formData.warranty,
+            id: data!.warranty.id,
+            invoiceAttachmentUrl:
+              invoiceUrl || formData.warranty.invoiceAttachmentUrl,
+          };
+
+          console.log("Updating warranty:", updatedWarranty);
+          const result = await updateWarrantyAction({
+            warranty: updatedWarranty,
+            parts: warrantyParts,
           });
 
-        // Build the nested request structure
-        const requestData: CreateWarrantyWithPartsRequest = {
-          warranty: updatedWarranty,
-          parts: updatedWarrantyParts,
-        };
-
-        // For create mode, send warranty data and parts
-        const result = await createWarrantyAction(requestData);
-
-        if (result && result.success) {
-          showToast("Warranty created successfully!", "success");
-
-          setTimeout(() => {
-            router.push("/admin/warranties");
-          }, 500);
-        } else if (result) {
-          showToast(`Error: ${result.error}`, "error");
+          if (result && result.success) {
+            showToast("Warranty updated successfully!", "success");
+            setTimeout(() => {
+              router.push("/admin/warranties");
+            }, 500);
+          } else if (result) {
+            showToast(`Error: ${result.error}`, "error");
+          } else {
+            showToast("An unexpected error occurred", "error");
+          }
         } else {
-          showToast("An unexpected error occurred", "error");
+          // CREATE MODE: Create new warranty with parts
+          const { installationImages, invoiceUrl } = await uploadAllFiles();
+
+          const updatedWarranty: CreateWarrantyRequest = {
+            ...formData.warranty,
+            shopId: user!.shopId!,
+            invoiceAttachmentUrl:
+              invoiceUrl || formData.warranty.invoiceAttachmentUrl,
+          };
+
+          const updatedWarrantyParts: CreateWarrantyPartRequest[] =
+            warrantyParts.map((part) => {
+              const uploadedImageUrl = installationImages.get(part.carPartId);
+              return {
+                carPartId: part.carPartId,
+                productAllocationId: part.productAllocationId,
+                installationImageUrl:
+                  uploadedImageUrl || part.installationImageUrl,
+              };
+            });
+
+          const requestData: CreateWarrantyWithPartsRequest = {
+            warranty: updatedWarranty,
+            parts: updatedWarrantyParts,
+          };
+
+          console.log("Creating warranty:", requestData);
+          const result = await createWarrantyWithPartsAction(requestData);
+
+          if (result && result.success) {
+            showToast("Warranty created successfully!", "success");
+            setTimeout(() => {
+              router.push("/admin/warranties");
+            }, 500);
+          } else if (result) {
+            showToast(`Error: ${result.error}`, "error");
+          } else {
+            showToast("An unexpected error occurred", "error");
+          }
         }
       } catch (error: any) {
-        console.error("Error during warranty creation:", error);
+        console.error(
+          `Error during warranty ${isEditMode ? "update" : "creation"}:`,
+          error
+        );
         showToast(
-          `Failed to create warranty: ${error.message || "Unknown error"}`,
+          `Failed to ${isEditMode ? "update" : "create"} warranty: ${
+            error.message || "Unknown error"
+          }`,
           "error"
         );
       } finally {
@@ -434,6 +557,7 @@ export default function WarrantyForm({
       }
     }
     setFormData(null);
+    setWarrantyParts([]);
   };
 
   const handleCancel = () => {
@@ -446,55 +570,228 @@ export default function WarrantyForm({
   const ConfirmModal = () => {
     if (!showConfirmModal || !formData) return null;
 
+    const warranty = formData.warranty;
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Confirm Warranty Details
+            {isEditMode
+              ? "Confirm Warranty Update"
+              : "Confirm Warranty Details"}
           </h3>
 
-          <div className="space-y-4 text-sm">
+          <div className="space-y-6 text-sm">
+            {/* Warranty Information */}
             <div className="border-b pb-4">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                Client Information
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                Warranty Information
               </h4>
               <div className="grid grid-cols-2 gap-3">
-                {Object.entries(formData).map(([key, value]) => {
-                  if (key === "shopId" || key === "invoiceAttachmentUrl")
-                    return null;
-                  return (
-                    <div key={key}>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
-                        {camelToNormalCase(key)}:
-                      </span>
-                      <span className="ml-2 text-gray-900 dark:text-white">
-                        {value || "-"}
-                      </span>
-                    </div>
-                  );
-                })}
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Warranty No:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.warrantyNo}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Installation Date:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.installationDate}
+                  </span>
+                </div>
+                {warranty.referenceNo && (
+                  <div>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      Reference No:
+                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">
+                      {warranty.referenceNo}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Client Information */}
+            <div className="border-b pb-4">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                Client Information
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Name:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.clientName}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Contact:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.clientContact}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Email:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.clientEmail}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Vehicle Information */}
+            <div className="border-b pb-4">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                Vehicle Information
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Brand:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.carBrand}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Model:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.carModel}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Colour:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.carColour}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Plate No:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.carPlateNo}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Chassis No:
+                  </span>
+                  <span className="ml-2 text-gray-900 dark:text-white">
+                    {warranty.carChassisNo}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Invoice Attachment */}
+            {(invoiceFile || invoicePreview) && (
+              <div className="border-b pb-4">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                  Invoice Attachment
+                </h4>
+                {invoicePreview ? (
+                  <img
+                    src={invoicePreview}
+                    alt="Invoice preview"
+                    className="max-h-48 rounded border border-gray-300 dark:border-gray-600"
+                  />
+                ) : invoiceFile ? (
+                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span>{invoiceFile.name}</span>
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {/* Car Parts with Installation Images */}
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
                 Selected Car Parts ({warrantyParts.length})
               </h4>
               {warrantyParts.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-4">
                   {warrantyParts.map((part, index) => {
-                    const partData = Array.from(selectedCarParts.values()).find(
-                      (p) => p.carPartId === part.carPartId
+                    const carPart = carParts.find(
+                      (cp) => cp.id === part.carPartId
                     );
+                    const product = productsFromAllocation?.find(
+                      (p) => p.productAllocationId === part.productAllocationId
+                    );
+                    const imageUrl =
+                      imagePreview.get(part.carPartId) ||
+                      part.installationImageUrl;
+
                     return (
                       <div
                         key={index}
-                        className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md"
+                        className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md"
                       >
-                        <p className="font-medium">{partData?.carPartName}</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          Allocation ID: {part.productAllocationId}
-                        </p>
+                        <div className="flex gap-4">
+                          {/* Installation Image Preview */}
+                          {imageUrl && (
+                            <div className="shrink-0">
+                              <img
+                                src={imageUrl}
+                                alt={`${carPart?.name} installation`}
+                                className="h-24 w-24 object-cover rounded border border-gray-300 dark:border-gray-600"
+                              />
+                            </div>
+                          )}
+
+                          {/* Part Details */}
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {carPart?.name || `Car Part ${part.carPartId}`}
+                            </p>
+                            {carPart?.code && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Code: {carPart.code}
+                              </p>
+                            )}
+                            {product && (
+                              <div className="mt-2 text-xs">
+                                <p className="text-gray-700 dark:text-gray-300">
+                                  <span className="font-medium">Product:</span>{" "}
+                                  {product.brandName} - {product.typeName} -{" "}
+                                  {product.seriesName} - {product.productName}
+                                </p>
+                                <p className="text-gray-600 dark:text-gray-400">
+                                  <span className="font-medium">Warranty:</span>{" "}
+                                  {product.warrantyInMonths} months
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
@@ -511,7 +808,11 @@ export default function WarrantyForm({
               disabled={warrantyParts.length === 0 || isUploading}
               className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploading ? "Uploading..." : "Confirm Create"}
+              {isUploading
+                ? "Uploading..."
+                : isEditMode
+                ? "Confirm Update"
+                : "Confirm Create"}
             </button>
             <button
               onClick={handleCancel}
@@ -588,15 +889,10 @@ export default function WarrantyForm({
               Warranty Information
             </h2>
 
-            <div>
-              {/* show all json form data */}
-              <pre>{JSON.stringify(watch(), null, 2)}</pre>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* shopId is automatically set from logged-in user */}
               <input
-                {...register("shopId", {
+                {...register("warranty.shopId", {
                   required: true,
                   valueAsNumber: true,
                 })}
@@ -608,10 +904,10 @@ export default function WarrantyForm({
                   Client Name <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("clientName", { required: true })}
+                  {...register("warranty.clientName", { required: true })}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
-                {errors.clientName && (
+                {errors.warranty?.clientName && (
                   <p className="mt-1 text-sm text-red-600">Required</p>
                 )}
               </div>
@@ -621,10 +917,10 @@ export default function WarrantyForm({
                   Client Contact <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("clientContact", { required: true })}
+                  {...register("warranty.clientContact", { required: true })}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
-                {errors.clientContact && (
+                {errors.warranty?.clientContact && (
                   <p className="mt-1 text-sm text-red-600">Required</p>
                 )}
               </div>
@@ -634,11 +930,11 @@ export default function WarrantyForm({
                   Client Email <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("clientEmail", { required: true })}
+                  {...register("warranty.clientEmail", { required: true })}
                   type="email"
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
-                {errors.clientEmail && (
+                {errors.warranty?.clientEmail && (
                   <p className="mt-1 text-sm text-red-600">Required</p>
                 )}
               </div>
@@ -648,7 +944,7 @@ export default function WarrantyForm({
                   Car Brand <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("carBrand", { required: true })}
+                  {...register("warranty.carBrand", { required: true })}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
               </div>
@@ -658,7 +954,7 @@ export default function WarrantyForm({
                   Car Model <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("carModel", { required: true })}
+                  {...register("warranty.carModel", { required: true })}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
               </div>
@@ -668,7 +964,7 @@ export default function WarrantyForm({
                   Car Colour <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("carColour", { required: true })}
+                  {...register("warranty.carColour", { required: true })}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
               </div>
@@ -678,7 +974,7 @@ export default function WarrantyForm({
                   Car Plate No <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("carPlateNo", { required: true })}
+                  {...register("warranty.carPlateNo", { required: true })}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
               </div>
@@ -688,7 +984,7 @@ export default function WarrantyForm({
                   Car Chassis No <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("carChassisNo", { required: true })}
+                  {...register("warranty.carChassisNo", { required: true })}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
               </div>
@@ -698,7 +994,7 @@ export default function WarrantyForm({
                   Installation Date <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("installationDate", { required: true })}
+                  {...register("warranty.installationDate", { required: true })}
                   type="date"
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
@@ -709,7 +1005,7 @@ export default function WarrantyForm({
                   Reference No
                 </label>
                 <input
-                  {...register("referenceNo")}
+                  {...register("warranty.referenceNo")}
                   className="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                 />
               </div>
@@ -719,7 +1015,7 @@ export default function WarrantyForm({
                   Warranty No <span className="text-red-600">*</span>
                 </label>
                 <input
-                  {...register("warrantyNo", { required: true })}
+                  {...register("warranty.warrantyNo", { required: true })}
                   readOnly
                   disabled
                   className="mt-2 block w-full rounded-md bg-gray-100 px-3 py-1.5 text-gray-700 outline-1 outline-gray-300 cursor-not-allowed dark:bg-gray-700 dark:text-gray-300"
@@ -730,12 +1026,16 @@ export default function WarrantyForm({
                 </p>
               </div>
 
+              {/* Warranty invoice attachment url */}
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-900 dark:text-white">
                   Invoice Attachment <span className="text-red-600">*</span>
                 </label>
-                <input {...register("invoiceAttachmentUrl")} type="hidden" />
-                {!invoiceFile && (
+                <input
+                  {...register("warranty.invoiceAttachmentUrl")}
+                  type="hidden"
+                />
+                {!invoiceFile && !isEditMode && (
                   <p className="mt-1 text-xs text-red-600">
                     Invoice file is required
                   </p>
@@ -784,7 +1084,7 @@ export default function WarrantyForm({
                                   setInvoiceFile(null);
                                   setInvoicePreview(null);
                                   setInvoiceFileSizeError(false);
-                                  setValue("invoiceAttachmentUrl", "");
+                                  setValue("warranty.invoiceAttachmentUrl", "");
                                 }}
                                 className="mt-2 text-sm text-red-600 hover:text-red-700"
                               >
@@ -831,7 +1131,7 @@ export default function WarrantyForm({
                                   setInvoiceFile(null);
                                   setInvoicePreview(null);
                                   setInvoiceFileSizeError(false);
-                                  setValue("invoiceAttachmentUrl", "");
+                                  setValue("warranty.invoiceAttachmentUrl", "");
                                 }}
                                 className="mt-2 text-sm text-red-600 hover:text-red-700"
                               >
@@ -840,6 +1140,42 @@ export default function WarrantyForm({
                             </div>
                           </div>
                         )}
+                      </div>
+                    ) : isEditMode && data?.warranty.invoiceAttachmentUrl ? (
+                      <div className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="shrink-0 h-16 w-16 bg-blue-100 dark:bg-blue-900/20 rounded flex items-center justify-center">
+                            <svg
+                              className="h-8 w-8 text-blue-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              Existing Invoice
+                            </p>
+                            <a
+                              href={data.warranty.invoiceAttachmentUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:text-primary/80 underline mt-1 inline-block"
+                            >
+                              View Invoice
+                            </a>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Click to upload a new invoice
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-32 p-4 text-center">
@@ -878,15 +1214,22 @@ export default function WarrantyForm({
 
             <div className="space-y-4">
               {carParts.map((carPart) => {
-                const isSelected = selectedCarParts.has(carPart.id);
-                const partData = selectedCarParts.get(carPart.id);
+                const fieldIndex = fields.findIndex(
+                  (f) => f.carPartId === carPart.id
+                );
+                const isSelected = fieldIndex !== -1;
+
+                // In edit mode, only show selected car parts
+                if (isEditMode && !isSelected) {
+                  return null;
+                }
 
                 return (
                   <div
                     key={carPart.id}
-                    className={`border rounded-lg p-4 ${
+                    className={`border rounded-lg p-4 transition-all ${
                       isSelected
-                        ? "border-primary bg-primary/5"
+                        ? "border-primary bg-primary/5 dark:bg-primary/10"
                         : "border-gray-300 dark:border-gray-600"
                     }`}
                   >
@@ -896,70 +1239,72 @@ export default function WarrantyForm({
                         id={`carPart-${carPart.id}`}
                         checked={isSelected}
                         onChange={() => toggleCarPart(carPart.id, carPart.name)}
-                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        disabled={!!(isEditMode && isSelected)}
+                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                       <div className="flex-1">
                         <label
                           htmlFor={`carPart-${carPart.id}`}
-                          className="block font-medium text-gray-900 dark:text-white cursor-pointer"
+                          className={`block font-medium text-gray-900 dark:text-white ${
+                            isEditMode && isSelected
+                              ? "cursor-default"
+                              : "cursor-pointer"
+                          }`}
                         >
                           {carPart.name} ({carPart.code})
                         </label>
                         {carPart.description && (
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                             {carPart.description}
                           </p>
                         )}
 
                         {isSelected && (
                           <div className="mt-4 space-y-4">
+                            {/* PRODUCT SELECT */}
                             <div>
                               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Product *
+                                Product <span className="text-red-600">*</span>
                               </label>
-                              {/* Select and options from productsFromAllocation */}
-                              {/* options need to show brand name, type, series and product name and warranty in months */}
-                              {/* key is productAllocationId */}
                               <select
-                                value={partData?.productAllocationId || 0}
-                                onChange={(e) =>
-                                  updateCarPartDetails(
-                                    carPart.id,
-                                    "productAllocationId",
-                                    parseInt(e.target.value, 10)
-                                  )
-                                }
-                                className="mt-2 block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
+                                {...register(
+                                  `parts.${fieldIndex}.productAllocationId`,
+                                  {
+                                    required: true,
+                                    valueAsNumber: true,
+                                  }
+                                )}
+                                className="mt-2 block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
                               >
                                 <option value={0} disabled>
                                   Select Product
                                 </option>
-                                {productsFromAllocation &&
-                                  productsFromAllocation.map((product) => (
-                                    <option
-                                      key={product.productAllocationId}
-                                      value={product.productAllocationId}
-                                    >
-                                      {`${product.brandName} - ${product.typeName} - ${product.seriesName} - ${product.productName}`}{" "}
-                                      ({product.warrantyInMonths} months)
-                                    </option>
-                                  ))}
+                                {productsFromAllocation?.map((product) => (
+                                  <option
+                                    key={product.productAllocationId}
+                                    value={product.productAllocationId}
+                                  >
+                                    {`${product.brandName} - ${product.typeName} - ${product.seriesName} - ${product.productName}`}{" "}
+                                    ({product.warrantyInMonths} months)
+                                  </option>
+                                ))}
                               </select>
                             </div>
 
+                            {/* IMAGE UPLOAD */}
                             <div>
                               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Installation Image *
+                                Installation Image{" "}
+                                <span className="text-red-600">*</span>
                               </label>
                               <div className="mt-2">
-                                {/* Image Preview */}
                                 {selectedFiles.has(carPart.id) && (
                                   <div className="mb-2">
                                     <p
                                       className={`text-xs ${
                                         imageFileSizeErrors.get(carPart.id)
                                           ? "text-red-600 font-semibold"
-                                          : "text-gray-500"
+                                          : "text-gray-500 dark:text-gray-400"
                                       }`}
                                     >
                                       File size:{" "}
@@ -974,25 +1319,27 @@ export default function WarrantyForm({
                                     </p>
                                   </div>
                                 )}
-                                <div className="relative w-full h-48 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
+                                <div className="relative w-full h-64 sm:h-48 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
                                   <input
                                     type="file"
                                     id={`image-upload-${carPart.id}`}
                                     accept="image/*"
                                     onChange={(e) => {
                                       const file = e.target.files?.[0];
-                                      if (file)
+                                      if (file) {
                                         handleImageSelect(carPart.id, file);
+                                      }
                                     }}
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                   />
                                   {imagePreview.get(carPart.id) ||
-                                  partData?.installationImageUrl ? (
+                                  fields[fieldIndex]?.installationImageUrl ? (
                                     <>
                                       <img
                                         src={
                                           imagePreview.get(carPart.id) ||
-                                          partData?.installationImageUrl
+                                          fields[fieldIndex]
+                                            ?.installationImageUrl
                                         }
                                         alt="Installation preview"
                                         className="h-full w-full object-contain"
@@ -1018,7 +1365,7 @@ export default function WarrantyForm({
                                           d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                                         />
                                       </svg>
-                                      <span className="text-sm text-gray-500 mt-2">
+                                      <span className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                         Click to select image
                                       </span>
                                     </div>
@@ -1035,7 +1382,7 @@ export default function WarrantyForm({
               })}
             </div>
 
-            {selectedCarParts.size === 0 && (
+            {fields.length === 0 && (
               <p className="mt-4 text-sm text-red-600">
                 Please select at least one car part.
               </p>
@@ -1056,7 +1403,7 @@ export default function WarrantyForm({
             type="submit"
             className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            Create Warranty
+            {isEditMode ? "Update Warranty" : "Create Warranty"}
           </button>
         </div>
       </form>

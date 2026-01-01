@@ -355,9 +355,9 @@ export default function Page() {
                   key={part.id}
                   className="border border-gray-200 rounded-lg p-4 hover:border-primary/50 transition-colors"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-4">
+                    <div className="flex-1 w-full">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <h3 className="font-semibold text-gray-900">
                           {part.carPartName}
                         </h3>
@@ -397,7 +397,7 @@ export default function Page() {
                           </button>
                         )}
                       </div>
-                      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         <div>
                           <dt className="text-gray-500">Product</dt>
                           <dd className="font-medium text-gray-900">
@@ -429,12 +429,12 @@ export default function Page() {
                         onClick={() =>
                           setSelectedImage(part.installationImageUrl)
                         }
-                        className="shrink-0 group relative"
+                        className="shrink-0 group relative w-full sm:w-auto"
                       >
                         <img
                           src={part.installationImageUrl}
                           alt={`${part.carPartName} installation`}
-                          className="h-24 w-24 rounded-lg object-contain border border-gray-200 group-hover:border-primary transition-colors bg-gray-50"
+                          className="h-32 w-full sm:h-24 sm:w-24 rounded-lg object-contain border border-gray-200 group-hover:border-primary transition-colors bg-gray-50"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 rounded-lg transition-colors">
                           <PhotoIcon className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />

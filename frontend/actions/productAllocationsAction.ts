@@ -1,7 +1,6 @@
-"use server";
+"use client";
 
-import axios from "axios";
-import { getApiBaseUrl } from "@/lib/env";
+import apiClient from "@/lib/axios";
 import {
   CreateProductAllocationRequest,
   UpdateProductAllocationRequest,
@@ -11,14 +10,18 @@ export async function createProductAllocationAction(
   data: CreateProductAllocationRequest
 ) {
   try {
-    const response = await axios.post(
-      `${getApiBaseUrl()}/product-allocations`,
-      data
-    );
+    const response = await apiClient.post("/product-allocations", data);
     return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Error creating product allocation:", error);
-    return { success: false, error: "Failed to create product allocation" };
+  } catch (error: any) {
+    console.error("Error creating product allocation:", {
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    return {
+      success: false,
+      error:
+        error.response?.data?.message || "Failed to create product allocation",
+    };
   }
 }
 
@@ -26,13 +29,20 @@ export async function updateProductAllocationAction(
   data: UpdateProductAllocationRequest
 ) {
   try {
-    const response = await axios.put(
-      `${getApiBaseUrl()}/product-allocations/${data.id}`,
+    const response = await apiClient.put(
+      `/product-allocations/${data.id}`,
       data
     );
     return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Error updating product allocation:", error);
-    return { success: false, error: "Failed to update product allocation" };
+  } catch (error: any) {
+    console.error("Error updating product allocation:", {
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    return {
+      success: false,
+      error:
+        error.response?.data?.message || "Failed to update product allocation",
+    };
   }
 }

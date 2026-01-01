@@ -17,7 +17,7 @@ import {
   MagnifyingGlassIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/20/solid";
-import { Warranty, WarrantyDetails } from "@/types/warrantiesType";
+import { WarrantyDetails } from "@/types/warrantiesType";
 import { WarrantyColumns } from "@/components/TableColumns";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";

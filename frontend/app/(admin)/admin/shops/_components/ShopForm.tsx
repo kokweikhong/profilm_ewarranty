@@ -36,6 +36,9 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
   const [formData, setFormData] = useState<
     CreateShopRequest | UpdateShopRequest | null
   >(null);
+  const [selectedImagePreview, setSelectedImagePreview] = useState<
+    string | null
+  >(null);
 
   // Track file changes and upload confirmation
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -411,19 +414,21 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
               <div className="mt-2 flex items-center gap-x-6">
                 <div className="relative h-32 w-32 rounded-lg border-2 border-dashed border-gray-300 bg-white dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
                   <input
-                    // {...(register("companyLicenseImageUrl"),
-                    // {
-                    //   required: true,
-                    // })}
                     ref={companyLicenseInputRef}
                     id="companyLicenseImageUrl"
                     type="file"
                     accept="image/*"
                     onChange={handleCompanyLicenseImageChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    className="sr-only"
                   />
                   {companyLicenseImagePreview ? (
-                    <div className="h-full w-full flex items-center justify-center p-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedImagePreview(companyLicenseImagePreview)
+                      }
+                      className="h-full w-full flex items-center justify-center p-2 cursor-pointer hover:bg-gray-50"
+                    >
                       <Image
                         src={companyLicenseImagePreview}
                         alt="Company License preview"
@@ -444,7 +449,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                           console.error("Error event:", e);
                         }}
                       />
-                    </div>
+                    </button>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center p-2">
                       <svg
@@ -460,7 +465,9 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                           d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                       </svg>
-                      <span className="text-xs text-gray-500 mt-1">Upload</span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        No image
+                      </span>
                     </div>
                   )}
                 </div>
@@ -469,37 +476,59 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                     Upload a clear image of the company's license document.
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    PNG, JPG, GIF up to 10MB. Click to browse or drag and drop.
+                    PNG, JPG, GIF up to 10MB.
                   </p>
-                  {/* <input
-                    // type="file"
-                    {...(register("companyLicenseImageUrl"),
-                    { required: true })}
-                    // ref={companyLicenseInputRef}
-                    id="companyLicenseImageUrl"
-                    // no hidden
-                    className="sr-only"
-                  /> */}
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    {companyLicenseImagePreview
-                      ? "Image selected."
-                      : "No image selected."}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {watch("companyLicenseImageUrl")
-                      ? `Uploaded URL: ${watch("companyLicenseImageUrl")}`
-                      : "No uploaded URL."}
-                  </p>
-
-                  {companyLicenseImagePreview && (
+                  <div className="mt-3 flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={handleRemoveCompanyLicenseImage}
-                      className="mt-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                      onClick={() => companyLicenseInputRef.current?.click()}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors"
                     >
-                      Remove image
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                        />
+                      </svg>
+                      {companyLicenseImagePreview
+                        ? "Change Image"
+                        : "Upload Image"}
                     </button>
-                  )}
+                    {companyLicenseImagePreview && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveCompanyLicenseImage}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    {companyLicenseImagePreview
+                      ? "Click image to enlarge"
+                      : "No image selected."}
+                  </p>
                 </div>
               </div>
             </div>
@@ -661,19 +690,19 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
               <div className="mt-2 flex items-center gap-x-6">
                 <div className="relative h-32 w-32 rounded-lg border-2 border-dashed border-gray-300 bg-white dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
                   <input
-                    {...(register("shopImageUrl"),
-                    {
-                      required: false,
-                    })}
                     ref={shopImageInputRef}
                     id="shopImage"
                     type="file"
                     accept="image/*"
                     onChange={handleShopImageChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    className="sr-only"
                   />
                   {shopImagePreview ? (
-                    <div className="h-full w-full flex items-center justify-center p-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImagePreview(shopImagePreview)}
+                      className="h-full w-full flex items-center justify-center p-2 cursor-pointer hover:bg-gray-50"
+                    >
                       <Image
                         src={shopImagePreview}
                         alt="Shop preview"
@@ -692,7 +721,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                           console.error("Error event:", e);
                         }}
                       />
-                    </div>
+                    </button>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center p-2">
                       <svg
@@ -708,7 +737,9 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                           d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                       </svg>
-                      <span className="text-xs text-gray-500 mt-1">Upload</span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        No image
+                      </span>
                     </div>
                   )}
                 </div>
@@ -717,17 +748,57 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                     Upload a shop image
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    PNG, JPG, GIF up to 10MB. Click to browse or drag and drop.
+                    PNG, JPG, GIF up to 10MB.
                   </p>
-                  {shopImagePreview && (
+                  <div className="mt-3 flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={handleRemoveShopImage}
-                      className="mt-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                      onClick={() => shopImageInputRef.current?.click()}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors"
                     >
-                      Remove image
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                        />
+                      </svg>
+                      {shopImagePreview ? "Change Image" : "Upload Image"}
                     </button>
-                  )}
+                    {shopImagePreview && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveShopImage}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    {shopImagePreview
+                      ? "Click image to enlarge"
+                      : "No image selected."}
+                  </p>
                 </div>
               </div>
             </div>
@@ -950,6 +1021,41 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Preview Modal */}
+      {selectedImagePreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setSelectedImagePreview(null)}
+        >
+          <div className="relative max-w-7xl max-h-[90vh]">
+            <button
+              onClick={() => setSelectedImagePreview(null)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <svg
+                className="h-8 w-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <img
+              src={selectedImagePreview}
+              alt="Enlarged preview"
+              className="max-w-full max-h-[85vh] rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}

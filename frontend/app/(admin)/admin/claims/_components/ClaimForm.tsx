@@ -1,717 +1,587 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useToast } from "@/contexts/ToastContext";
-import {
-  Claim,
-  CreateClaimRequest,
-  UpdateClaimRequest,
-  WarrantySearchResult,
-  WarrantyPart,
-  ClaimWarrantyPart,
-} from "@/types/claimsType";
-import { camelToNormalCase } from "@/lib/utils";
-import {
-  searchWarrantiesApi,
-  getWarrantyPartsApi,
-} from "@/lib/apis/warrantiesApi";
-import { createClaimAction, updateClaimAction } from "@/actions/claimsAction";
+import { WarrantyWithPartsResponse } from "@/types/warrantiesType";
+import { ClaimWarrantyPart } from "@/types/claimsType";
+import { createClaimAction } from "@/actions/claimsAction";
+import { uploadFile } from "@/lib/apis/uploadsApi";
+import { generateNextClaimNoApi } from "@/lib/apis/claimsApi";
 
 type Props = {
-  claim?: Claim | null;
-  mode?: "create" | "update";
+  warrantyData: WarrantyWithPartsResponse;
+  onCancel: () => void;
 };
 
-export default function ClaimForm({ claim, mode = "create" }: Props) {
-  const isEditMode = mode === "update" && claim;
+interface ClaimFormData {
+  claimNo: string;
+  claimDate: string;
+  claimParts: {
+    warrantyPartId: number;
+    damagedImageUrl: string;
+    remarks: string;
+    resolutionDate: string;
+    resolutionImageUrl: string;
+  }[];
+}
+
+export default function ClaimForm({ warrantyData, onCancel }: Props) {
   const router = useRouter();
   const { showToast } = useToast();
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<WarrantySearchResult[]>(
-    []
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingClaimNo, setIsGeneratingClaimNo] = useState(false);
+  const [selectedParts, setSelectedParts] = useState<Set<number>>(new Set());
+  const [damagedImages, setDamagedImages] = useState<Map<number, File>>(
+    new Map()
   );
-  const [selectedWarranty, setSelectedWarranty] =
-    useState<WarrantySearchResult | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-
-  // Warranty parts state
-  const [warrantyParts, setWarrantyParts] = useState<WarrantyPart[]>([]);
-  const [loadingParts, setLoadingParts] = useState(false);
-  const [selectedParts, setSelectedParts] = useState<
-    Map<number, ClaimWarrantyPart>
-  >(new Map());
-  const [uploadingImages, setUploadingImages] = useState<
-    Map<number, { damaged: boolean; resolution: boolean }>
-  >(new Map());
-  const [imagePreviews, setImagePreviews] = useState<
-    Map<number, { damaged?: string; resolution?: string }>
+  const [damagedPreviews, setDamagedPreviews] = useState<Map<number, string>>(
+    new Map()
+  );
+  const [resolutionImages, setResolutionImages] = useState<Map<number, File>>(
+    new Map()
+  );
+  const [resolutionPreviews, setResolutionPreviews] = useState<
+    Map<number, string>
   >(new Map());
 
   const {
     register,
     handleSubmit,
-    setValue,
+    control,
     watch,
+    setValue,
     formState: { errors },
-  } = useForm<CreateClaimRequest | UpdateClaimRequest>({
-    defaultValues: isEditMode
-      ? {
-          id: claim.id,
-          warrantyId: claim.warrantyId,
-          claimNo: claim.claimNo,
-          claimDate: claim.claimDate,
-          isApproved: claim.isApproved,
-          warrantyParts: [],
-        }
-      : {
-          warrantyParts: [],
-        },
+  } = useForm<ClaimFormData>({
+    defaultValues: {
+      claimNo: "",
+      claimDate: new Date().toISOString().split("T")[0],
+      claimParts: [],
+    },
   });
 
-  // Search warranties by warranty number or car plate number
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      showToast("Please enter a warranty number or car plate number", "error");
-      return;
-    }
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "claimParts",
+  });
 
-    setIsSearching(true);
-    setShowResults(false);
+  // Watch claim date for auto-generation
+  const claimDate = watch("claimDate");
 
-    try {
-      const results = await searchWarrantiesApi(searchQuery);
-      console.log("Search results:", results);
-      setSearchResults(results);
-      setShowResults(true);
+  // Format date to yyyymmdd
+  const formatDateToYYYYMMDD = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}${month}${day}`;
+  };
 
-      if (results.length === 0) {
-        showToast("No warranties found", "error");
+  // Auto-generate claim number when date changes
+  useEffect(() => {
+    const generateClaimNo = async () => {
+      if (!claimDate || !warrantyData.warranty.warrantyNo) return;
+
+      try {
+        setIsGeneratingClaimNo(true);
+        const formattedDate = formatDateToYYYYMMDD(claimDate);
+        const result = await generateNextClaimNoApi(
+          warrantyData.warranty.warrantyNo,
+          formattedDate
+        );
+        setValue("claimNo", result.claimNo);
+      } catch (error) {
+        console.error("Error generating claim number:", error);
+        showToast("Failed to generate claim number", "error");
+      } finally {
+        setIsGeneratingClaimNo(false);
       }
-    } catch (error) {
-      console.error("Search error:", error);
-      showToast("Failed to search warranties", "error");
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+    };
 
-  // Select a warranty from search results
-  const handleSelectWarranty = async (warranty: WarrantySearchResult) => {
-    setSelectedWarranty(warranty);
-    setValue("warrantyId", warranty.warrantyId);
-    setShowResults(false);
-    setSearchQuery(`${warranty.warrantyNo} - ${warranty.carPlateNo}`);
+    generateClaimNo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimDate, warrantyData.warranty.warrantyNo]);
 
-    // Load warranty parts
-    await loadWarrantyParts(warranty.warrantyId);
-  };
-
-  // Load warranty parts for selected warranty
-  const loadWarrantyParts = async (warrantyId: number) => {
-    setLoadingParts(true);
-    try {
-      const parts = await getWarrantyPartsApi(warrantyId);
-      setWarrantyParts(parts);
-      if (parts.length === 0) {
-        showToast("No warranty parts found for this warranty", "error");
-      }
-    } catch (error) {
-      console.error("Error loading warranty parts:", error);
-      showToast("Failed to load warranty parts", "error");
-      setWarrantyParts([]);
-    } finally {
-      setLoadingParts(false);
-    }
-  };
-
-  // Toggle warranty part selection
-  const togglePartSelection = (part: WarrantyPart) => {
-    const newSelectedParts = new Map(selectedParts);
-
-    if (newSelectedParts.has(part.id)) {
-      newSelectedParts.delete(part.id);
-
-      // Clean up image previews
-      const newPreviews = new Map(imagePreviews);
-      newPreviews.delete(part.id);
-      setImagePreviews(newPreviews);
+  // Toggle part selection
+  const togglePart = (partId: number) => {
+    const newSelected = new Set(selectedParts);
+    if (newSelected.has(partId)) {
+      newSelected.delete(partId);
+      // Remove from form array
+      const index = fields.findIndex((f) => f.warrantyPartId === partId);
+      if (index !== -1) remove(index);
     } else {
-      newSelectedParts.set(part.id, {
-        warrantyPartId: part.id,
-        carPartName: part.carPartName,
+      newSelected.add(partId);
+      // Add to form array
+      append({
+        warrantyPartId: partId,
         damagedImageUrl: "",
         remarks: "",
         resolutionDate: "",
         resolutionImageUrl: "",
       });
     }
-
-    setSelectedParts(newSelectedParts);
+    setSelectedParts(newSelected);
   };
 
-  // Update warranty part field
-  const updatePartField = (
-    partId: number,
-    field: keyof ClaimWarrantyPart,
-    value: string
-  ) => {
-    const newSelectedParts = new Map(selectedParts);
-    const part = newSelectedParts.get(partId);
+  // Handle damaged image selection
+  const handleDamagedImageSelect = (partId: number, file: File) => {
+    setDamagedImages((prev) => new Map(prev).set(partId, file));
 
-    if (part) {
-      newSelectedParts.set(partId, {
-        ...part,
-        [field]: value,
-      });
-      setSelectedParts(newSelectedParts);
-    }
-  };
-
-  // Handle image upload
-  const handleImageUpload = async (
-    partId: number,
-    type: "damaged" | "resolution",
-    file: File
-  ) => {
-    if (!file) return;
-
-    // Update uploading state
-    const newUploadingState = new Map(uploadingImages);
-    const currentState = newUploadingState.get(partId) || {
-      damaged: false,
-      resolution: false,
-    };
-    newUploadingState.set(partId, {
-      ...currentState,
-      [type]: true,
-    });
-    setUploadingImages(newUploadingState);
-
-    try {
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newPreviews = new Map(imagePreviews);
-        const currentPreviews = newPreviews.get(partId) || {};
-        newPreviews.set(partId, {
-          ...currentPreviews,
-          [type]: reader.result as string,
-        });
-        setImagePreviews(newPreviews);
-      };
-      reader.readAsDataURL(file);
-
-      // Upload to server
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const data = await response.json();
-      const imageUrl = data.url || data.path || "";
-
-      // Update part with image URL
-      const field =
-        type === "damaged" ? "damagedImageUrl" : "resolutionImageUrl";
-      updatePartField(partId, field, imageUrl);
-
-      showToast("Image uploaded successfully", "success");
-    } catch (error) {
-      console.error("Upload error:", error);
-      showToast("Failed to upload image", "error");
-    } finally {
-      // Clear uploading state
-      const newUploadingState = new Map(uploadingImages);
-      const currentState = newUploadingState.get(partId);
-      if (currentState) {
-        newUploadingState.set(partId, {
-          ...currentState,
-          [type]: false,
-        });
-      }
-      setUploadingImages(newUploadingState);
-    }
-  };
-
-  const onSubmit: SubmitHandler<
-    CreateClaimRequest | UpdateClaimRequest
-  > = async (data) => {
-    if (!selectedWarranty && !isEditMode) {
-      showToast("Please select a warranty", "error");
-      return;
-    }
-
-    if (selectedParts.size === 0) {
-      showToast("Please select at least one warranty part", "error");
-      return;
-    }
-
-    // Validate all selected parts have required fields
-    const partsArray = Array.from(selectedParts.values());
-    const invalidParts = partsArray.filter(
-      (part) =>
-        !part.damagedImageUrl ||
-        !part.resolutionDate ||
-        !part.resolutionImageUrl
-    );
-
-    if (invalidParts.length > 0) {
-      showToast(
-        "Please fill in all required fields for selected parts",
-        "error"
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setDamagedPreviews((prev) =>
+        new Map(prev).set(partId, reader.result as string)
       );
-      return;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle resolution image selection
+  const handleResolutionImageSelect = (partId: number, file: File) => {
+    setResolutionImages((prev) => new Map(prev).set(partId, file));
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setResolutionPreviews((prev) =>
+        new Map(prev).set(partId, reader.result as string)
+      );
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Upload all images
+  const uploadAllImages = async () => {
+    const uploadedDamagedUrls = new Map<number, string>();
+    const uploadedResolutionUrls = new Map<number, string>();
+
+    // Upload damaged images
+    for (const [partId, file] of damagedImages.entries()) {
+      const url = await uploadFile(file, "claims/damaged");
+      uploadedDamagedUrls.set(partId, url);
     }
 
-    try {
-      let result;
+    // Upload resolution images
+    for (const [partId, file] of resolutionImages.entries()) {
+      const url = await uploadFile(file, "claims/resolution");
+      uploadedResolutionUrls.set(partId, url);
+    }
 
-      const submissionData = {
-        ...data,
-        warrantyParts: partsArray,
+    return { uploadedDamagedUrls, uploadedResolutionUrls };
+  };
+
+  // Submit form
+  const onSubmit = async (data: ClaimFormData) => {
+    try {
+      // Validate that at least one part is selected
+      if (data.claimParts.length === 0) {
+        showToast("Please select at least one warranty part", "error");
+        return;
+      }
+
+      // Validate that all selected parts have damaged images
+      for (const part of data.claimParts) {
+        if (!damagedImages.has(part.warrantyPartId)) {
+          showToast("All selected parts must have damaged images", "error");
+          return;
+        }
+      }
+
+      setIsSubmitting(true);
+
+      // Upload all images
+      const { uploadedDamagedUrls, uploadedResolutionUrls } =
+        await uploadAllImages();
+
+      // Prepare claim parts with uploaded image URLs
+      const warrantyParts: ClaimWarrantyPart[] = data.claimParts.map(
+        (part) => ({
+          warrantyPartId: part.warrantyPartId,
+          damagedImageUrl: uploadedDamagedUrls.get(part.warrantyPartId) || "",
+          remarks: part.remarks || "",
+          resolutionDate: part.resolutionDate || "",
+          resolutionImageUrl:
+            uploadedResolutionUrls.get(part.warrantyPartId) || "",
+          carPartName: "", // This will be set by the backend
+        })
+      );
+
+      // Create claim request
+      const claimRequest = {
+        warrantyId: warrantyData.warranty.id,
+        claimNo: data.claimNo,
+        claimDate: data.claimDate,
+        warrantyParts: warrantyParts,
       };
 
-      if (isEditMode) {
-        result = await updateClaimAction(submissionData as UpdateClaimRequest);
-      } else {
-        result = await createClaimAction(submissionData as CreateClaimRequest);
-      }
+      const result = await createClaimAction(claimRequest);
 
       if (result.success) {
-        showToast(
-          `Claim ${isEditMode ? "updated" : "created"} successfully!`,
-          "success"
-        );
+        showToast("Claim created successfully!", "success");
         setTimeout(() => {
           router.push("/admin/claims");
         }, 500);
       } else {
-        showToast(result.error || "Failed to submit claim", "error");
+        showToast(`Error: ${result.error}`, "error");
       }
-    } catch (error) {
-      console.error("Error:", error);
-      showToast("Failed to submit claim", "error");
+    } catch (error: any) {
+      console.error("Error creating claim:", error);
+      showToast(
+        `Failed to create claim: ${error.message || "Unknown error"}`,
+        "error"
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">
-        {isEditMode ? "Update Claim" : "Create New Claim"}
-      </h2>
-
-      {/* Warranty Search Section */}
-      {!isEditMode && (
-        <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Search Warranty</h3>
-
-          <div className="flex gap-2 mb-4">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                placeholder="Enter warranty number or car plate number"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
-                disabled={isSearching}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleSearch}
-              disabled={isSearching}
-              className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              <MagnifyingGlassIcon className="w-5 h-5" />
-              {isSearching ? "Searching..." : "Search"}
-            </button>
-          </div>
-
-          {/* Selected Warranty Display */}
-          {selectedWarranty && (
-            <div className="p-4 bg-primary/10 border border-primary/30 rounded-md">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-semibold text-primary">
-                    Selected Warranty
-                  </p>
-                  <p className="text-sm mt-1">
-                    <span className="font-medium">Warranty No:</span>{" "}
-                    {selectedWarranty.warrantyNo}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Car Plate:</span>{" "}
-                    {selectedWarranty.carPlateNo}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Client:</span>{" "}
-                    {selectedWarranty.clientName}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Car:</span>{" "}
-                    {selectedWarranty.carBrand} {selectedWarranty.carModel}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedWarranty(null);
-                    setValue("warrantyId", 0);
-                    setSearchQuery("");
-                  }}
-                  className="text-sm text-red-600 hover:text-red-700 font-medium"
-                >
-                  Change
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Search Results */}
-          {showResults && searchResults.length > 0 && (
-            <div className="mt-4 border border-gray-300 dark:border-gray-600 rounded-md max-h-96 overflow-y-auto">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 font-semibold text-sm">
-                {searchResults.length} result(s) found
-              </div>
-              {searchResults.map((warranty) => (
-                <div
-                  key={warranty.warrantyId}
-                  onClick={() => handleSelectWarranty(warranty)}
-                  className="p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                >
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="font-medium">Warranty No:</span>{" "}
-                      {warranty.warrantyNo}
-                    </div>
-                    <div>
-                      <span className="font-medium">Car Plate:</span>{" "}
-                      {warranty.carPlateNo}
-                    </div>
-                    <div>
-                      <span className="font-medium">Client:</span>{" "}
-                      {warranty.clientName}
-                    </div>
-                    <div>
-                      <span className="font-medium">Contact:</span>{" "}
-                      {warranty.clientContact}
-                    </div>
-                    <div className="col-span-2">
-                      <span className="font-medium">Car:</span>{" "}
-                      {warranty.carBrand} {warranty.carModel}
-                    </div>
-                    <div>
-                      <span className="font-medium">Shop:</span>{" "}
-                      {warranty.shopName}
-                    </div>
-                    <div>
-                      <span className="font-medium">Branch:</span>{" "}
-                      {warranty.branchCode}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Warranty Parts Section */}
-      {selectedWarranty && (
-        <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Warranty Parts</h3>
-
-          {loadingParts ? (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Loading warranty parts...
-            </p>
-          ) : warrantyParts.length === 0 ? (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              No warranty parts available
-            </p>
-          ) : (
-            <div className="space-y-6">
-              {warrantyParts.map((part) => {
-                const isSelected = selectedParts.has(part.id);
-                const partData = selectedParts.get(part.id);
-                const uploadingState = uploadingImages.get(part.id);
-                const previews = imagePreviews.get(part.id);
-
-                return (
-                  <div
-                    key={part.id}
-                    className={`p-4 border rounded-lg ${
-                      isSelected
-                        ? "border-primary bg-primary/5"
-                        : "border-gray-300 dark:border-gray-600"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id={`part-${part.id}`}
-                        checked={isSelected}
-                        onChange={() => togglePartSelection(part)}
-                        className="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                      />
-                      <div className="flex-1">
-                        <label
-                          htmlFor={`part-${part.id}`}
-                          className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer"
-                        >
-                          {part.carPartName}
-                        </label>
-
-                        {isSelected && partData && (
-                          <div className="mt-4 space-y-4">
-                            {/* Damaged Image Upload */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Damaged Image *
-                              </label>
-                              <div className="flex gap-2">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file)
-                                      handleImageUpload(
-                                        part.id,
-                                        "damaged",
-                                        file
-                                      );
-                                  }}
-                                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
-                                  disabled={uploadingState?.damaged}
-                                />
-                              </div>
-                              {uploadingState?.damaged && (
-                                <p className="text-sm text-primary mt-1">
-                                  Uploading...
-                                </p>
-                              )}
-                              {previews?.damaged && (
-                                <div className="mt-2">
-                                  <img
-                                    src={previews.damaged}
-                                    alt="Damaged preview"
-                                    className="h-32 w-auto object-cover rounded"
-                                  />
-                                </div>
-                              )}
-                              <input
-                                type="text"
-                                value={partData.damagedImageUrl}
-                                onChange={(e) =>
-                                  updatePartField(
-                                    part.id,
-                                    "damagedImageUrl",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Or paste image URL"
-                                className="mt-2 w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
-                              />
-                            </div>
-
-                            {/* Resolution Date */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Resolution Date *
-                              </label>
-                              <input
-                                type="date"
-                                value={partData.resolutionDate}
-                                onChange={(e) =>
-                                  updatePartField(
-                                    part.id,
-                                    "resolutionDate",
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
-                              />
-                            </div>
-
-                            {/* Resolution Image Upload */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Resolution Image *
-                              </label>
-                              <div className="flex gap-2">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file)
-                                      handleImageUpload(
-                                        part.id,
-                                        "resolution",
-                                        file
-                                      );
-                                  }}
-                                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
-                                  disabled={uploadingState?.resolution}
-                                />
-                              </div>
-                              {uploadingState?.resolution && (
-                                <p className="text-sm text-primary mt-1">
-                                  Uploading...
-                                </p>
-                              )}
-                              {previews?.resolution && (
-                                <div className="mt-2">
-                                  <img
-                                    src={previews.resolution}
-                                    alt="Resolution preview"
-                                    className="h-32 w-auto object-cover rounded"
-                                  />
-                                </div>
-                              )}
-                              <input
-                                type="text"
-                                value={partData.resolutionImageUrl}
-                                onChange={(e) =>
-                                  updatePartField(
-                                    part.id,
-                                    "resolutionImageUrl",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Or paste image URL"
-                                className="mt-2 w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
-                              />
-                            </div>
-
-                            {/* Remarks */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Remarks (Optional)
-                              </label>
-                              <textarea
-                                value={partData.remarks || ""}
-                                onChange={(e) =>
-                                  updatePartField(
-                                    part.id,
-                                    "remarks",
-                                    e.target.value
-                                  )
-                                }
-                                rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
-                                placeholder="Enter any additional remarks"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Claim Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Claim Number */}
-        <div>
-          <label
-            htmlFor="claimNo"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Claim Number *
-          </label>
-          <input
-            type="text"
-            id="claimNo"
-            {...register("claimNo", {
-              required: "Claim number is required",
-            })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
-            placeholder="Enter claim number"
-          />
-          {errors.claimNo && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.claimNo.message}
-            </p>
-          )}
-        </div>
-
-        {/* Claim Date */}
-        <div>
-          <label
-            htmlFor="claimDate"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Claim Date *
-          </label>
-          <input
-            type="date"
-            id="claimDate"
-            {...register("claimDate", {
-              required: "Claim date is required",
-            })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
-          />
-          {errors.claimDate && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.claimDate.message}
-            </p>
-          )}
-        </div>
-
-        {/* Is Approved (Update mode only) */}
-        {isEditMode && (
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isApproved"
-              {...register("isApproved")}
-              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-            />
-            <label
-              htmlFor="isApproved"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Approved
-            </label>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={!isEditMode && !selectedWarranty}
-            className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isEditMode ? "Update Claim" : "Create Claim"}
-          </button>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      {/* Warranty Information Header */}
+      <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+            Warranty Information
+          </h2>
           <button
             type="button"
-            onClick={() => router.push("/admin/claims")}
-            className="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500"
+            onClick={onCancel}
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white self-start sm:self-auto"
+          >
+            ← Change Warranty
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center">
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              Warranty No:
+            </span>
+            <span className="sm:ml-2 text-gray-900 dark:text-white break-all">
+              {warrantyData.warranty.warrantyNo}
+            </span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center">
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              Car Plate:
+            </span>
+            <span className="sm:ml-2 text-gray-900 dark:text-white break-all">
+              {warrantyData.warranty.carPlateNo}
+            </span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center">
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              Client:
+            </span>
+            <span className="sm:ml-2 text-gray-900 dark:text-white wrap-break-word">
+              {warrantyData.warranty.clientName}
+            </span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center">
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              Vehicle:
+            </span>
+            <span className="sm:ml-2 text-gray-900 dark:text-white wrap-break-word">
+              {warrantyData.warranty.carBrand} {warrantyData.warranty.carModel}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-6">
+        {/* Claim Details */}
+        <div className="space-y-4">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+            Claim Details
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Claim Number <span className="text-red-600">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  {...register("claimNo", {
+                    required: "Claim number is required",
+                  })}
+                  type="text"
+                  readOnly
+                  disabled={isGeneratingClaimNo}
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors cursor-not-allowed"
+                  placeholder={
+                    isGeneratingClaimNo ? "Generating..." : "Auto-generated"
+                  }
+                />
+                {isGeneratingClaimNo && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  </div>
+                )}
+              </div>
+              {errors.claimNo && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.claimNo.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Claim Date <span className="text-red-600">*</span>
+              </label>
+              <input
+                {...register("claimDate", {
+                  required: "Claim date is required",
+                })}
+                type="date"
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+              />
+              {errors.claimDate && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.claimDate.message}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Warranty Parts Selection */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+              Select Warranty Parts to Claim
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Choose the parts you want to claim and provide damage information
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {warrantyData.parts.map((part) => {
+              const isSelected = selectedParts.has(part.id);
+              const fieldIndex = fields.findIndex(
+                (f) => f.warrantyPartId === part.id
+              );
+
+              return (
+                <div
+                  key={part.id}
+                  className={`border rounded-lg p-3 sm:p-4 transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary/5"
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
+                >
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => togglePart(part.id)}
+                      className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white wrap-break-word">
+                            {part.carPartName}
+                          </h4>
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 wrap-break-word mt-1">
+                            {part.productBrand} - {part.productType} -{" "}
+                            {part.productSeries} - {part.productName}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 break-all">
+                            Warranty: {part.warrantyInMonths} months | Serial:{" "}
+                            {part.filmSerialNumber}
+                          </p>
+                        </div>
+                        {part.installationImageUrl && (
+                          <img
+                            src={part.installationImageUrl}
+                            alt="Installation"
+                            className="h-20 w-20 sm:h-16 sm:w-16 shrink-0 object-cover rounded-lg shadow-sm"
+                          />
+                        )}
+                      </div>
+
+                      {isSelected && fieldIndex !== -1 && (
+                        <div className="mt-4 space-y-4 border-t pt-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Damaged Image */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Damaged Image{" "}
+                                <span className="text-red-600">*</span>
+                              </label>
+                              <div className="relative h-40 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary transition-colors overflow-hidden group">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file)
+                                      handleDamagedImageSelect(part.id, file);
+                                  }}
+                                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                                {damagedPreviews.has(part.id) ? (
+                                  <>
+                                    <img
+                                      src={damagedPreviews.get(part.id)}
+                                      alt="Damaged preview"
+                                      className="h-full w-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity flex items-center justify-center pointer-events-none">
+                                      <span className="text-white text-sm font-medium">
+                                        Change Image
+                                      </span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="flex flex-col items-center justify-center h-full">
+                                    <svg
+                                      className="h-8 w-8 text-gray-400"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                      />
+                                    </svg>
+                                    <span className="text-xs sm:text-sm text-gray-500 mt-2 text-center px-2">
+                                      Click to upload damaged image
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Resolution Image */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Resolution Image (Optional)
+                              </label>
+                              <div className="relative h-40 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary transition-colors overflow-hidden group">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file)
+                                      handleResolutionImageSelect(
+                                        part.id,
+                                        file
+                                      );
+                                  }}
+                                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                                {resolutionPreviews.has(part.id) ? (
+                                  <>
+                                    <img
+                                      src={resolutionPreviews.get(part.id)}
+                                      alt="Resolution preview"
+                                      className="h-full w-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity flex items-center justify-center pointer-events-none">
+                                      <span className="text-white text-sm font-medium">
+                                        Change Image
+                                      </span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="flex flex-col items-center justify-center h-full">
+                                    <svg
+                                      className="h-8 w-8 text-gray-400"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                      />
+                                    </svg>
+                                    <span className="text-xs sm:text-sm text-gray-500 mt-2 text-center px-2">
+                                      Click to upload resolution image
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Resolution Date */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Resolution Date (Optional)
+                            </label>
+                            <input
+                              {...register(
+                                `claimParts.${fieldIndex}.resolutionDate`
+                              )}
+                              type="date"
+                              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                            />
+                          </div>
+
+                          {/* Remarks */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Remarks (Optional)
+                            </label>
+                            <textarea
+                              {...register(`claimParts.${fieldIndex}.remarks`)}
+                              rows={3}
+                              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none"
+                              placeholder="Additional notes about the damage or resolution..."
+                            />
+                          </div>
+
+                          <input
+                            type="hidden"
+                            {...register(
+                              `claimParts.${fieldIndex}.warrantyPartId`
+                            )}
+                            value={part.id}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {warrantyData.parts.length === 0 && (
+            <p className="text-center py-8 text-gray-600 dark:text-gray-400">
+              No warranty parts available for this warranty.
+            </p>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
             Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting || selectedParts.size === 0}
+            className="px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {isSubmitting ? "Creating Claim..." : "Create Claim"}
           </button>
         </div>
       </form>

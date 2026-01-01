@@ -59,19 +59,6 @@ SET
 WHERE id = $1
 RETURNING *;
 
--- name: GetWarrantyByWarrantyNo :one
-SELECT
-    *
-FROM warranties
-WHERE warranty_no = $1;
-
--- name: GetWarrantiesByCarPlateNo :many
-SELECT
-    *
-FROM warranties
-WHERE car_plate_no = $1
-ORDER BY created_at DESC;
-
 -- name: GetLatestWarrantyNoByPrefix :one
 SELECT
     warranty_no
@@ -79,14 +66,6 @@ FROM warranties
 WHERE warranty_no LIKE $1
 ORDER BY warranty_no DESC
 LIMIT 1;
-
--- name: GetWarrantiesBySearchTerm :many
-SELECT
-    *
-FROM warranties
-WHERE car_plate_no ILIKE '%' || $1 || '%'
-   OR warranty_no ILIKE '%' || $1 || '%'
-ORDER BY created_at DESC;
 
 -- name: GetCarParts :many
 SELECT
@@ -123,6 +102,18 @@ SET
 WHERE id = $1
 RETURNING *;
 
+-- name: GetWarrantiesByExactSearch :many
+SELECT DISTINCT
+    w.*,
+    s.shop_name,
+    s.branch_code
+FROM warranties w
+JOIN shops s ON w.shop_id = s.id
+LEFT JOIN warranty_parts wp ON w.id = wp.warranty_id
+WHERE LOWER(w.warranty_no) = LOWER($1)
+   OR LOWER(w.car_plate_no) = LOWER($1)
+ORDER BY w.created_at DESC;
+
 -- name: GetWarrantyPartsByWarrantyID :many
 SELECT
     wp.*,
@@ -146,7 +137,10 @@ WHERE wp.warranty_id = $1;
 
 -- name: GetWarrantiesByShopID :many
 SELECT
-    *
-FROM warranties
-WHERE shop_id = $1
-ORDER BY created_at DESC;
+    w.*,
+    s.shop_name,
+    s.branch_code
+FROM warranties w
+JOIN shops s ON w.shop_id = s.id
+WHERE w.shop_id = $1
+ORDER BY w.created_at DESC;

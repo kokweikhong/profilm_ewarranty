@@ -38,9 +38,7 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 		})
 
 		// Public warranty search routes (for home page)
-		r.Get("/warranties/search", rt.handler.WarrantiesHandler.GetWarrantiesBySearchTerm)
-		r.Get("/warranties/by-warranty-no/{warranty_no}", rt.handler.WarrantiesHandler.GetWarrantyByWarrantyNo)
-		r.Get("/warranties/by-car-plate-no/{car_plate_no}", rt.handler.WarrantiesHandler.GetWarrantiesByCarPlateNo)
+		r.Get("/warranties/search/{search_term}", rt.handler.WarrantiesHandler.GetWarrantiesByExactSearch)
 
 		// Protected routes (require JWT authentication)
 		r.Group(func(r chi.Router) {
@@ -87,24 +85,26 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 
 			r.Route("/warranties", func(r chi.Router) {
 				r.Get("/", rt.handler.WarrantiesHandler.ListWarranties)
-				r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyByID)
-				r.Post("/", rt.handler.WarrantiesHandler.CreateWarranty)
-				r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarranty)
-				r.Put("/{id}/approval", rt.handler.WarrantiesHandler.UpdateWarrantyApproval)
+				r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyWithPartsByID)
+				r.Get("/by-shop/{shop_id}", rt.handler.WarrantiesHandler.GetWarrantiesWithPartsByShopID)
 				r.Get("/{id}/details", rt.handler.WarrantiesHandler.GetWarrantyDetailsByID)
+
+				r.Post("/", rt.handler.WarrantiesHandler.CreateWarrantyWithParts)
+				r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarrantyWithParts)
+				r.Put("/{id}/approval", rt.handler.WarrantiesHandler.UpdateWarrantyApproval)
+
 				// New route to generate next warranty number
 				r.Get("/generate-warranty-no/{branch_code}-{installation_date}", rt.handler.WarrantiesHandler.GenerateNextWarrantyNo)
-
 				r.Get("/car-parts", rt.handler.WarrantiesHandler.GetCarParts)
 
 				r.Route("/warranty-parts", func(r chi.Router) {
-					r.Post("/", rt.handler.WarrantiesHandler.CreateWarrantyPart)
-					r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarrantyPart)
+					// r.Post("/", rt.handler.WarrantiesHandler.CreateWarrantyPart)
+					// r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarrantyPart)
 					r.Put("/{id}/approval", rt.handler.WarrantiesHandler.UpdateWarrantyPartApproval)
 					r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyPartsByWarrantyID)
 
 					// r.Post("/batch-create", rt.handler.WarrantiesHandler.CreateWarrantyWithParts)
-					r.Put("/batch-update", rt.handler.WarrantiesHandler.UpdateWarrantyWithParts)
+					// r.Put("/batch-update", rt.handler.WarrantiesHandler.UpdateWarrantyWithParts)
 				})
 			})
 
@@ -112,6 +112,7 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Get("/by-shop/{shop_id}", rt.handler.ClaimsHandler.GetClaimsByShopID)
 				r.Get("/", rt.handler.ClaimsHandler.ListClaims)
 				r.Get("/{id}", rt.handler.ClaimsHandler.GetClaimByID)
+				r.Post("/generate-claim-no", rt.handler.ClaimsHandler.GenerateNextClaimNo)
 				r.Post("/", rt.handler.ClaimsHandler.CreateClaim)
 				r.Put("/{id}", rt.handler.ClaimsHandler.UpdateClaim)
 				r.Put("/{id}/approval", rt.handler.ClaimsHandler.UpdateClaimApproval)

@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/profilm/**",
       },
+      {
+        protocol: "https",
+        hostname: "profilm.sgp1.cdn.digitaloceanspaces.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

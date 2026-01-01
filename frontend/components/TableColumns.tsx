@@ -3,7 +3,7 @@ import { ProductDetailResponse } from "@/types/productsType";
 import { Shop, ShopListResponse } from "@/types/shopsType";
 import { ProductAllocationsListResponse } from "@/types/productAllocationsType";
 import { Warranty, WarrantyDetails } from "@/types/warrantiesType";
-import { Claim } from "@/types/claimsType";
+import { ListClaimsResponse } from "@/types/claimsType";
 
 const productColumnHelper = createColumnHelper<ProductDetailResponse>();
 export const ProductColumns = [
@@ -540,17 +540,8 @@ export const WarrantyColumns = [
   }),
 ];
 
-const claimColumnHelper = createColumnHelper<Claim>();
+const claimColumnHelper = createColumnHelper<ListClaimsResponse>();
 export const ClaimColumns = [
-  // claimColumnHelper.accessor("id", {
-  //   header: "ID",
-  //   cell: (info) => (
-  //     <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-  //       #{info.getValue()}
-  //     </span>
-  //   ),
-  //   enableSorting: true,
-  // }),
   claimColumnHelper.accessor("claimNo", {
     header: "Claim No.",
     cell: (info) => (
@@ -558,15 +549,6 @@ export const ClaimColumns = [
     ),
     enableSorting: true,
   }),
-  // claimColumnHelper.accessor("warrantyId", {
-  //   header: "Warranty",
-  //   cell: (info) => (
-  //     <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-  //       #{info.getValue()}
-  //     </span>
-  //   ),
-  //   enableSorting: true,
-  // }),
   claimColumnHelper.accessor("claimDate", {
     header: "Claim Date",
     cell: (info) => (
@@ -584,6 +566,22 @@ export const ClaimColumns = [
           })}
         </span>
       </div>
+    ),
+    enableSorting: true,
+  }),
+  claimColumnHelper.accessor("warrantyNo", {
+    header: "Warranty No.",
+    cell: (info) => (
+      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+        {info.getValue()}
+      </span>
+    ),
+    enableSorting: true,
+  }),
+  claimColumnHelper.accessor("carPlateNo", {
+    header: "Car Plate No.",
+    cell: (info) => (
+      <span className="font-mono text-sm text-gray-900">{info.getValue()}</span>
     ),
     enableSorting: true,
   }),

@@ -19,7 +19,12 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchData() {
-      if (authLoading || !user || !user.shopId) {
+      if (authLoading) {
+        return;
+      }
+
+      if (!user || !user.shopId) {
+        setLoading(false);
         return;
       }
 
@@ -49,7 +54,55 @@ export default function Page() {
     fetchData();
   }, [user, authLoading]);
 
-  if (authLoading || loading) {
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user?.shopId) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="max-w-md text-center">
+          <div className="mb-4">
+            <svg
+              className="mx-auto h-16 w-16 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Access Restricted
+          </h3>
+          <p className="text-gray-600 mb-6">
+            Only users associated with a shop are permitted to create
+            warranties. Please contact your administrator for assistance.
+          </p>
+          <button
+            onClick={() => window.history.back()}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">

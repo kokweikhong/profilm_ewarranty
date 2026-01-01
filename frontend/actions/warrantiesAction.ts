@@ -1,56 +1,51 @@
-"use server";
+"use client";
 
-import axios from "axios";
+import apiClient from "@/lib/axios";
 import {
   CreateWarrantyRequest,
   UpdateWarrantyRequest,
   CreateWarrantyWithPartsRequest,
+  UpdateWarrantyWithPartsRequest,
 } from "@/types/warrantiesType";
-import { getServerApiClient } from "@/lib/axios";
 
-export async function createWarrantyAction(
+export async function createWarrantyWithPartsAction(
   data: CreateWarrantyWithPartsRequest
 ) {
   try {
-    const apiClient = await getServerApiClient();
     const response = await apiClient.post("/warranties", data);
     return { success: true, data: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Error creating warranty:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-      });
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message,
-      };
-    }
-    console.error("Unexpected error:", error);
-    return { success: false, error: "Failed to create warranty" };
+  } catch (error: any) {
+    console.error("Error creating warranty:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+    });
+    return {
+      success: false,
+      error: error.response?.data?.message || "Failed to create warranty",
+    };
   }
 }
 
-export async function updateWarrantyAction(data: UpdateWarrantyRequest) {
+export async function updateWarrantyAction(
+  data: UpdateWarrantyWithPartsRequest
+) {
   try {
-    const apiClient = await getServerApiClient();
-    const response = await apiClient.put(`/warranties/${data.id}`, data);
+    const response = await apiClient.put(
+      `/warranties/${data.warranty.id}`,
+      data
+    );
     return { success: true, data: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Error updating warranty:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-      });
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message,
-      };
-    }
-    console.error("Unexpected error:", error);
-    return { success: false, error: "Failed to update warranty" };
+  } catch (error: any) {
+    console.error("Error updating warranty:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+    });
+    return {
+      success: false,
+      error: error.response?.data?.message || "Failed to update warranty",
+    };
   }
 }
 
@@ -59,25 +54,21 @@ export async function updateWarrantyApprovalAction(
   isApproved: boolean
 ) {
   try {
-    const apiClient = await getServerApiClient();
     const response = await apiClient.put(`/warranties/${id}/approval`, {
       isApproved,
     });
     return { success: true, data: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Error updating warranty part approval:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-      });
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message,
-      };
-    }
-    console.error("Unexpected error:", error);
-    return { success: false, error: "Failed to update warranty part approval" };
+  } catch (error: any) {
+    console.error("Error updating warranty approval:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+    });
+    return {
+      success: false,
+      error:
+        error.response?.data?.message || "Failed to update warranty approval",
+    };
   }
 }
 
@@ -90,7 +81,6 @@ export async function updateWarrantyPartApprovalAction(
   isApproved: boolean
 ) {
   try {
-    const apiClient = await getServerApiClient();
     const response = await apiClient.put(
       `/warranties/warranty-parts/${warrantyPartId}/approval`,
       {
@@ -98,19 +88,17 @@ export async function updateWarrantyPartApprovalAction(
       }
     );
     return { success: true, data: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Error updating warranty part approval:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-      });
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message,
-      };
-    }
-    console.error("Unexpected error:", error);
-    return { success: false, error: "Failed to update warranty part approval" };
+  } catch (error: any) {
+    console.error("Error updating warranty part approval:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+    });
+    return {
+      success: false,
+      error:
+        error.response?.data?.message ||
+        "Failed to update warranty part approval",
+    };
   }
 }

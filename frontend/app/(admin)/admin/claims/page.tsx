@@ -18,7 +18,7 @@ import {
   DocumentTextIcon,
 } from "@heroicons/react/20/solid";
 import { ClaimColumns } from "@/components/TableColumns";
-import { Claim } from "@/types/claimsType";
+import { ListClaimsResponse } from "@/types/claimsType";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
 import { getClaimsApi, getClaimsByShopIdApi } from "@/lib/apis/claimsApi";
@@ -26,7 +26,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Page() {
   const { user } = useAuth();
-  const [claims, setClaims] = useState<Claim[]>([]);
+  const [claims, setClaims] = useState<ListClaimsResponse[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<any[]>([]);
   const [pagination, setPagination] = useState({

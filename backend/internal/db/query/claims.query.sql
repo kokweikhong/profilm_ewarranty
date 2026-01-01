@@ -1,22 +1,35 @@
+-- name: ListClaims :many
+SELECT
+    c.*,
+    w.warranty_no,
+    w.car_plate_no
+FROM claims c
+JOIN warranties w ON c.warranty_id = w.id
+ORDER BY c.created_at DESC;
+
 -- name: GetClaimsByShopID :many
 SELECT
-    c.*
+    c.*,
+    w.warranty_no,
+    w.car_plate_no
 FROM claims c
 JOIN warranties w ON c.warranty_id = w.id
 WHERE w.shop_id = $1
 ORDER BY c.created_at DESC;
-
--- name: ListClaims :many
-SELECT
-    *
-FROM claims
-ORDER BY created_at DESC;
 
 -- name: GetClaimByID :one
 SELECT
     *
 FROM claims
 WHERE id = $1;
+
+-- name: GetLatestWarrantyNoByPrefix :one
+SELECT
+    claim_no
+FROM claims
+WHERE claim_no LIKE $1
+ORDER BY claim_no DESC
+LIMIT 1;
 
 -- name: CreateClaim :one
 INSERT INTO claims (

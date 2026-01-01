@@ -12,6 +12,12 @@ export function camelToNormalCase(str: string): string {
     .replace(/^./, (char) => char.toUpperCase()); // Capitalize the first letter
 }
 
+// Remove Id from the end of a string
+// Remove spaces too
+export function removeIdSuffix(str: string): string {
+  return str.replace(/Id$/, "").trim();
+}
+
 // "2025-12-06T08:00:53.220798Z" to "yyyy-mm-dd"
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);

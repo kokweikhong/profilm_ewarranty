@@ -4,8 +4,8 @@ import {
   CarPart,
   WarrantyDetails,
   WarrantyWithPartsResponse,
+  WarrantySearchResult,
 } from "@/types/warrantiesType";
-import { WarrantySearchResult, WarrantyPart } from "@/types/claimsType";
 
 export async function getWarrantiesApi(): Promise<WarrantyDetails[]> {
   const client =
@@ -32,32 +32,21 @@ export async function getWarrantyByIdApi(id: number): Promise<Warranty> {
   return response.data;
 }
 
-export async function getWarrantyPartsApi(
-  warrantyId: number
-): Promise<WarrantyPart[]> {
-  const client =
-    typeof window === "undefined" ? await getServerApiClient() : apiClient;
-  const response = await client.get<WarrantyPart[]>(
-    `/warranties/${warrantyId}/parts`
-  );
-  return response.data;
-}
-
-export async function searchWarrantiesApi(
-  query: string
-): Promise<WarrantySearchResult[]> {
-  const client =
-    typeof window === "undefined" ? await getServerApiClient() : apiClient;
-  const response = await client.get<WarrantySearchResult[]>(
-    `/warranties/search?q=${encodeURIComponent(query)}`
-  );
-  return response.data;
-}
-
 export async function getCarPartsApi(): Promise<CarPart[]> {
   const client =
     typeof window === "undefined" ? await getServerApiClient() : apiClient;
   const response = await client.get<CarPart[]>("/warranties/car-parts");
+  return response.data;
+}
+
+export async function getWarrantyWithPartsByIdApi(
+  id: number
+): Promise<WarrantyWithPartsResponse> {
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<WarrantyWithPartsResponse>(
+    `/warranties/${id}`
+  );
   return response.data;
 }
 
@@ -69,6 +58,28 @@ export async function generateNextWarrantyNoApi(
     typeof window === "undefined" ? await getServerApiClient() : apiClient;
   const response = await client.get<{ warrantyNo: string }>(
     `/warranties/generate-warranty-no/${branchCode}-${installationDate}`
+  );
+  return response.data;
+}
+
+export async function getWarrantiesByExactSearchApi(
+  searchTerm: string
+): Promise<WarrantySearchResult[]> {
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<WarrantySearchResult[]>(
+    `/warranties/search/${encodeURIComponent(searchTerm)}`
+  );
+  return response.data;
+}
+
+export async function getWarrantiesWithPartsByShopIdApi(
+  shopId: number
+): Promise<WarrantyWithPartsResponse[]> {
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get<WarrantyWithPartsResponse[]>(
+    `/warranties/by-shop/${shopId}`
   );
   return response.data;
 }

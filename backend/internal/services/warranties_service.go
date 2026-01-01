@@ -11,15 +11,14 @@ import (
 type WarrantiesService interface {
 	ListWarranties(ctx context.Context) ([]*warranties.ListWarrantiesRow, error)
 	GetWarrantyByID(ctx context.Context, id int32) (*warranties.Warranty, error)
+	GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*warranties.GetWarrantiesByShopIDRow, error)
 	// CreateWarranty(ctx context.Context, arg *warranties.CreateWarrantyParams) (*warranties.Warranty, error)
-	CreateWarranty(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error)
-	UpdateWarranty(ctx context.Context, arg *warranties.UpdateWarrantyParams) (*warranties.Warranty, error)
+	// GetWarrantyWithPartsByID(ctx context.Context, id int32) (*warranties.GetWarrantyWithPartsByIDRow, error)
+	CreateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error)
+	UpdateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.UpdateWarrantyParams, partsArgs []*warranties.UpdateWarrantyPartParams) (*warranties.Warranty, error)
 	UpdateWarrantyApproval(ctx context.Context, arg *warranties.UpdateWarrantyApprovalParams) (*warranties.Warranty, error)
 
-	GetWarrantyByWarrantyNo(ctx context.Context, warrantyNo string) (*warranties.Warranty, error)
-	GetWarrantiesByCarPlateNo(ctx context.Context, carPlateNo string) ([]*warranties.Warranty, error)
-
-	GetWarrantiesBySearchTerm(ctx context.Context, searchTerm string) ([]*warranties.Warranty, error)
+	GetWarrantiesByExactSearch(ctx context.Context, searchTerm string) ([]*warranties.GetWarrantiesByExactSearchRow, error)
 
 	GetCarParts(ctx context.Context) ([]*warranties.CarPart, error)
 
@@ -27,8 +26,6 @@ type WarrantiesService interface {
 	UpdateWarrantyPart(ctx context.Context, arg *warranties.UpdateWarrantyPartParams) (*warranties.WarrantyPart, error)
 	UpdateWarrantyPartApproval(ctx context.Context, arg *warranties.UpdateWarrantyPartApprovalParams) (*warranties.WarrantyPart, error)
 	GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*warranties.GetWarrantyPartsByWarrantyIDRow, error)
-
-	UpdateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.UpdateWarrantyParams, partsArgs []*warranties.UpdateWarrantyPartParams) (*warranties.Warranty, error)
 
 	GenerateNextWarrantyNo(ctx context.Context, branchCode string, installationDate string) (string, error)
 }
@@ -55,13 +52,13 @@ func (s *warrantiesService) GetWarrantyByID(ctx context.Context, id int32) (*war
 	return s.q.GetWarrantyByID(ctx, id)
 }
 
-// // CreateWarranty creates a new warranty in the database.
-// func (s *warrantiesService) CreateWarranty(ctx context.Context, arg *warranties.CreateWarrantyParams) (*warranties.Warranty, error) {
-// 	return s.q.CreateWarranty(ctx, arg)
-// }
+// GetWarrantiesByShopID retrieves warranties by shop ID from the database.
+func (s *warrantiesService) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*warranties.GetWarrantiesByShopIDRow, error) {
+	return s.q.GetWarrantiesByShopID(ctx, shopID)
+}
 
-// CreateWarranty creates a new warranty along with its associated parts in a transaction.
-func (s *warrantiesService) CreateWarranty(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error) {
+// CreateWarrantyWithParts creates a new warranty along with its associated parts in a transaction.
+func (s *warrantiesService) CreateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.CreateWarrantyParams, partsArgs []*warranties.CreateWarrantyPartParams) (*warranties.Warranty, error) {
 	// use a transaction to ensure both warranty and parts are created successfully
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
@@ -95,9 +92,32 @@ func (s *warrantiesService) CreateWarranty(ctx context.Context, warrantyArg *war
 	return warranty, nil
 }
 
-// UpdateWarranty updates an existing warranty in the database.
-func (s *warrantiesService) UpdateWarranty(ctx context.Context, arg *warranties.UpdateWarrantyParams) (*warranties.Warranty, error) {
-	return s.q.UpdateWarranty(ctx, arg)
+// UpdateWarrantyWithParts updates an existing warranty along with its associated parts in a transaction.
+func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.UpdateWarrantyParams, partsArgs []*warranties.UpdateWarrantyPartParams) (*warranties.Warranty, error) {
+	// use a transaction to ensure both warranty and parts are updated successfully
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	qtx := warranties.New(tx)
+	warranty, err := qtx.UpdateWarranty(ctx, warrantyArg)
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+	// Update parts associated with the warranty
+	for _, partArg := range partsArgs {
+		partArg.WarrantyID = warranty.ID
+		_, err = qtx.UpdateWarrantyPart(ctx, partArg)
+		if err != nil {
+			tx.Rollback(ctx)
+			return nil, err
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	return warranty, nil
 }
 
 // UpdateWarrantyApproval updates the approval status of a warranty in the database.
@@ -105,19 +125,9 @@ func (s *warrantiesService) UpdateWarrantyApproval(ctx context.Context, arg *war
 	return s.q.UpdateWarrantyApproval(ctx, arg)
 }
 
-// GetWarrantyByWarrantyNo retrieves a warranty by its warranty number from the database.
-func (s *warrantiesService) GetWarrantyByWarrantyNo(ctx context.Context, warrantyNo string) (*warranties.Warranty, error) {
-	return s.q.GetWarrantyByWarrantyNo(ctx, warrantyNo)
-}
-
-// GetWarrantiesByCarPlateNo retrieves warranties by their car plate number from the database.
-func (s *warrantiesService) GetWarrantiesByCarPlateNo(ctx context.Context, carPlateNo string) ([]*warranties.Warranty, error) {
-	return s.q.GetWarrantiesByCarPlateNo(ctx, carPlateNo)
-}
-
-// GetWarrantiesBySearchTerm retrieves warranties matching a search term from the database.
-func (s *warrantiesService) GetWarrantiesBySearchTerm(ctx context.Context, searchTerm string) ([]*warranties.Warranty, error) {
-	return s.q.GetWarrantiesBySearchTerm(ctx, &searchTerm)
+// GetWarrantiesByExactSearch retrieves warranties with their parts matching an exact search term from the database.
+func (s *warrantiesService) GetWarrantiesByExactSearch(ctx context.Context, searchTerm string) ([]*warranties.GetWarrantiesByExactSearchRow, error) {
+	return s.q.GetWarrantiesByExactSearch(ctx, searchTerm)
 }
 
 // GetCarParts retrieves a list of car parts from the database.
@@ -147,35 +157,6 @@ func (s *warrantiesService) UpdateWarrantyPartApproval(ctx context.Context, arg 
 // GetWarrantyPartsByWarrantyID retrieves warranty parts by warranty ID from the database.
 func (s *warrantiesService) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*warranties.GetWarrantyPartsByWarrantyIDRow, error) {
 	return s.q.GetWarrantyPartsByWarrantyID(ctx, warrantyID)
-}
-
-// UpdateWarrantyWithParts updates an existing warranty along with its associated parts in a transaction.
-func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrantyArg *warranties.UpdateWarrantyParams, partsArgs []*warranties.UpdateWarrantyPartParams) (*warranties.Warranty, error) {
-	// use a transaction to ensure both warranty and parts are updated successfully
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-	qtx := warranties.New(tx)
-
-	warranty, err := qtx.UpdateWarranty(ctx, warrantyArg)
-	if err != nil {
-		tx.Rollback(ctx)
-		return nil, err
-	}
-	// Update parts associated with the warranty
-	for _, partArg := range partsArgs {
-		partArg.WarrantyID = warranty.ID
-		_, err = qtx.UpdateWarrantyPart(ctx, partArg)
-		if err != nil {
-			tx.Rollback(ctx)
-			return nil, err
-		}
-	}
-	if err := tx.Commit(ctx); err != nil {
-		return nil, err
-	}
-	return warranty, nil
 }
 
 // GenerateNextWarrantyNo generates the next warranty number based on a given prefix.

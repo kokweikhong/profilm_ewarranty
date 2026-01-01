@@ -115,22 +115,36 @@ func (q *Queries) GetClaimByID(ctx context.Context, id int32) (*Claim, error) {
 
 const getClaimsByShopID = `-- name: GetClaimsByShopID :many
 SELECT
-    c.id, c.warranty_id, c.claim_no, c.claim_date, c.is_approved, c.created_at, c.updated_at
+    c.id, c.warranty_id, c.claim_no, c.claim_date, c.is_approved, c.created_at, c.updated_at,
+    w.warranty_no,
+    w.car_plate_no
 FROM claims c
 JOIN warranties w ON c.warranty_id = w.id
 WHERE w.shop_id = $1
 ORDER BY c.created_at DESC
 `
 
-func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*Claim, error) {
+type GetClaimsByShopIDRow struct {
+	ID         int32     `db:"id" json:"id"`
+	WarrantyID int32     `db:"warranty_id" json:"warrantyId"`
+	ClaimNo    string    `db:"claim_no" json:"claimNo"`
+	ClaimDate  time.Time `db:"claim_date" json:"claimDate"`
+	IsApproved bool      `db:"is_approved" json:"isApproved"`
+	CreatedAt  time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt  time.Time `db:"updated_at" json:"updatedAt"`
+	WarrantyNo string    `db:"warranty_no" json:"warrantyNo"`
+	CarPlateNo string    `db:"car_plate_no" json:"carPlateNo"`
+}
+
+func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*GetClaimsByShopIDRow, error) {
 	rows, err := q.db.Query(ctx, getClaimsByShopID, shopID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Claim{}
+	items := []*GetClaimsByShopIDRow{}
 	for rows.Next() {
-		var i Claim
+		var i GetClaimsByShopIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.WarrantyID,
@@ -139,6 +153,8 @@ func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*Claim
 			&i.IsApproved,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.WarrantyNo,
+			&i.CarPlateNo,
 		); err != nil {
 			return nil, err
 		}
@@ -148,6 +164,22 @@ func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*Claim
 		return nil, err
 	}
 	return items, nil
+}
+
+const getLatestWarrantyNoByPrefix = `-- name: GetLatestWarrantyNoByPrefix :one
+SELECT
+    claim_no
+FROM claims
+WHERE claim_no LIKE $1
+ORDER BY claim_no DESC
+LIMIT 1
+`
+
+func (q *Queries) GetLatestWarrantyNoByPrefix(ctx context.Context, claimNo string) (string, error) {
+	row := q.db.QueryRow(ctx, getLatestWarrantyNoByPrefix, claimNo)
+	var claim_no string
+	err := row.Scan(&claim_no)
+	return claim_no, err
 }
 
 const listClaimWarrantyPartsByClaimID = `-- name: ListClaimWarrantyPartsByClaimID :many
@@ -192,20 +224,35 @@ func (q *Queries) ListClaimWarrantyPartsByClaimID(ctx context.Context, claimID i
 
 const listClaims = `-- name: ListClaims :many
 SELECT
-    id, warranty_id, claim_no, claim_date, is_approved, created_at, updated_at
-FROM claims
-ORDER BY created_at DESC
+    c.id, c.warranty_id, c.claim_no, c.claim_date, c.is_approved, c.created_at, c.updated_at,
+    w.warranty_no,
+    w.car_plate_no
+FROM claims c
+JOIN warranties w ON c.warranty_id = w.id
+ORDER BY c.created_at DESC
 `
 
-func (q *Queries) ListClaims(ctx context.Context) ([]*Claim, error) {
+type ListClaimsRow struct {
+	ID         int32     `db:"id" json:"id"`
+	WarrantyID int32     `db:"warranty_id" json:"warrantyId"`
+	ClaimNo    string    `db:"claim_no" json:"claimNo"`
+	ClaimDate  time.Time `db:"claim_date" json:"claimDate"`
+	IsApproved bool      `db:"is_approved" json:"isApproved"`
+	CreatedAt  time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt  time.Time `db:"updated_at" json:"updatedAt"`
+	WarrantyNo string    `db:"warranty_no" json:"warrantyNo"`
+	CarPlateNo string    `db:"car_plate_no" json:"carPlateNo"`
+}
+
+func (q *Queries) ListClaims(ctx context.Context) ([]*ListClaimsRow, error) {
 	rows, err := q.db.Query(ctx, listClaims)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Claim{}
+	items := []*ListClaimsRow{}
 	for rows.Next() {
-		var i Claim
+		var i ListClaimsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.WarrantyID,
@@ -214,6 +261,8 @@ func (q *Queries) ListClaims(ctx context.Context) ([]*Claim, error) {
 			&i.IsApproved,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.WarrantyNo,
+			&i.CarPlateNo,
 		); err != nil {
 			return nil, err
 		}

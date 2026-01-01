@@ -12,12 +12,14 @@ import (
 
 // ClaimsHandler defines the HTTP contract for claim-related endpoints.
 type ClaimsHandler interface {
-	// GetClaimsByShopID returns claims associated with a specific shop ID.
-	GetClaimsByShopID(w http.ResponseWriter, r *http.Request)
 	// ListClaimsView returns a list of claims from the view.
 	ListClaims(w http.ResponseWriter, r *http.Request)
+	// GetClaimsByShopID returns claims associated with a specific shop ID.
+	GetClaimsByShopID(w http.ResponseWriter, r *http.Request)
 	// GetClaimByID returns a single claim by ID.
 	GetClaimByID(w http.ResponseWriter, r *http.Request)
+	// GenerateNextClaimNo returns the next claim number based on warranty number and claim date.
+	GenerateNextClaimNo(w http.ResponseWriter, r *http.Request)
 	// CreateClaim creates a new claim.
 	CreateClaim(w http.ResponseWriter, r *http.Request)
 	// UpdateClaim updates an existing claim.
@@ -88,6 +90,30 @@ func (h *claimsHandler) GetClaimByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, claim)
+}
+
+// GenerateNextClaimNo returns the next claim number based on warranty number and claim date.
+func (h *claimsHandler) GenerateNextClaimNo(w http.ResponseWriter, r *http.Request) {
+	type requestBody struct {
+		WarrantyNo string `json:"warrantyNo"`
+		ClaimDate  string `json:"claimDate"`
+	}
+
+	ctx := r.Context()
+	var req requestBody
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+	nextClaimNo, err := h.claimsService.GenerateNextClaimNo(ctx, req.WarrantyNo, req.ClaimDate)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to generate next claim number")
+		return
+	}
+	response := map[string]string{
+		"claimNo": nextClaimNo,
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, response)
 }
 
 // CreateClaim creates a new claim.

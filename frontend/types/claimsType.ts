@@ -8,6 +8,11 @@ export interface Claim {
   updatedAt: string;
 }
 
+export interface ListClaimsResponse extends Claim {
+  warrantyNo: string;
+  carPlateNo: string;
+}
+
 export interface ClaimWarrantyPart {
   warrantyPartId: number;
   carPartName: string;
@@ -31,31 +36,6 @@ export interface UpdateClaimRequest {
   claimDate: string;
   isApproved: boolean;
   warrantyParts: ClaimWarrantyPart[];
-}
-
-export interface WarrantyPart {
-  id: number;
-  warrantyId: number;
-  carPartId: number;
-  carPartName: string;
-  productAllocationId: number;
-  installationImageUrl: string;
-}
-
-export interface WarrantySearchResult {
-  warrantyId: number;
-  warrantyNo: string;
-  clientName: string;
-  clientContact: string;
-  clientEmail: string;
-  carBrand: string;
-  carModel: string;
-  carPlateNo: string;
-  carChassisNo: string;
-  shopName: string;
-  branchCode: string;
-  installationDate: string;
-  warrantyParts?: WarrantyPart[];
 }
 
 export interface CreateClaimWarrantyPartRequest {

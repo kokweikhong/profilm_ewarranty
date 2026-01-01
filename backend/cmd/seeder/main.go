@@ -1,398 +1,804 @@
 package main
 
-// import (
-// 	"context"
-// 	"fmt"
-// 	"log"
-// 	"math/rand"
-// 	"time"
+import (
+	"context"
+	"fmt"
+	"log"
+	"math/rand"
+	"time"
 
-// 	config "github.com/kokweikhong/profilm_ewarranty/backend/configs"
-// 	database "github.com/kokweikhong/profilm_ewarranty/backend/internal/db"
-// 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/claims"
-// 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/productallocations"
-// 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/products"
-// 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/shops"
-// 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/warranties"
-// 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/services"
-// )
+	config "github.com/kokweikhong/profilm_ewarranty/backend/configs"
+	database "github.com/kokweikhong/profilm_ewarranty/backend/internal/db"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/claims"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/productallocations"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/products"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/shops"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/warranties"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/services"
+)
 
-// var (
-// 	// Random data pools
-// 	carBrands  = []string{"Toyota", "Honda", "Nissan", "Mazda", "Proton", "Perodua", "BMW", "Mercedes-Benz", "Audi", "Volkswagen"}
-// 	carModels  = []string{"Camry", "Accord", "X-Trail", "CX-5", "X50", "Myvi", "3 Series", "C-Class", "A4", "Golf"}
-// 	carColors  = []string{"White", "Black", "Silver", "Grey", "Red", "Blue", "Brown", "Green"}
-// 	firstNames = []string{"Ahmad", "Ali", "Wei", "Siti", "Nurul", "Raj", "Kumar", "Tan", "Wong", "Lee", "Chen", "Lim", "Chong", "Ng", "Ong"}
-// 	lastNames  = []string{"Abdullah", "Hassan", "Singh", "Muthu", "Tan", "Wong", "Lee", "Chen", "Lim", "Chong", "Ng", "Ong", "Yeoh", "Teh"}
+var (
+	phonePrefix = []string{"011", "012", "013", "014", "016", "017", "018", "019"}
+	carBrands   = []string{
+		"Toyota",
+		"Honda",
+		"Nissan",
+		"Mazda",
+		"Subaru",
+		"Mitsubishi",
+		"Suzuki",
+		"Lexus",
+		"Infiniti",
+		"Acura",
+		"BMW",
+		"Mercedes-Benz",
+		"Audi",
+		"Volkswagen",
+		"Porsche",
+		"Ford",
+		"Chevrolet",
+		"Tesla",
+		"Jeep",
+		"Dodge",
+		"Chrysler",
+		"Cadillac",
+		"Buick",
+		"GMC",
+		"Lincoln",
+		"Hyundai",
+		"Kia",
+		"Genesis",
+		"Peugeot",
+		"Renault",
+		"Citroen",
+		"Fiat",
+		"Alfa Romeo",
+		"Ferrari",
+		"Lamborghini",
+		"Maserati",
+		"Volvo",
+		"Saab",
+		"Jaguar",
+		"Land Rover",
+		"Mini",
+		"Rolls-Royce",
+		"Bentley",
+		"Bugatti",
+		"McLaren",
+		"Aston Martin",
+		"Geely",
+		"Chery",
+		"BYD",
+		"Great Wall",
+	}
 
-// 	// Malaysian phone number prefixes
-// 	phonePrefix = []string{"011", "012", "013", "014", "016", "017", "018", "019"}
-// )
+	carModels = []string{
+		"Camry",       // Toyota
+		"Civic",       // Honda
+		"Altima",      // Nissan
+		"CX-5",        // Mazda
+		"Forester",    // Subaru
+		"Xpander",     // Mitsubishi
+		"Swift",       // Suzuki
+		"ES",          // Lexus
+		"Q50",         // Infiniti
+		"TLX",         // Acura
+		"3 Series",    // BMW
+		"C-Class",     // Mercedes-Benz
+		"A4",          // Audi
+		"Golf",        // Volkswagen
+		"Cayenne",     // Porsche
+		"Ranger",      // Ford
+		"Colorado",    // Chevrolet
+		"Model 3",     // Tesla
+		"Wrangler",    // Jeep
+		"Charger",     // Dodge
+		"300",         // Chrysler
+		"CT5",         // Cadillac
+		"Encore",      // Buick
+		"Sierra",      // GMC
+		"Navigator",   // Lincoln
+		"Tucson",      // Hyundai
+		"Sportage",    // Kia
+		"G80",         // Genesis
+		"3008",        // Peugeot
+		"Captur",      // Renault
+		"C5 Aircross", // Citroen
+		"500",         // Fiat
+		"Giulia",      // Alfa Romeo
+		"Roma",        // Ferrari
+		"Huracan",     // Lamborghini
+		"Ghibli",      // Maserati
+		"XC60",        // Volvo
+		"9-3",         // Saab
+		"XE",          // Jaguar
+		"Defender",    // Land Rover
+		"Cooper",      // Mini
+		"Ghost",       // Rolls-Royce
+		"Continental", // Bentley
+		"Chiron",      // Bugatti
+		"720S",        // McLaren
+		"DB11",        // Aston Martin
+		"Coolray",     // Geely
+		"Tiggo 7",     // Chery
+		"Atto 3",      // BYD
+		"Haval H6",    // Great Wall
+	}
 
-// func main() {
-// 	ctx := context.Background()
+	carColors = []string{
+		"White",
+		"Black",
+		"Silver",
+		"Gray",
+		"Red",
+		"Blue",
+		"Green",
+		"Yellow",
+		"Orange",
+		"Brown",
+		"Beige",
+		"Gold",
+		"Bronze",
+		"Copper",
+		"Champagne",
+		"Ivory",
+		"Cream",
+		"Pearl White",
+		"Snow White",
+		"Jet Black",
+		"Midnight Black",
+		"Obsidian Black",
+		"Onyx Black",
+		"Graphite Gray",
+		"Gunmetal Gray",
+		"Steel Gray",
+		"Charcoal Gray",
+		"Slate Gray",
+		"Platinum Silver",
+		"Liquid Silver",
+		"Titanium Silver",
+		"Arctic Silver",
+		"Racing Red",
+		"Crimson Red",
+		"Maroon",
+		"Burgundy",
+		"Ruby Red",
+		"Scarlet",
+		"Candy Apple Red",
+		"Navy Blue",
+		"Midnight Blue",
+		"Royal Blue",
+		"Sky Blue",
+		"Baby Blue",
+		"Ice Blue",
+		"Aqua Blue",
+		"Teal",
+		"Turquoise",
+		"Emerald Green",
+		"Forest Green",
+		"Olive Green",
+		"Mint Green",
+		"Lime Green",
+		"British Racing Green",
+		"Canary Yellow",
+		"Sunshine Yellow",
+		"Mustard Yellow",
+		"Amber",
+		"Burnt Orange",
+		"Sunset Orange",
+		"Tangerine",
+		"Pumpkin Orange",
+		"Chocolate Brown",
+		"Mocha Brown",
+		"Coffee Brown",
+		"Walnut Brown",
+		"Sand",
+		"Khaki",
+		"Desert Beige",
+		"Stone",
+		"Taupe",
+		"Rose Gold",
+		"Blush Pink",
+		"Hot Pink",
+		"Magenta",
+		"Purple",
+		"Violet",
+		"Lavender",
+		"Plum",
+		"Indigo",
+		"Electric Blue",
+		"Neon Green",
+		"Matte Black",
+		"Matte Gray",
+		"Matte White",
+		"Satin Silver",
+		"Metallic Blue",
+		"Metallic Red",
+		"Metallic Gray",
+		"Pearlescent White",
+		"Carbon Black",
+	}
 
-// 	// Load configuration
-// 	cfg, err := config.Load()
-// 	if err != nil {
-// 		log.Fatalf("Failed to load config: %v", err)
-// 	}
+	firstNames = []string{
+		"Adam",
+		"Alex",
+		"Aaron",
+		"Andrew",
+		"Anthony",
+		"Benjamin",
+		"Brian",
+		"Brandon",
+		"Caleb",
+		"Charles",
+		"Chris",
+		"Daniel",
+		"David",
+		"Dylan",
+		"Edward",
+		"Ethan",
+		"Evan",
+		"Frank",
+		"Gabriel",
+		"George",
+		"Henry",
+		"Ian",
+		"Isaac",
+		"Jack",
+		"Jacob",
+		"James",
+		"Jason",
+		"Jeremy",
+		"John",
+		"Jonathan",
+		"Joseph",
+		"Joshua",
+		"Justin",
+		"Kevin",
+		"Kyle",
+		"Leonard",
+		"Lucas",
+		"Mark",
+		"Matthew",
+		"Michael",
+		"Nathan",
+		"Nicholas",
+		"Noah",
+		"Oliver",
+		"Oscar",
+		"Patrick",
+		"Paul",
+		"Peter",
+		"Philip",
+		"Ryan",
+		"Samuel",
+		"Scott",
+		"Sean",
+		"Stephen",
+		"Thomas",
+		"Timothy",
+		"Victor",
+		"William",
+		"Zachary",
+		"Aiden",
+		"Blake",
+		"Cameron",
+		"Connor",
+		"Dominic",
+		"Elijah",
+		"Felix",
+		"Harvey",
+		"Julian",
+		"Leo",
+		"Liam",
+		"Marcus",
+		"Mason",
+		"Max",
+		"Miles",
+		"Oliver",
+		"Owen",
+		"Rafael",
+		"Sebastian",
+		"Theodore",
+		"Tristan",
+		"Vincent",
+		"Wesley",
+		"Xavier",
+		"Yusuf",
+		"Zane",
+	}
 
-// 	// Connect to database
-// 	dbCfg := database.Config{
-// 		// Host:     cfg.Database.Host,
-// 		Host:     "localhost",
-// 		Port:     cfg.Database.Port,
-// 		User:     cfg.Database.User,
-// 		Password: cfg.Database.Password,
-// 		DBName:   cfg.Database.DBName,
-// 		SSLMode:  cfg.Database.SSLMode,
-// 	}
+	lastNames = []string{
+		"Adam",
+		"Alex",
+		"Aaron",
+		"Andrew",
+		"Anthony",
+		"Benjamin",
+		"Brian",
+		"Brandon",
+		"Caleb",
+		"Charles",
+		"Chris",
+		"Daniel",
+		"David",
+		"Dylan",
+		"Edward",
+		"Ethan",
+		"Evan",
+		"Frank",
+		"Gabriel",
+		"George",
+		"Henry",
+		"Ian",
+		"Isaac",
+		"Jack",
+		"Jacob",
+		"James",
+		"Jason",
+		"Jeremy",
+		"John",
+		"Jonathan",
+		"Joseph",
+		"Joshua",
+		"Justin",
+		"Kevin",
+		"Kyle",
+		"Leonard",
+		"Lucas",
+		"Mark",
+		"Matthew",
+		"Michael",
+		"Nathan",
+		"Nicholas",
+		"Noah",
+		"Oliver",
+		"Oscar",
+		"Patrick",
+		"Paul",
+		"Peter",
+		"Philip",
+		"Ryan",
+		"Samuel",
+		"Scott",
+		"Sean",
+		"Stephen",
+		"Thomas",
+		"Timothy",
+		"Victor",
+		"William",
+		"Zachary",
+		"Aiden",
+		"Blake",
+		"Cameron",
+		"Connor",
+		"Dominic",
+		"Elijah",
+		"Felix",
+		"Harvey",
+		"Julian",
+		"Leo",
+		"Liam",
+		"Marcus",
+		"Mason",
+		"Max",
+		"Miles",
+		"Oliver",
+		"Owen",
+		"Rafael",
+		"Sebastian",
+		"Theodore",
+		"Tristan",
+		"Vincent",
+		"Wesley",
+		"Xavier",
+		"Yusuf",
+		"Zane",
+	}
 
-// 	pool, err := database.NewPostgresPool(ctx, dbCfg)
-// 	if err != nil {
-// 		log.Fatalf("Failed to connect to database: %v", err)
-// 	}
-// 	defer pool.Close()
+	warrantyMonths = []int32{12, 24, 36, 48, 60, 72}
+)
 
-// 	log.Println("Connected to database successfully")
+func main() {
+	ctx := context.Background()
 
-// 	// Initialize services
-// 	productsService := services.NewProductsService(pool)
-// 	shopsService := services.NewShopsService(pool)
-// 	productAllocationsService := services.NewProductAllocationsService(pool)
-// 	warrantiesService := services.NewWarrantiesService(pool)
-// 	claimsService := services.NewClaimsService(pool)
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
-// 	// Seed data
-// 	log.Println("Starting database seeding...")
+	// Connect to database
+	dbCfg := database.Config{
+		// Host:     cfg.Database.Host,
+		Host:     "localhost",
+		Port:     cfg.Database.Port,
+		User:     cfg.Database.User,
+		Password: cfg.Database.Password,
+		DBName:   cfg.Database.DBName,
+		SSLMode:  cfg.Database.SSLMode,
+	}
 
-// 	// 1. Seed Products (20 products)
-// 	log.Println("Seeding products...")
-// 	productsList, err := seedProducts(ctx, productsService, 20)
-// 	if err != nil {
-// 		log.Fatalf("Failed to seed products: %v", err)
-// 	}
-// 	log.Printf("Seeded %d products", len(productsList))
+	pool, err := database.NewPostgresPool(ctx, dbCfg)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer pool.Close()
 
-// 	// 2. Seed Shops (15 shops)
-// 	log.Println("Seeding shops...")
-// 	shopsList, err := seedShops(ctx, shopsService, 15)
-// 	if err != nil {
-// 		log.Fatalf("Failed to seed shops: %v", err)
-// 	}
-// 	log.Printf("Seeded %d shops", len(shopsList))
+	log.Println("Connected to database successfully")
 
-// 	// 3. Seed Product Allocations (50 allocations)
-// 	log.Println("Seeding product allocations...")
-// 	allocationsList, err := seedProductAllocations(ctx, productAllocationsService, productsList, shopsList, 50)
-// 	if err != nil {
-// 		log.Fatalf("Failed to seed product allocations: %v", err)
-// 	}
-// 	log.Printf("Seeded %d product allocations", len(allocationsList))
+	// Initialize services
+	usersService := services.NewUsersService(pool)
+	productsService := services.NewProductsService(pool)
+	shopsService := services.NewShopsService(pool)
+	productAllocationsService := services.NewProductAllocationsService(pool)
+	warrantiesService := services.NewWarrantiesService(pool)
+	claimsService := services.NewClaimsService(pool)
 
-// 	// 4. Seed Warranties (100 warranties)
-// 	log.Println("Seeding warranties...")
-// 	warrantiesList, err := seedWarranties(ctx, warrantiesService, shopsService, shopsList, 100)
-// 	if err != nil {
-// 		log.Fatalf("Failed to seed warranties: %v", err)
-// 	}
-// 	log.Printf("Seeded %d warranties", len(warrantiesList))
+	// Seed data
+	log.Println("Starting database seeding...")
 
-// 	// 5. Seed Warranty Parts (2-4 parts per warranty)
-// 	log.Println("Seeding warranty parts...")
-// 	warrantyPartsList, err := seedWarrantyParts(ctx, warrantiesService, warrantiesList, allocationsList)
-// 	if err != nil {
-// 		log.Fatalf("Failed to seed warranty parts: %v", err)
-// 	}
-// 	log.Printf("Seeded %d warranty parts", len(warrantyPartsList))
+	// 1. Seed Admin User
+	var isAdminCreated bool
+	log.Println("Seeding admin user...")
+	// Check if admin user already exists
+	_, err = usersService.GetUserByUsername(ctx, "admin")
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			_, err := usersService.CreateUser(ctx, nil, "admin", "admin", "admin@profilm")
+			if err != nil {
+				log.Fatalf("Failed to create admin user: %v", err)
+			}
+			log.Println("Admin user created with username 'admin' and password 'admin@profilm'")
+			isAdminCreated = true
+		} else {
+			log.Fatalf("Failed to check for existing admin user: %v", err)
+		}
+	} else {
+		log.Println("Admin user already exists")
+	}
 
-// 	// 6. Seed Claims (30% of warranties)
-// 	log.Println("Seeding claims...")
-// 	claimsList, err := seedClaims(ctx, claimsService, warrantiesList, 30)
-// 	if err != nil {
-// 		log.Fatalf("Failed to seed claims: %v", err)
-// 	}
-// 	log.Printf("Seeded %d claims", len(claimsList))
+	// 2. Seed Products (20 products)
+	log.Println("Seeding products...")
+	productsList, err := seedProducts(ctx, productsService, 20)
+	if err != nil {
+		log.Fatalf("Failed to seed products: %v", err)
+	}
+	log.Printf("Seeded %d products", len(productsList))
 
-// 	// 7. Seed Claim Warranty Parts
-// 	log.Println("Seeding claim warranty parts...")
-// 	claimPartsCount, err := seedClaimWarrantyParts(ctx, claimsService, claimsList, warrantyPartsList)
-// 	if err != nil {
-// 		log.Fatalf("Failed to seed claim warranty parts: %v", err)
-// 	}
-// 	log.Printf("Seeded %d claim warranty parts", claimPartsCount)
+	// 2. Seed Shops (15 shops)
+	log.Println("Seeding shops...")
 
-// 	log.Println("Database seeding completed successfully!")
-// 	log.Printf("Summary:")
-// 	log.Printf("  - Products: %d", len(productsList))
-// 	log.Printf("  - Shops: %d", len(shopsList))
-// 	log.Printf("  - Product Allocations: %d", len(allocationsList))
-// 	log.Printf("  - Warranties: %d", len(warrantiesList))
-// 	log.Printf("  - Warranty Parts: %d", len(warrantyPartsList))
-// 	log.Printf("  - Claims: %d", len(claimsList))
-// 	log.Printf("  - Claim Warranty Parts: %d", claimPartsCount)
-// }
+	shopsList, err := seedShops(ctx, shopsService, 15)
+	if err != nil {
+		log.Fatalf("Failed to seed shops: %v", err)
+	}
+	log.Printf("Seeded %d shops", len(shopsList))
 
-// func seedProducts(ctx context.Context, svc services.ProductsService, count int) ([]*products.Product, error) {
-// 	var productsList []*products.Product
+	// 3. Seed Product Allocations (50 allocations)
+	log.Println("Seeding product allocations...")
+	allocationsList, err := seedProductAllocations(ctx, productAllocationsService, productsList, shopsList, 50)
+	if err != nil {
+		log.Fatalf("Failed to seed product allocations: %v", err)
+	}
+	log.Printf("Seeded %d product allocations", len(allocationsList))
 
-// 	// Get reference data
-// 	brands, err := svc.ListProductBrands(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	types, err := svc.ListProductTypes(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	series, err := svc.ListProductSeries(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	names, err := svc.ListProductNames(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	// 4. Seed Warranties (100 warranties)
+	log.Println("Seeding warranties...")
+	warrantiesList, err := seedWarranties(ctx, warrantiesService, shopsService, productAllocationsService, shopsList, 100)
+	if err != nil {
+		log.Fatalf("Failed to seed warranties: %v", err)
+	}
+	log.Printf("Seeded %d warranties", len(warrantiesList))
 
-// 	for i := 0; i < count; i++ {
-// 		brandID := brands[rand.Intn(len(brands))].ID
-// 		typeID := types[rand.Intn(len(types))].ID
-// 		seriesID := series[rand.Intn(len(series))].ID
-// 		nameID := names[rand.Intn(len(names))].ID
+	// 6. Seed Claims (30% of warranties)
+	log.Println("Seeding claims...")
+	claimsList, err := seedClaims(ctx, claimsService, warrantiesList, 30)
+	if err != nil {
+		log.Fatalf("Failed to seed claims: %v", err)
+	}
+	log.Printf("Seeded %d claims", len(claimsList))
 
-// 		product, err := svc.CreateProduct(ctx, &products.CreateProductParams{
-// 			BrandID:          brandID,
-// 			TypeID:           typeID,
-// 			SeriesID:         seriesID,
-// 			NameID:           nameID,
-// 			WarrantyInMonths: int32(rand.Intn(60) + 12), // 12-72 months
-// 			FilmSerialNumber: fmt.Sprintf("FSN-%d-%05d", time.Now().Year(), rand.Intn(99999)),
-// 			FilmQuantity:     int32(rand.Intn(1000) + 100),
-// 			ShipmentNumber:   fmt.Sprintf("SHIP-%d-%04d", time.Now().Year(), rand.Intn(9999)),
-// 			Description:      fmt.Sprintf("Product batch %d", i+1),
-// 		})
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		productsList = append(productsList, product)
-// 	}
+	// 	// 7. Seed Claim Warranty Parts
+	// 	log.Println("Seeding claim warranty parts...")
+	// 	claimPartsCount, err := seedClaimWarrantyParts(ctx, claimsService, claimsList, warrantyPartsList)
+	// 	if err != nil {
+	// 		log.Fatalf("Failed to seed claim warranty parts: %v", err)
+	// 	}
+	// 	log.Printf("Seeded %d claim warranty parts", claimPartsCount)
 
-// 	return productsList, nil
-// }
+	log.Println("Database seeding completed successfully!")
+	log.Printf("Summary:")
+	// log print if admin user created
+	if isAdminCreated {
+		log.Printf("  - Admin User: created")
+	} else {
+		log.Printf("  - Admin User: already exists")
+	}
+	log.Printf("  - Products: %d", len(productsList))
+	log.Printf("  - Shops: %d", len(shopsList))
+	log.Printf("  - Product Allocations: %d", len(allocationsList))
+	log.Printf("  - Warranties: %d", len(warrantiesList))
+	// log.Printf("  - Warranty Parts: %d", len(warrantyPartsList))
+	log.Printf("  - Claims: %d", len(claimsList))
+	// 	log.Printf("  - Claim Warranty Parts: %d", claimPartsCount)
+}
 
-// func seedShops(ctx context.Context, svc services.ShopsService, count int) ([]*shops.Shop, error) {
-// 	var shopsList []*shops.Shop
+func seedProducts(ctx context.Context, svc services.ProductsService, count int) ([]*products.Product, error) {
+	var productsList []*products.Product
+	for i := 0; i < count; i++ {
+		brands, err := svc.ListProductBrands(ctx)
+		if err != nil || len(brands) == 0 {
+			log.Fatalf("Failed to list product brands: %v", err)
+		}
+		brand := brands[rand.Intn(len(brands))]
+		types, err := svc.ListProductTypes(ctx)
+		var filteredTypes []*products.ProductType
+		for _, t := range types {
+			if t.BrandID == brand.ID {
+				filteredTypes = append(filteredTypes, t)
+			}
+		}
+		if err != nil || len(filteredTypes) == 0 {
+			log.Fatalf("Failed to list product types for brand ID %d: %v", brand.ID, err)
+		}
+		productTypeObj := filteredTypes[rand.Intn(len(filteredTypes))]
+		series, err := svc.ListProductSeries(ctx)
+		var filteredSeries []*products.ProductSeries
+		for _, s := range series {
+			if s.TypeID == productTypeObj.ID {
+				filteredSeries = append(filteredSeries, s)
+			}
+		}
+		if err != nil || len(filteredSeries) == 0 {
+			log.Fatalf("Failed to list product series for type ID %d: %v", productTypeObj.ID, err)
+		}
+		productSeriesObj := filteredSeries[rand.Intn(len(filteredSeries))]
+		names, err := svc.ListProductNames(ctx)
+		var filteredNames []*products.ProductName
+		for _, n := range names {
+			if n.SeriesID == productSeriesObj.ID {
+				filteredNames = append(filteredNames, n)
+			}
+		}
+		if err != nil || len(filteredNames) == 0 {
+			log.Fatalf("Failed to list product names for series ID %d: %v", productSeriesObj.ID, err)
+		}
+		productNameObj := filteredNames[rand.Intn(len(filteredNames))]
+		product, err := svc.CreateProduct(ctx, &products.CreateProductParams{
+			BrandID:          brand.ID,
+			TypeID:           productTypeObj.ID,
+			SeriesID:         productSeriesObj.ID,
+			NameID:           productNameObj.ID,
+			WarrantyInMonths: warrantyMonths[rand.Intn(len(warrantyMonths))],
+			FilmSerialNumber: fmt.Sprintf("FSN-%d-%05d", time.Now().Year(), rand.Intn(99999)),
+			FilmQuantity:     int32(rand.Intn(1000) + 100),
+			ShipmentNumber:   fmt.Sprintf("SHIP-%d-%04d", time.Now().Year(), rand.Intn(9999)),
+			Description:      fmt.Sprintf("Product batch %d", i+1),
+		})
+		if err != nil {
+			return nil, err
+		}
+		productsList = append(productsList, product)
+	}
 
-// 	// Get states
-// 	states, err := svc.ListMsiaStates(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	return productsList, nil
+}
 
-// 	companyNames := []string{"AutoCare", "ProFilm Center", "CarStyle", "Premium Tint", "Elite Motors"}
+func seedShops(ctx context.Context, svc services.ShopsService, count int) ([]*shops.Shop, error) {
+	var (
+		shopsList []*shops.Shop
 
-// 	for i := 0; i < count; i++ {
-// 		state := states[rand.Intn(len(states))]
-// 		stateID := state.ID
+		sampleCompanyLicenseImageUrl = "https://profilm.sgp1.cdn.digitaloceanspaces.com/testing/sample_ssm.jpg"
+		sampleShopImageUrl           = "https://profilm.sgp1.cdn.digitaloceanspaces.com/testing/sample_shop.jpg"
+	)
 
-// 		// Generate branch code using service
-// 		branchCode, err := svc.GenerateNextBranchCode(ctx, state.Code)
-// 		if err != nil {
-// 			return nil, err
-// 		}
+	// Get states
+	states, err := svc.ListMsiaStates(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-// 		companyName := fmt.Sprintf("%s %s", companyNames[rand.Intn(len(companyNames))], state.Name)
+	companyNames := []string{"AutoCare", "ProFilm Center", "CarStyle", "Premium Tint", "Elite Motors"}
 
-// 		shop, err := svc.CreateShop(ctx, &shops.CreateShopParams{
-// 			CompanyName:               companyName,
-// 			CompanyRegistrationNumber: fmt.Sprintf("%d%06d-X", rand.Intn(10), rand.Intn(999999)),
-// 			CompanyLicenseImageUrl:    fmt.Sprintf("https://example.com/licenses/company_%d.jpg", i+1),
-// 			CompanyContactNumber:      generatePhoneNumber(),
-// 			CompanyEmail:              fmt.Sprintf("info@shop%d.example.com", i+1),
-// 			CompanyWebsiteUrl:         fmt.Sprintf("https://shop%d.example.com", i+1),
-// 			ShopName:                  fmt.Sprintf("%s Branch", companyName),
-// 			ShopAddress:               fmt.Sprintf("%d, Jalan Example %d, %s", rand.Intn(100)+1, i+1, state.Name),
-// 			MsiaStateID:               &stateID,
-// 			BranchCode:                branchCode,
-// 			ShopImageUrl:              fmt.Sprintf("https://example.com/shops/shop_%d.jpg", i+1),
-// 			PicName:                   fmt.Sprintf("%s %s", firstNames[rand.Intn(len(firstNames))], lastNames[rand.Intn(len(lastNames))]),
-// 			PicPosition:               "Manager",
-// 			PicContactNumber:          generatePhoneNumber(),
-// 			PicEmail:                  fmt.Sprintf("manager%d@shop%d.example.com", i+1, i+1),
-// 		})
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		shopsList = append(shopsList, shop)
-// 	}
+	for i := 0; i < count; i++ {
+		state := states[rand.Intn(len(states))]
+		stateID := state.ID
 
-// 	return shopsList, nil
-// }
+		// Generate branch code using service
+		branchCode, err := svc.GenerateNextBranchCode(ctx, state.Code)
+		if err != nil {
+			return nil, err
+		}
 
-// func seedProductAllocations(ctx context.Context, svc services.ProductAllocationsService, productsList []*products.Product, shopsList []*shops.Shop, count int) ([]*productallocations.ProductAllocation, error) {
-// 	var allocationsList []*productallocations.ProductAllocation
+		companyName := companyNames[rand.Intn(len(companyNames))]
 
-// 	for i := 0; i < count; i++ {
-// 		product := productsList[rand.Intn(len(productsList))]
-// 		shop := shopsList[rand.Intn(len(shopsList))]
+		shop, err := svc.CreateShop(ctx, &shops.CreateShopParams{
+			CompanyName:               companyName,
+			CompanyRegistrationNumber: fmt.Sprintf("%d%06d-X", rand.Intn(10), rand.Intn(999999)),
+			CompanyLicenseImageUrl:    sampleCompanyLicenseImageUrl,
+			CompanyContactNumber:      generatePhoneNumber(),
+			CompanyEmail:              fmt.Sprintf("info@shop%d.example.com", i+1),
+			CompanyWebsiteUrl:         fmt.Sprintf("https://shop%d.example.com", i+1),
+			ShopName:                  fmt.Sprintf("%s Branch", companyName),
+			ShopAddress:               fmt.Sprintf("%d, Jalan Example %d, %s", rand.Intn(100)+1, i+1, state.Name),
+			MsiaStateID:               &stateID,
+			BranchCode:                branchCode,
+			ShopImageUrl:              sampleShopImageUrl,
+			PicName:                   fmt.Sprintf("%s %s", firstNames[rand.Intn(len(firstNames))], lastNames[rand.Intn(len(lastNames))]),
+			PicPosition:               "Manager",
+			PicContactNumber:          generatePhoneNumber(),
+			PicEmail:                  fmt.Sprintf("manager%d@shop%d.example.com", i+1, i+1),
+		})
+		if err != nil {
+			return nil, err
+		}
+		shopsList = append(shopsList, shop)
+	}
 
-// 		// Random date within the last 6 months
-// 		daysAgo := rand.Intn(180)
-// 		allocationDate := time.Now().AddDate(0, 0, -daysAgo)
+	return shopsList, nil
+}
 
-// 		allocation, err := svc.CreateProductAllocation(ctx, &productallocations.CreateProductAllocationParams{
-// 			ProductID:      product.ID,
-// 			ShopID:         shop.ID,
-// 			FilmQuantity:   int32(rand.Intn(100) + 10),
-// 			AllocationDate: allocationDate,
-// 		})
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		allocationsList = append(allocationsList, allocation)
-// 	}
+func seedProductAllocations(ctx context.Context, svc services.ProductAllocationsService, productsList []*products.Product, shopsList []*shops.Shop, count int) ([]*productallocations.ProductAllocation, error) {
+	var allocationsList []*productallocations.ProductAllocation
 
-// 	return allocationsList, nil
-// }
+	for range count {
+		product := productsList[rand.Intn(len(productsList))]
+		shop := shopsList[rand.Intn(len(shopsList))]
 
-// func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesService, shopsService services.ShopsService, shopsList []*shops.Shop, count int) ([]*warranties.Warranty, error) {
-// 	var warrantiesList []*warranties.Warranty
+		// Random date within the last 6 months
+		daysAgo := rand.Intn(180)
+		allocationDate := time.Now().AddDate(0, 0, -daysAgo)
 
-// 	for i := 0; i < count; i++ {
-// 		shop := shopsList[rand.Intn(len(shopsList))]
+		allocation, err := svc.CreateProductAllocation(ctx, &productallocations.CreateProductAllocationParams{
+			ProductID:      product.ID,
+			ShopID:         shop.ID,
+			FilmQuantity:   int32(rand.Intn(100) + 10),
+			AllocationDate: allocationDate,
+		})
+		if err != nil {
+			return nil, err
+		}
+		allocationsList = append(allocationsList, allocation)
+	}
 
-// 		// Random installation date within the last 3 months
-// 		daysAgo := rand.Intn(90)
-// 		installationDate := time.Now().AddDate(0, 0, -daysAgo)
+	return allocationsList, nil
+}
 
-// 		// Get shop details for branch code
-// 		shopDetail, err := shopsService.GetShopByID(ctx, shop.ID)
-// 		if err != nil {
-// 			return nil, err
-// 		}
+func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesService, shopsService services.ShopsService, productAllocationsService services.ProductAllocationsService, shopsList []*shops.Shop, count int) ([]*warranties.Warranty, error) {
+	var warrantiesList []*warranties.Warranty
 
-// 		// Format installation date as YYMMDD
-// 		installDateStr := installationDate.Format("060102")
+	productAllocations, err := productAllocationsService.ListProductAllocationsView(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-// 		// Generate warranty number using service
-// 		warrantyNo, err := warrantiesService.GenerateNextWarrantyNo(ctx, shopDetail.BranchCode, installDateStr)
-// 		if err != nil {
-// 			return nil, err
-// 		}
+	for i := 0; i < count; i++ {
+		shop := shopsList[rand.Intn(len(shopsList))]
 
-// 		// 30% chance of having a reference number
-// 		var refNo *string
-// 		if rand.Float32() < 0.3 {
-// 			ref := fmt.Sprintf("REF-%05d", rand.Intn(99999))
-// 			refNo = &ref
-// 		}
+		// product allocations based on shop id
+		productAllocationsFilter := []*productallocations.ListProductAllocationsViewRow{}
+		for _, pa := range productAllocations {
+			if pa.ShopName == shop.ShopName {
+				productAllocationsFilter = append(productAllocationsFilter, pa)
+			}
+		}
 
-// 		clientFirstName := firstNames[rand.Intn(len(firstNames))]
-// 		clientLastName := lastNames[rand.Intn(len(lastNames))]
+		// Random installation date within the last 3 months
+		daysAgo := rand.Intn(90)
+		installationDate := time.Now().AddDate(0, 0, -daysAgo)
 
-// 		warranty, err := warrantiesService.CreateWarranty(ctx, &warranties.CreateWarrantyParams{
-// 			ShopID:               shop.ID,
-// 			ClientName:           fmt.Sprintf("%s %s", clientFirstName, clientLastName),
-// 			ClientContact:        generatePhoneNumber(),
-// 			ClientEmail:          fmt.Sprintf("%s.%s@example.com", clientFirstName, clientLastName),
-// 			CarBrand:             carBrands[rand.Intn(len(carBrands))],
-// 			CarModel:             carModels[rand.Intn(len(carModels))],
-// 			CarColour:            carColors[rand.Intn(len(carColors))],
-// 			CarPlateNo:           generateCarPlateNumber(),
-// 			CarChassisNo:         fmt.Sprintf("CHASSIS-%s-%05d", generateRandomString(5), rand.Intn(99999)),
-// 			InstallationDate:     installationDate,
-// 			ReferenceNo:          refNo,
-// 			WarrantyNo:           warrantyNo,
-// 			InvoiceAttachmentUrl: fmt.Sprintf("https://example.com/invoices/invoice_%d.pdf", i+1),
-// 		})
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		warrantiesList = append(warrantiesList, warranty)
-// 	}
+		// Get shop details for branch code
+		shopDetail, err := shopsService.GetShopByID(ctx, shop.ID)
+		if err != nil {
+			return nil, err
+		}
 
-// 	return warrantiesList, nil
-// }
+		// Format installation date as YYMMDD
+		installDateStr := installationDate.Format("060102")
 
-// func seedWarrantyParts(ctx context.Context, svc services.WarrantiesService, warrantiesList []*warranties.Warranty, allocationsList []*productallocations.ProductAllocation) ([]*warranties.WarrantyPart, error) {
-// 	var warrantyPartsList []*warranties.WarrantyPart
+		// Generate warranty number using service
+		warrantyNo, err := warrantiesService.GenerateNextWarrantyNo(ctx, shopDetail.BranchCode, installDateStr)
+		if err != nil {
+			return nil, err
+		}
 
-// 	// Get car parts
-// 	carParts, err := svc.GetCarParts(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+		// 30% chance of having a reference number
+		var refNo *string
+		if rand.Float32() < 0.3 {
+			ref := fmt.Sprintf("REF-%05d", rand.Intn(99999))
+			refNo = &ref
+		}
 
-// 	for _, warranty := range warrantiesList {
-// 		// Each warranty has 2-4 parts
-// 		numParts := rand.Intn(3) + 2
-// 		usedCarParts := make(map[int32]bool)
+		clientFirstName := firstNames[rand.Intn(len(firstNames))]
+		clientLastName := lastNames[rand.Intn(len(lastNames))]
 
-// 		for j := 0; j < numParts; j++ {
-// 			// Select a car part that hasn't been used for this warranty
-// 			var carPart *warranties.CarPart
-// 			for {
-// 				carPart = carParts[rand.Intn(len(carParts))]
-// 				if !usedCarParts[carPart.ID] {
-// 					usedCarParts[carPart.ID] = true
-// 					break
-// 				}
-// 			}
+		createWarrantyParams := &warranties.CreateWarrantyParams{
+			ShopID:               shop.ID,
+			ClientName:           fmt.Sprintf("%s %s", clientFirstName, clientLastName),
+			ClientContact:        generatePhoneNumber(),
+			ClientEmail:          fmt.Sprintf("%s.%s@example.com", clientFirstName, clientLastName),
+			CarBrand:             carBrands[rand.Intn(len(carBrands))],
+			CarModel:             carModels[rand.Intn(len(carModels))],
+			CarColour:            carColors[rand.Intn(len(carColors))],
+			CarPlateNo:           generateCarPlateNumber(),
+			CarChassisNo:         fmt.Sprintf("CHASSIS-%s-%05d", generateRandomString(5), rand.Intn(99999)),
+			InstallationDate:     installationDate,
+			ReferenceNo:          refNo,
+			WarrantyNo:           warrantyNo,
+			InvoiceAttachmentUrl: fmt.Sprintf("https://example.com/invoices/invoice_%d.pdf", i+1),
+		}
 
-// 			allocation := allocationsList[rand.Intn(len(allocationsList))]
+		parts := []*warranties.CreateWarrantyPartParams{}
+		// 	WarrantyID           int32  `db:"warranty_id" json:"warrantyId"`
+		// ProductAllocationID  int32  `db:"product_allocation_id" json:"productAllocationId"`
+		// CarPartID            int32  `db:"car_part_id" json:"carPartId"`
+		// InstallationImageUrl string `db:"installation_image_url" json:"installationImageUrl"`
+		carParts, err := warrantiesService.GetCarParts(ctx)
+		if err != nil {
+			return nil, err
+		}
+		// Each warranty has 5 - 7 parts
+		numParts := rand.Intn(3) + 5
+		usedCarParts := make(map[int32]bool)
+		for j := 0; j < numParts; j++ {
+			// Select a car part that hasn't been used for this warranty
+			var carPart *warranties.CarPart
+			for {
+				carPart = carParts[rand.Intn(len(carParts))]
+				if !usedCarParts[carPart.ID] {
+					usedCarParts[carPart.ID] = true
+					break
+				}
+			}
+			part := &warranties.CreateWarrantyPartParams{
+				ProductAllocationID:  productAllocationsFilter[rand.Intn(len(productAllocationsFilter))].AllocationID,
+				CarPartID:            carPart.ID,
+				InstallationImageUrl: fmt.Sprintf("https://example.com/installations/warranty_%d_part_%d.jpg", i+1, j+1),
+			}
+			parts = append(parts, part)
+		}
 
-// 			part, err := svc.CreateWarrantyPart(ctx, &warranties.CreateWarrantyPartParams{
-// 				WarrantyID:           warranty.ID,
-// 				ProductAllocationID:  allocation.ID,
-// 				CarPartID:            carPart.ID,
-// 				InstallationImageUrl: fmt.Sprintf("https://example.com/installations/warranty_%d_part_%d.jpg", warranty.ID, j+1),
-// 			})
-// 			if err != nil {
-// 				return nil, err
-// 			}
-// 			warrantyPartsList = append(warrantyPartsList, part)
-// 		}
-// 	}
+		warranty, err := warrantiesService.CreateWarrantyWithParts(ctx, createWarrantyParams, parts)
+		if err != nil {
+			return nil, err
+		}
 
-// 	return warrantyPartsList, nil
-// }
+		warrantiesList = append(warrantiesList, warranty)
+	}
 
-// func seedClaims(ctx context.Context, svc services.ClaimsService, warrantiesList []*warranties.Warranty, percentage int) ([]*claims.Claim, error) {
-// 	var claimsList []*claims.Claim
+	return warrantiesList, nil
+}
 
-// 	// Calculate how many warranties should have claims
-// 	numClaims := len(warrantiesList) * percentage / 100
+func seedClaims(ctx context.Context, svc services.ClaimsService, warrantiesList []*warranties.Warranty, count int) ([]*claims.Claim, error) {
+	var claimsList []*claims.Claim
 
-// 	// Shuffle warranties to randomly select which ones have claims
-// 	shuffledWarranties := make([]*warranties.Warranty, len(warrantiesList))
-// 	copy(shuffledWarranties, warrantiesList)
-// 	rand.Shuffle(len(shuffledWarranties), func(i, j int) {
-// 		shuffledWarranties[i], shuffledWarranties[j] = shuffledWarranties[j], shuffledWarranties[i]
-// 	})
+	for i := 0; i < count; i++ {
+		// Select a random warranty
+		warranty := warrantiesList[rand.Intn(len(warrantiesList))]
 
-// 	for i := 0; i < numClaims; i++ {
-// 		warranty := shuffledWarranties[i]
+		// Claim date should be after installation date
+		claimDate := warranty.InstallationDate.AddDate(0, 0, rand.Intn(60)+7) // 7-67 days after installation
 
-// 		// Claim date should be after installation date
-// 		claimDate := warranty.InstallationDate.AddDate(0, 0, rand.Intn(60)+7) // 7-67 days after installation
+		// Generate simple claim number
+		// claimDateStr yymmdd
+		claimNo, err := svc.GenerateNextClaimNo(context.Background(), warranty.WarrantyNo, claimDate.Format("060102"))
+		if err != nil {
+			return nil, err
+		}
 
-// 		// Generate simple claim number
-// 		claimNo := fmt.Sprintf("CLM-%s-%04d", claimDate.Format("060102"), i+1)
+		claim, err := svc.CreateClaim(ctx, &claims.CreateClaimParams{
+			WarrantyID: warranty.ID,
+			ClaimNo:    claimNo,
+			ClaimDate:  claimDate,
+		})
+		if err != nil {
+			return nil, err
+		}
+		claimsList = append(claimsList, claim)
+	}
 
-// 		claim, err := svc.CreateClaim(ctx, &claims.CreateClaimParams{
-// 			WarrantyID: warranty.ID,
-// 			ClaimNo:    claimNo,
-// 			ClaimDate:  claimDate,
-// 		})
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		claimsList = append(claimsList, claim)
-// 	}
-
-// 	return claimsList, nil
-// }
+	return claimsList, nil
+}
 
 // func seedClaimWarrantyParts(ctx context.Context, svc services.ClaimsService, claimsList []*claims.Claim, warrantyPartsList []*warranties.WarrantyPart) (int, error) {
 // 	count := 0
@@ -460,26 +866,27 @@ package main
 // 	return count, nil
 // }
 
-// // Helper functions
-// func generatePhoneNumber() string {
-// 	prefix := phonePrefix[rand.Intn(len(phonePrefix))]
-// 	number := rand.Intn(9000000) + 1000000 // 7 digit number
-// 	return fmt.Sprintf("+60-%s-%d", prefix, number)
-// }
+// Helper functions
 
-// func generateCarPlateNumber() string {
-// 	states := []string{"A", "B", "C", "D", "V", "W", "P", "R", "T", "K", "M", "N", "J", "H"}
-// 	state := states[rand.Intn(len(states))]
-// 	letters := generateRandomString(3)
-// 	number := rand.Intn(9000) + 1000
-// 	return fmt.Sprintf("%s%s %d", state, letters, number)
-// }
+func generatePhoneNumber() string {
+	prefix := phonePrefix[rand.Intn(len(phonePrefix))]
+	number := rand.Intn(9000000) + 1000000 // 7 digit number
+	return fmt.Sprintf("+60-%s-%d", prefix, number)
+}
 
-// func generateRandomString(length int) string {
-// 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-// 	result := make([]byte, length)
-// 	for i := range result {
-// 		result[i] = charset[rand.Intn(len(charset))]
-// 	}
-// 	return string(result)
-// }
+func generateCarPlateNumber() string {
+	states := []string{"A", "B", "C", "D", "V", "W", "P", "R", "T", "K", "M", "N", "J", "H"}
+	state := states[rand.Intn(len(states))]
+	letters := generateRandomString(2)
+	number := rand.Intn(9000) + 1000
+	return fmt.Sprintf("%s%s %d", state, letters, number)
+}
+
+func generateRandomString(length int) string {
+	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	result := make([]byte, length)
+	for i := range result {
+		result[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(result)
+}

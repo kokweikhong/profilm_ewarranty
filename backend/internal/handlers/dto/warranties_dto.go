@@ -209,3 +209,25 @@ type WarrantyDetailsResponse struct {
 	Warranty *warranties.Warranty                          `json:"warranty"`
 	Parts    []*warranties.GetWarrantyPartsByWarrantyIDRow `json:"parts"`
 }
+
+type WarrantyByExactSearchResponse struct {
+	Warranty *warranties.GetWarrantiesByExactSearchRow     `json:"warranty"`
+	Parts    []*warranties.GetWarrantyPartsByWarrantyIDRow `json:"parts"`
+}
+
+type WarrantyWithPartsResponse struct {
+	Warranty *warranties.Warranty                          `json:"warranty"`
+	Parts    []*warranties.GetWarrantyPartsByWarrantyIDRow `json:"parts"`
+}
+
+// type WarrantyWithShopInfoResponse struct {
+// 	warranties.GetWarrantiesByShopIDRow
+// 	ShopID     int32  `json:"shopId"`
+// 	ShopName   string `json:"shopName"`
+// 	BranchCode string `json:"branchCode"`
+// }
+
+type WarrantyWithPartsAndShopInfoResponse struct {
+	Warranty *warranties.GetWarrantiesByShopIDRow          `json:"warranty"`
+	Parts    []*warranties.GetWarrantyPartsByWarrantyIDRow `json:"parts"`
+}

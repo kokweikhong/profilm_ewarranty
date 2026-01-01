@@ -2,34 +2,49 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getWarrantyByIdApi, getCarPartsApi } from "@/lib/apis/warrantiesApi";
+import {
+  getWarrantyByIdApi,
+  getCarPartsApi,
+  getWarrantiesWithPartsByIdApi,
+} from "@/lib/apis/warrantiesApi";
 import WarrantyForm from "../../_components/WarrantyForm";
 import { formatDate } from "@/lib/utils";
-import { Warranty, CarPart } from "@/types/warrantiesType";
+import { CarPart, WarrantyWithPartsResponse } from "@/types/warrantiesType";
+import { ProductsFromAllocationByShopIdResponse } from "@/types/productAllocationsType";
+import { getProductsFromAllocationByShopIdApi } from "@/lib/apis/productAllocationsApi";
 
 export default function Page() {
   const params = useParams();
   const id = params.id as string;
-  const [warranty, setWarranty] = useState<Warranty | null>(null);
+  const [warranty, setWarranty] = useState<WarrantyWithPartsResponse | null>(
+    null
+  );
   const [carParts, setCarParts] = useState<CarPart[]>([]);
+  const [productsFromAllocation, setProductsFromAllocation] = useState<
+    ProductsFromAllocationByShopIdResponse[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [warrantyData, carPartsData] = await Promise.all([
-          getWarrantyByIdApi(Number(id)),
-          getCarPartsApi(),
-        ]);
+        const warrantyData = await getWarrantiesWithPartsByIdApi(Number(id));
 
         if (warrantyData) {
-          warrantyData.installationDate = formatDate(
-            warrantyData.installationDate
+          warrantyData.warranty.installationDate = formatDate(
+            warrantyData.warranty.installationDate
           );
-        }
 
-        setWarranty(warrantyData);
-        setCarParts(carPartsData);
+          // Fetch car parts and products from allocation for the warranty's shop
+          const [carPartsData, productsData] = await Promise.all([
+            getCarPartsApi(),
+            getProductsFromAllocationByShopIdApi(warrantyData.warranty.shopId),
+          ]);
+
+          setWarranty(warrantyData);
+          setCarParts(carPartsData);
+          setProductsFromAllocation(productsData);
+        }
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -46,7 +61,12 @@ export default function Page() {
 
   return (
     <div>
-      <WarrantyForm warranty={warranty} carParts={carParts} mode="update" />
+      <WarrantyForm
+        data={warranty}
+        carParts={carParts}
+        productsFromAllocation={productsFromAllocation}
+        mode="update"
+      />
     </div>
   );
 }

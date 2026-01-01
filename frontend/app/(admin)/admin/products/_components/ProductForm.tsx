@@ -20,7 +20,7 @@ import {
   createProductAction,
   updateProductAction,
 } from "@/actions/productsAction";
-import { camelToNormalCase } from "@/lib/utils";
+import { ConfirmModal } from "./ConfirmModal";
 
 type Props = {
   product?: Product | null;
@@ -143,64 +143,6 @@ export default function ProductForm({
     setFormData(null);
   };
 
-  // Add this modal JSX before the closing form tag
-  const ConfirmModal = () => {
-    if (!showConfirmModal || !formData) return null;
-
-    const getDisplayValue = (key: string, value: any) => {
-      switch (key) {
-        case "brandId":
-          return brands.find((b) => b.id === value)?.name || value;
-        case "typeId":
-          return types.find((t) => t.id === value)?.name || value;
-        case "seriesId":
-          return series.find((s) => s.id === value)?.name || value;
-        case "nameId":
-          return names.find((n) => n.id === value)?.name || value;
-        case "warrantyInMonths":
-          return `${value} months`;
-        default:
-          return String(value);
-      }
-    };
-
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Confirm Product Details
-          </h3>
-          <div className="space-y-3 text-sm">
-            {Object.entries(formData).map(([key, value]) => (
-              <div key={key} className="flex justify-between">
-                <span className="font-medium text-gray-700 dark:text-gray-300">
-                  {camelToNormalCase(key)}
-                </span>
-                <span className="text-gray-900 dark:text-white">
-                  {getDisplayValue(key, value)}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={handleConfirm}
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/50"
-            >
-              Confirm
-            </button>
-            <button
-              onClick={handleCancel}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   // reset names, series, types when brand changes
   // reset series and names when type changes
   // reset names when series changes
@@ -228,7 +170,16 @@ export default function ProductForm({
 
   return (
     <div>
-      <ConfirmModal />
+      <ConfirmModal
+        showConfirmModal={showConfirmModal}
+        formData={formData!}
+        brands={brands}
+        types={types}
+        series={series}
+        names={names}
+        handleConfirm={handleConfirm}
+        handleCancel={handleCancel}
+      />
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
@@ -502,7 +453,9 @@ export default function ProductForm({
                   <label
                     htmlFor="isActive"
                     className={`relative inline-flex items-center ${
-                      mode === "create" ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+                      mode === "create"
+                        ? "cursor-not-allowed opacity-60"
+                        : "cursor-pointer"
                     }`}
                   >
                     <input
@@ -515,7 +468,9 @@ export default function ProductForm({
                     />
                     <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/40 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                     <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-                      {mode === "create" || watch("isActive") ? "Active" : "Inactive"}
+                      {mode === "create" || watch("isActive")
+                        ? "Active"
+                        : "Inactive"}
                     </span>
                   </label>
                 </div>

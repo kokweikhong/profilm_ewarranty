@@ -176,71 +176,51 @@ func (q *Queries) GetLatestWarrantyNoByPrefix(ctx context.Context, warrantyNo st
 	return warranty_no, err
 }
 
-const getWarrantiesByCarPlateNo = `-- name: GetWarrantiesByCarPlateNo :many
-SELECT
-    id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
-FROM warranties
-WHERE car_plate_no = $1
-ORDER BY created_at DESC
+const getWarrantiesByExactSearch = `-- name: GetWarrantiesByExactSearch :many
+SELECT DISTINCT
+    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.is_approved, w.created_at, w.updated_at,
+    s.shop_name,
+    s.branch_code
+FROM warranties w
+JOIN shops s ON w.shop_id = s.id
+LEFT JOIN warranty_parts wp ON w.id = wp.warranty_id
+WHERE LOWER(w.warranty_no) = LOWER($1)
+   OR LOWER(w.car_plate_no) = LOWER($1)
+ORDER BY w.created_at DESC
 `
 
-func (q *Queries) GetWarrantiesByCarPlateNo(ctx context.Context, carPlateNo string) ([]*Warranty, error) {
-	rows, err := q.db.Query(ctx, getWarrantiesByCarPlateNo, carPlateNo)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*Warranty{}
-	for rows.Next() {
-		var i Warranty
-		if err := rows.Scan(
-			&i.ID,
-			&i.ShopID,
-			&i.ClientName,
-			&i.ClientContact,
-			&i.ClientEmail,
-			&i.CarBrand,
-			&i.CarModel,
-			&i.CarColour,
-			&i.CarPlateNo,
-			&i.CarChassisNo,
-			&i.InstallationDate,
-			&i.ReferenceNo,
-			&i.WarrantyNo,
-			&i.InvoiceAttachmentUrl,
-			&i.IsActive,
-			&i.IsApproved,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type GetWarrantiesByExactSearchRow struct {
+	ID                   int32     `db:"id" json:"id"`
+	ShopID               int32     `db:"shop_id" json:"shopId"`
+	ClientName           string    `db:"client_name" json:"clientName"`
+	ClientContact        string    `db:"client_contact" json:"clientContact"`
+	ClientEmail          string    `db:"client_email" json:"clientEmail"`
+	CarBrand             string    `db:"car_brand" json:"carBrand"`
+	CarModel             string    `db:"car_model" json:"carModel"`
+	CarColour            string    `db:"car_colour" json:"carColour"`
+	CarPlateNo           string    `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool      `db:"is_active" json:"isActive"`
+	IsApproved           bool      `db:"is_approved" json:"isApproved"`
+	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
+	ShopName             string    `db:"shop_name" json:"shopName"`
+	BranchCode           string    `db:"branch_code" json:"branchCode"`
 }
 
-const getWarrantiesBySearchTerm = `-- name: GetWarrantiesBySearchTerm :many
-SELECT
-    id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
-FROM warranties
-WHERE car_plate_no ILIKE '%' || $1 || '%'
-   OR warranty_no ILIKE '%' || $1 || '%'
-ORDER BY created_at DESC
-`
-
-func (q *Queries) GetWarrantiesBySearchTerm(ctx context.Context, dollar_1 *string) ([]*Warranty, error) {
-	rows, err := q.db.Query(ctx, getWarrantiesBySearchTerm, dollar_1)
+func (q *Queries) GetWarrantiesByExactSearch(ctx context.Context, lower string) ([]*GetWarrantiesByExactSearchRow, error) {
+	rows, err := q.db.Query(ctx, getWarrantiesByExactSearch, lower)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Warranty{}
+	items := []*GetWarrantiesByExactSearchRow{}
 	for rows.Next() {
-		var i Warranty
+		var i GetWarrantiesByExactSearchRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ShopID,
@@ -260,6 +240,8 @@ func (q *Queries) GetWarrantiesBySearchTerm(ctx context.Context, dollar_1 *strin
 			&i.IsApproved,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ShopName,
+			&i.BranchCode,
 		); err != nil {
 			return nil, err
 		}
@@ -273,21 +255,47 @@ func (q *Queries) GetWarrantiesBySearchTerm(ctx context.Context, dollar_1 *strin
 
 const getWarrantiesByShopID = `-- name: GetWarrantiesByShopID :many
 SELECT
-    id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
-FROM warranties
-WHERE shop_id = $1
-ORDER BY created_at DESC
+    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.is_approved, w.created_at, w.updated_at,
+    s.shop_name,
+    s.branch_code
+FROM warranties w
+JOIN shops s ON w.shop_id = s.id
+WHERE w.shop_id = $1
+ORDER BY w.created_at DESC
 `
 
-func (q *Queries) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*Warranty, error) {
+type GetWarrantiesByShopIDRow struct {
+	ID                   int32     `db:"id" json:"id"`
+	ShopID               int32     `db:"shop_id" json:"shopId"`
+	ClientName           string    `db:"client_name" json:"clientName"`
+	ClientContact        string    `db:"client_contact" json:"clientContact"`
+	ClientEmail          string    `db:"client_email" json:"clientEmail"`
+	CarBrand             string    `db:"car_brand" json:"carBrand"`
+	CarModel             string    `db:"car_model" json:"carModel"`
+	CarColour            string    `db:"car_colour" json:"carColour"`
+	CarPlateNo           string    `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool      `db:"is_active" json:"isActive"`
+	IsApproved           bool      `db:"is_approved" json:"isApproved"`
+	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
+	ShopName             string    `db:"shop_name" json:"shopName"`
+	BranchCode           string    `db:"branch_code" json:"branchCode"`
+}
+
+func (q *Queries) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*GetWarrantiesByShopIDRow, error) {
 	rows, err := q.db.Query(ctx, getWarrantiesByShopID, shopID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Warranty{}
+	items := []*GetWarrantiesByShopIDRow{}
 	for rows.Next() {
-		var i Warranty
+		var i GetWarrantiesByShopIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ShopID,
@@ -307,6 +315,8 @@ func (q *Queries) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*W
 			&i.IsApproved,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ShopName,
+			&i.BranchCode,
 		); err != nil {
 			return nil, err
 		}
@@ -327,39 +337,6 @@ WHERE id = $1
 
 func (q *Queries) GetWarrantyByID(ctx context.Context, id int32) (*Warranty, error) {
 	row := q.db.QueryRow(ctx, getWarrantyByID, id)
-	var i Warranty
-	err := row.Scan(
-		&i.ID,
-		&i.ShopID,
-		&i.ClientName,
-		&i.ClientContact,
-		&i.ClientEmail,
-		&i.CarBrand,
-		&i.CarModel,
-		&i.CarColour,
-		&i.CarPlateNo,
-		&i.CarChassisNo,
-		&i.InstallationDate,
-		&i.ReferenceNo,
-		&i.WarrantyNo,
-		&i.InvoiceAttachmentUrl,
-		&i.IsActive,
-		&i.IsApproved,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return &i, err
-}
-
-const getWarrantyByWarrantyNo = `-- name: GetWarrantyByWarrantyNo :one
-SELECT
-    id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
-FROM warranties
-WHERE warranty_no = $1
-`
-
-func (q *Queries) GetWarrantyByWarrantyNo(ctx context.Context, warrantyNo string) (*Warranty, error) {
-	row := q.db.QueryRow(ctx, getWarrantyByWarrantyNo, warrantyNo)
 	var i Warranty
 	err := row.Scan(
 		&i.ID,

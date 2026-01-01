@@ -2,381 +2,496 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { getWarrantiesByExactSearchApi } from "@/lib/apis/warrantiesApi";
+import { WarrantySearchResult } from "@/types/warrantiesType";
+import {
+  MagnifyingGlassIcon,
+  ShieldCheckIcon,
+  CalendarIcon,
+  TruckIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { formatDate } from "@/lib/utils";
 
-export default function Home() {
+export default function Page() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([
-    {
-      warrantyId: 1,
-      warrantyNo: "WRN-2024-001",
-      clientName: "Ahmad bin Abdullah",
-      clientContact: "+60123456789",
-      clientEmail: "ahmad.abdullah@email.com",
-      carBrand: "Toyota",
-      carModel: "Vios",
-      carPlateNo: "WXY1234",
-      carChassisNo: "JTDBR32E300012345",
-      shopName: "ProFilm KL Central",
-      branchCode: "KL-001",
-      installationDate: "2024-01-15T00:00:00Z",
-      warrantyParts: [
-        {
-          id: 1,
-          warrantyId: 1,
-          carPartId: 1,
-          carPartName: "Front Windshield",
-          productAllocationId: 1,
-          installationImageUrl:
-            "https://via.placeholder.com/300x200?text=Front+Windshield",
-        },
-        {
-          id: 2,
-          warrantyId: 1,
-          carPartId: 2,
-          carPartName: "Side Windows",
-          productAllocationId: 2,
-          installationImageUrl:
-            "https://via.placeholder.com/300x200?text=Side+Windows",
-        },
-      ],
-    },
-    {
-      warrantyId: 2,
-      warrantyNo: "WRN-2024-001",
-      clientName: "Ahmad bin Abdullah",
-      clientContact: "+60123456789",
-      clientEmail: "ahmad.abdullah@email.com",
-      carBrand: "Toyota",
-      carModel: "Vios",
-      carPlateNo: "WXY1234",
-      carChassisNo: "JTDBR32E300012345",
-      shopName: "ProFilm KL Central",
-      branchCode: "KL-001",
-      installationDate: "2024-02-20T00:00:00Z",
-      warrantyParts: [
-        {
-          id: 3,
-          warrantyId: 2,
-          carPartId: 3,
-          carPartName: "Rear Windshield",
-          productAllocationId: 3,
-          installationImageUrl:
-            "https://via.placeholder.com/300x200?text=Rear+Windshield",
-        },
-      ],
-    },
-    {
-      warrantyId: 3,
-      warrantyNo: "WRN-2024-002",
-      clientName: "Siti Nurhaliza",
-      clientContact: "+60198765432",
-      clientEmail: "siti.nurhaliza@email.com",
-      carBrand: "Honda",
-      carModel: "Civic",
-      carPlateNo: "ABC9999",
-      carChassisNo: "JHMFC26508X012345",
-      shopName: "ProFilm Penang",
-      branchCode: "PN-002",
-      installationDate: "2024-03-10T00:00:00Z",
-      warrantyParts: [
-        {
-          id: 4,
-          warrantyId: 3,
-          carPartId: 1,
-          carPartName: "Front Windshield",
-          productAllocationId: 4,
-          installationImageUrl:
-            "https://via.placeholder.com/300x200?text=Front+Windshield",
-        },
-        {
-          id: 5,
-          warrantyId: 3,
-          carPartId: 4,
-          carPartName: "Sunroof",
-          productAllocationId: 5,
-          installationImageUrl:
-            "https://via.placeholder.com/300x200?text=Sunroof",
-        },
-        {
-          id: 6,
-          warrantyId: 3,
-          carPartId: 2,
-          carPartName: "Side Windows",
-          productAllocationId: 6,
-          installationImageUrl:
-            "https://via.placeholder.com/300x200?text=Side+Windows",
-        },
-      ],
-    },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<WarrantySearchResult[]>(
+    []
+  );
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [selectedWarranty, setSelectedWarranty] =
+    useState<WarrantySearchResult | null>(null);
 
-  // Group warranties by warranty number
-  const groupedWarranties = searchResults.reduce((acc: any, warranty: any) => {
-    const warrantyNo = warranty.warrantyNo;
-    if (!acc[warrantyNo]) {
-      acc[warrantyNo] = [];
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!searchQuery.trim()) {
+      return;
     }
-    acc[warrantyNo].push(warranty);
-    return acc;
-  }, {});
+
+    setIsSearching(true);
+    setHasSearched(true);
+    setSelectedWarranty(null);
+
+    try {
+      const results = await getWarrantiesByExactSearchApi(searchQuery.trim());
+      setSearchResults(results);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setHasSearched(false);
+    setSelectedWarranty(null);
+  };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-primary/5 via-primary/10 to-primary/20 dark:from-zinc-900 dark:via-primary/20 dark:to-primary/30 py-12 px-4 sm:px-6 lg:px-8">
-      <main className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-            Warranty Search
-          </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            Search by car plate number or warranty number
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center gap-3">
+            <ShieldCheckIcon className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                ProFilm E-Warranty
+              </h1>
+              <p className="text-sm text-gray-600">
+                Warranty Verification Portal
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            Search Your Warranty
+          </h2>
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+            Enter your warranty number or vehicle plate number to view your
+            warranty details
           </p>
         </div>
 
-        {/* Search Box */}
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl p-8 mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Enter car plate no. (e.g., ABC1234) or warranty no."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-6 py-4 text-lg border-2 border-zinc-300 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-700 dark:text-white transition-all"
-            />
-            <button
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isLoading || !searchQuery.trim()}
-            >
-              {isLoading ? "Searching..." : "Search"}
-            </button>
+        {/* Search Form */}
+        <div className="max-w-3xl mx-auto mb-8 sm:mb-12">
+          <form onSubmit={handleSearch} className="relative">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Enter warranty number or car plate number..."
+                className="w-full px-6 py-4 sm:py-5 pr-32 text-base sm:text-lg border-2 border-gray-300 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSearching || !searchQuery.trim()}
+                  className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSearching ? (
+                    <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <MagnifyingGlassIcon className="h-5 w-5" />
+                      <span className="hidden sm:inline">Search</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500">
+            <span>Example:</span>
+            <code className="px-2 py-1 bg-gray-100 rounded text-gray-700">
+              KLANG20241225001
+            </code>
+            <span>or</span>
+            <code className="px-2 py-1 bg-gray-100 rounded text-gray-700">
+              ABC1234
+            </code>
           </div>
         </div>
 
         {/* Search Results */}
-        {searchResults.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
-              Search Results ({searchResults.length}{" "}
-              {searchResults.length === 1 ? "warranty" : "warranties"} found)
-            </h2>
+        {hasSearched && !isSearching && (
+          <div className="max-w-4xl mx-auto">
+            {searchResults.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-md p-8 sm:p-12 text-center">
+                <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <MagnifyingGlassIcon className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No Warranty Found
+                </h3>
+                <p className="text-gray-600">
+                  We couldn't find any warranty matching "{searchQuery}". Please
+                  check your warranty number or vehicle plate number and try
+                  again.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div className="mb-4 text-sm text-gray-600">
+                  Found {searchResults.length}{" "}
+                  {searchResults.length === 1 ? "warranty" : "warranties"}
+                </div>
 
-            {Object.entries(groupedWarranties).map(
-              ([warrantyNo, warranties]: [string, any]) => (
-                <div
-                  key={warrantyNo}
-                  className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg overflow-hidden"
-                >
-                  {/* Warranty Header */}
-                  <div className="bg-linear-to-r from-primary to-primary/80 px-6 py-4">
-                    <h3 className="text-xl font-bold text-white">
-                      Warranty No: {warrantyNo}
-                    </h3>
-                  </div>
-
-                  {/* Warranty Details */}
-                  <div className="p-6">
-                    {warranties.map((warranty: any, index: number) => (
-                      <div
-                        key={index}
-                        className={`${
-                          index > 0
-                            ? "border-t border-zinc-200 dark:border-zinc-700 mt-6 pt-6"
-                            : ""
-                        }`}
+                <div className="space-y-4">
+                  {searchResults.map((result) => (
+                    <div
+                      key={result.warranty.id}
+                      className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+                    >
+                      <button
+                        onClick={() =>
+                          setSelectedWarranty(
+                            selectedWarranty?.warranty.id === result.warranty.id
+                              ? null
+                              : result
+                          )
+                        }
+                        className="w-full p-4 sm:p-6 text-left"
                       >
-                        {/* Client Information */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                          <div className="space-y-4">
-                            <h4 className="font-semibold text-lg text-zinc-900 dark:text-white border-b border-zinc-200 dark:border-zinc-700 pb-2">
-                              Client Information
-                            </h4>
-                            <div className="space-y-2">
-                              <div>
-                                <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                  Name:
-                                </span>
-                                <p className="font-medium text-zinc-900 dark:text-white">
-                                  {warranty.clientName}
-                                </p>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <ShieldCheckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
+                              <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                                {result.warranty.warrantyNo}
+                              </h3>
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
+                              <div className="flex items-center gap-1.5">
+                                <TruckIcon className="h-4 w-4 shrink-0" />
+                                <span>{result.warranty.carPlateNo}</span>
                               </div>
-                              <div>
-                                <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                  Contact:
+                              <div className="flex items-center gap-1.5">
+                                <CalendarIcon className="h-4 w-4 shrink-0" />
+                                <span>
+                                  {formatDate(result.warranty.installationDate)}
                                 </span>
-                                <p className="font-medium text-zinc-900 dark:text-white">
-                                  {warranty.clientContact}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                  Email:
-                                </span>
-                                <p className="font-medium text-zinc-900 dark:text-white">
-                                  {warranty.clientEmail}
-                                </p>
                               </div>
                             </div>
                           </div>
-
-                          {/* Vehicle Information */}
-                          <div className="space-y-4">
-                            <h4 className="font-semibold text-lg text-zinc-900 dark:text-white border-b border-zinc-200 dark:border-zinc-700 pb-2">
-                              Vehicle Information
-                            </h4>
-                            <div className="space-y-2">
-                              <div>
-                                <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                  Car Plate No:
-                                </span>
-                                <p className="font-medium text-zinc-900 dark:text-white">
-                                  {warranty.carPlateNo}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                  Brand & Model:
-                                </span>
-                                <p className="font-medium text-zinc-900 dark:text-white">
-                                  {warranty.carBrand} {warranty.carModel}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                  Chassis No:
-                                </span>
-                                <p className="font-medium text-zinc-900 dark:text-white">
-                                  {warranty.carChassisNo}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Shop & Installation Info */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4">
-                          <div className="space-y-2">
-                            <div>
-                              <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                Shop:
-                              </span>
-                              <p className="font-medium text-zinc-900 dark:text-white">
-                                {warranty.shopName}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                                Branch Code:
-                              </span>
-                              <p className="font-medium text-zinc-900 dark:text-white">
-                                {warranty.branchCode}
-                              </p>
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-zinc-500 dark:text-zinc-400 text-sm">
-                              Installation Date:
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                result.warranty.isActive
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-gray-100 text-gray-700"
+                              }`}
+                            >
+                              {result.warranty.isActive ? "Active" : "Inactive"}
                             </span>
-                            <p className="font-medium text-zinc-900 dark:text-white">
-                              {new Date(
-                                warranty.installationDate
-                              ).toLocaleDateString()}
-                            </p>
+                            <svg
+                              className={`h-5 w-5 text-gray-400 transition-transform ${
+                                selectedWarranty?.warranty.id ===
+                                result.warranty.id
+                                  ? "rotate-180"
+                                  : ""
+                              }`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
                           </div>
                         </div>
+                      </button>
 
-                        {/* Warranty Parts */}
-                        {warranty.warrantyParts &&
-                          warranty.warrantyParts.length > 0 && (
-                            <div className="mt-6">
-                              <h4 className="font-semibold text-lg text-zinc-900 dark:text-white mb-4">
-                                Warranty Parts
+                      {/* Expanded Details */}
+                      {selectedWarranty?.warranty.id === result.warranty.id && (
+                        <div className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50">
+                          {/* Warranty Information */}
+                          <div className="mb-6">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                              Warranty Information
+                            </h4>
+                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                              <div>
+                                <dt className="text-gray-500">
+                                  Warranty Number
+                                </dt>
+                                <dd className="font-medium text-gray-900 font-mono">
+                                  {result.warranty.warrantyNo}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt className="text-gray-500">
+                                  Installation Date
+                                </dt>
+                                <dd className="font-medium text-gray-900">
+                                  {formatDate(result.warranty.installationDate)}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt className="text-gray-500">Shop</dt>
+                                <dd className="font-medium text-gray-900">
+                                  {result.warranty.shopName}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt className="text-gray-500">Branch Code</dt>
+                                <dd className="font-medium text-gray-900 font-mono">
+                                  {result.warranty.branchCode}
+                                </dd>
+                              </div>
+                            </dl>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-6 border-t border-gray-200">
+                            {/* Client Information */}
+                            <div>
+                              <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                                Client Information
                               </h4>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {warranty.warrantyParts.map(
-                                  (part: any, partIndex: number) => (
-                                    <div
-                                      key={partIndex}
-                                      className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 hover:shadow-md transition-shadow"
-                                    >
-                                      <p className="font-medium text-zinc-900 dark:text-white mb-2">
-                                        {part.carPartName}
-                                      </p>
+                              <dl className="space-y-2 text-sm">
+                                <div>
+                                  <dt className="text-gray-500">Name</dt>
+                                  <dd className="font-medium text-gray-900">
+                                    {result.warranty.clientName}
+                                  </dd>
+                                </div>
+                                <div>
+                                  <dt className="text-gray-500">Contact</dt>
+                                  <dd className="font-medium text-gray-900">
+                                    {result.warranty.clientContact}
+                                  </dd>
+                                </div>
+                                <div>
+                                  <dt className="text-gray-500">Email</dt>
+                                  <dd className="font-medium text-gray-900 break-all">
+                                    {result.warranty.clientEmail}
+                                  </dd>
+                                </div>
+                              </dl>
+                            </div>
+
+                            {/* Vehicle Information */}
+                            <div>
+                              <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                                Vehicle Information
+                              </h4>
+                              <dl className="space-y-2 text-sm">
+                                <div>
+                                  <dt className="text-gray-500">Brand</dt>
+                                  <dd className="font-medium text-gray-900">
+                                    {result.warranty.carBrand}
+                                  </dd>
+                                </div>
+                                <div>
+                                  <dt className="text-gray-500">Model</dt>
+                                  <dd className="font-medium text-gray-900">
+                                    {result.warranty.carModel}
+                                  </dd>
+                                </div>
+                                <div>
+                                  <dt className="text-gray-500">Colour</dt>
+                                  <dd className="font-medium text-gray-900">
+                                    {result.warranty.carColour}
+                                  </dd>
+                                </div>
+                                <div>
+                                  <dt className="text-gray-500">
+                                    Plate Number
+                                  </dt>
+                                  <dd className="font-medium text-gray-900 font-mono">
+                                    {result.warranty.carPlateNo}
+                                  </dd>
+                                </div>
+                                <div>
+                                  <dt className="text-gray-500">
+                                    Chassis Number
+                                  </dt>
+                                  <dd className="font-medium text-gray-900 font-mono">
+                                    {result.warranty.carChassisNo}
+                                  </dd>
+                                </div>
+                              </dl>
+                            </div>
+                          </div>
+
+                          {/* Installed Parts */}
+                          <div className="mt-6 pt-6 border-t border-gray-200">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-4">
+                              Installed Parts ({result.parts?.length || 0})
+                            </h4>
+                            {result.parts && result.parts.length > 0 ? (
+                              <div className="space-y-4">
+                                {result.parts.map((part, index) => (
+                                  <div
+                                    key={part.id}
+                                    className="bg-white rounded-lg p-4 border border-gray-200"
+                                  >
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                      {/* Part Image */}
                                       {part.installationImageUrl && (
-                                        <div className="mt-2 relative h-32 bg-zinc-100 dark:bg-zinc-700 rounded">
+                                        <div className="shrink-0">
                                           <img
                                             src={part.installationImageUrl}
                                             alt={part.carPartName}
-                                            className="w-full h-full object-cover rounded"
+                                            className="h-32 w-full sm:h-24 sm:w-24 rounded-lg object-contain border border-gray-200 bg-gray-50"
                                           />
                                         </div>
                                       )}
+
+                                      {/* Part Details */}
+                                      <div className="flex-1 min-w-0">
+                                        <h5 className="font-semibold text-gray-900 mb-3">
+                                          {part.carPartName}
+                                        </h5>
+                                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                          <div>
+                                            <dt className="text-gray-500">
+                                              Product Name
+                                            </dt>
+                                            <dd className="font-medium text-gray-900">
+                                              {part.productName}
+                                            </dd>
+                                          </div>
+                                          <div>
+                                            <dt className="text-gray-500">
+                                              Brand
+                                            </dt>
+                                            <dd className="font-medium text-gray-900">
+                                              {part.productBrand}
+                                            </dd>
+                                          </div>
+                                          <div>
+                                            <dt className="text-gray-500">
+                                              Type
+                                            </dt>
+                                            <dd className="font-medium text-gray-900">
+                                              {part.productType}
+                                            </dd>
+                                          </div>
+                                          <div>
+                                            <dt className="text-gray-500">
+                                              Series
+                                            </dt>
+                                            <dd className="font-medium text-gray-900">
+                                              {part.productSeries}
+                                            </dd>
+                                          </div>
+                                          <div>
+                                            <dt className="text-gray-500">
+                                              Film Serial Number
+                                            </dt>
+                                            <dd className="font-medium text-gray-900 font-mono">
+                                              {part.filmSerialNumber}
+                                            </dd>
+                                          </div>
+                                          <div>
+                                            <dt className="text-gray-500">
+                                              Warranty Period
+                                            </dt>
+                                            <dd className="font-medium text-gray-900">
+                                              {part.warrantyInMonths} months
+                                            </dd>
+                                          </div>
+                                        </dl>
+                                      </div>
                                     </div>
-                                  )
-                                )}
+                                  </div>
+                                ))}
                               </div>
-                            </div>
-                          )}
-                      </div>
-                    ))}
-                  </div>
+                            ) : (
+                              <p className="text-sm text-gray-500 text-center py-4">
+                                No parts information available
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              )
+              </div>
             )}
           </div>
         )}
 
-        {/* No Results */}
-        {!isLoading && searchResults.length === 0 && searchQuery && (
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-12 text-center">
-            <svg
-              className="mx-auto h-16 w-16 text-zinc-400 mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
-              No warranties found
-            </h3>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              Try searching with a different car plate number or warranty number
-            </p>
-          </div>
-        )}
+        {/* Info Section */}
+        {!hasSearched && (
+          <div className="max-w-4xl mx-auto mt-12 sm:mt-16">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+              <div className="text-center">
+                <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <MagnifyingGlassIcon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Easy Search
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Search using your warranty number or vehicle plate number
+                </p>
+              </div>
 
-        {/* Initial State */}
-        {!searchQuery && searchResults.length === 0 && (
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-12 text-center">
-            <svg
-              className="mx-auto h-20 w-20 text-primary mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
-              Start your search
-            </h3>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              Enter a car plate number or warranty number above to find warranty
-              information
-            </p>
+              <div className="text-center">
+                <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <ShieldCheckIcon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Instant Verification
+                </h3>
+                <p className="text-sm text-gray-600">
+                  View your warranty details and coverage instantly
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Track Status
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Check warranty status and installation details
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="mt-16 sm:mt-20 border-t border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center text-sm text-gray-600">
+          <p>
+            © {new Date().getFullYear()} ProFilm E-Warranty. All rights
+            reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

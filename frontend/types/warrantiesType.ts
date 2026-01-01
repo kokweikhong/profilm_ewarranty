@@ -49,21 +49,8 @@ export interface CreateWarrantyRequest {
 
 // TODO: warranty no can't be changed
 // TODO: branch code shouldn't be changed and need to disable in the form
-export interface UpdateWarrantyRequest {
+export interface UpdateWarrantyRequest extends CreateWarrantyRequest {
   id: number;
-  clientName: string;
-  clientContact: string;
-  clientEmail: string;
-  carBrand: string;
-  carModel: string;
-  carColour: string;
-  carPlateNo: string;
-  carChassisNo: string;
-  carParts: WarrantyCarPart[]; // Array of car parts with individual allocations
-  installationDate: string; // Format: YYYY-MM-DD
-  referenceNo?: string; // Optional
-  warrantyNo: string;
-  branchCode: string;
 }
 
 export interface CarPart {
@@ -81,8 +68,17 @@ export interface CreateWarrantyPartRequest {
   installationImageUrl: string;
 }
 
+export interface UpdateWarrantyPartRequest extends CreateWarrantyPartRequest {
+  id: number;
+}
+
 export interface CreateWarrantyWithPartsRequest {
   warranty: CreateWarrantyRequest;
+  parts: CreateWarrantyPartRequest[];
+}
+
+export interface UpdateWarrantyWithPartsRequest {
+  warranty: UpdateWarrantyRequest;
   parts: CreateWarrantyPartRequest[];
 }
 
@@ -108,4 +104,9 @@ export interface WarrantyPartDetails {
 export interface WarrantyWithPartsResponse {
   warranty: Warranty;
   parts: Array<WarrantyPartDetails>;
+}
+
+export interface WarrantySearchResult {
+  warranty: WarrantyDetails;
+  parts: WarrantyPartDetails[];
 }
