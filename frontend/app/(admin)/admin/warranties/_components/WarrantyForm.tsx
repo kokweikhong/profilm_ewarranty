@@ -18,6 +18,7 @@ import {
   UpdateWarrantyPartRequest,
 } from "@/types/warrantiesType";
 import {
+  createWarrantyPartAction,
   createWarrantyWithPartsAction,
   updateWarrantyAction,
 } from "@/actions/warrantiesAction";
@@ -378,20 +379,6 @@ export default function WarrantyForm({
       setSelectedCarParts(newSelected);
     }
   };
-  // const toggleCarPart = (carPartId: number, carPartName: string) => {
-  //   const newSelected = new Map(selectedCarParts);
-  //   if (newSelected.has(carPartId)) {
-  //     newSelected.delete(carPartId);
-  //   } else {
-  //     newSelected.set(carPartId, {
-  //       carPartId,
-  //       carPartName,
-  //       productAllocationId: 0,
-  //       installationImageUrl:"",
-  //     });
-  //   }
-  //   setSelectedCarParts(newSelected);
-  // };
 
   // Update car part details
   const updateCarPartDetails = (
@@ -560,6 +547,29 @@ export default function WarrantyForm({
 
           console.log("Updating warranty:", updatedWarranty);
           console.log("Updating parts:", updatedWarrantyParts);
+
+          // check if updatedWarrantyParts have ids with string type and create first
+          for (const part of updatedWarrantyParts) {
+            if (typeof part.id === "string") {
+              const createPartData: any = {
+                warrantyId: updatedWarranty.id!,
+                carPartId: part.carPartId,
+                productAllocationId: part.productAllocationId,
+                installationImageUrl: part.installationImageUrl,
+              };
+              const createResult = await createWarrantyPartAction(
+                createPartData
+              );
+              if (createResult && createResult.success) {
+                part.id = createResult.data.id;
+              } else {
+                throw new Error(
+                  `Failed to create warranty part for carPartId: ${part.carPartId}`
+                );
+              }
+            }
+          }
+
           const result = await updateWarrantyAction({
             warranty: updatedWarranty,
             parts: updatedWarrantyParts,
@@ -1283,9 +1293,9 @@ export default function WarrantyForm({
                 const isSelected = fieldIndex !== -1;
 
                 // In edit mode, only show selected car parts
-                if (isEditMode && !isSelected) {
-                  return null;
-                }
+                // if (isEditMode && !isSelected) {
+                //   return null;
+                // }
 
                 return (
                   <div
@@ -1302,16 +1312,14 @@ export default function WarrantyForm({
                         id={`carPart-${carPart.id}`}
                         checked={isSelected}
                         onChange={() => toggleCarPart(carPart.id, carPart.name)}
-                        disabled={!!(isEditMode && isSelected)}
+                        // disabled={!!(isEditMode && isSelected)}
                         className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                       <div className="flex-1">
                         <label
                           htmlFor={`carPart-${carPart.id}`}
                           className={`block font-medium text-gray-900  ${
-                            isEditMode && isSelected
-                              ? "cursor-default"
-                              : "cursor-pointer"
+                            isSelected ? "cursor-default" : "cursor-pointer"
                           }`}
                         >
                           {carPart.name} ({carPart.code})

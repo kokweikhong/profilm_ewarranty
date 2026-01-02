@@ -102,3 +102,25 @@ export async function updateWarrantyPartApprovalAction(
     };
   }
 }
+
+export async function createWarrantyPartAction(data: {
+  warrantyId: number;
+  carPartId: number;
+  productAllocationId: number;
+  installationImageUrl: string;
+}) {
+  try {
+    const response = await apiClient.post(`/warranties/warranty-parts`, data);
+    return { success: true, data: response.data };
+  } catch (error: any) {
+    console.error("Error creating warranty part:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+    });
+    return {
+      success: false,
+      error: error.response?.data?.message || "Failed to create warranty part",
+    };
+  }
+}

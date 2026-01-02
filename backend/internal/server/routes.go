@@ -102,6 +102,7 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Route("/warranty-parts", func(r chi.Router) {
 					r.Put("/{id}/approval", rt.handler.WarrantiesHandler.UpdateWarrantyPartApproval)
 					r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyPartsByWarrantyID)
+					r.Post("/", rt.handler.WarrantiesHandler.CreateWarrantyPart)
 
 				})
 			})

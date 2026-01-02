@@ -126,6 +126,16 @@ func (q *Queries) CreateWarrantyPart(ctx context.Context, arg *CreateWarrantyPar
 	return &i, err
 }
 
+const deleteWarrantyPart = `-- name: DeleteWarrantyPart :exec
+DELETE FROM warranty_parts
+WHERE id = $1
+`
+
+func (q *Queries) DeleteWarrantyPart(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteWarrantyPart, id)
+	return err
+}
+
 const getCarParts = `-- name: GetCarParts :many
 SELECT
     id, name, code, description, created_at, updated_at

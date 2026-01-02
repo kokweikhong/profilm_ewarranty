@@ -146,3 +146,7 @@ FROM warranties w
 JOIN shops s ON w.shop_id = s.id
 WHERE w.shop_id = $1
 ORDER BY w.created_at DESC;
+
+-- name: DeleteWarrantyPart :exec
+DELETE FROM warranty_parts
+WHERE id = $1;

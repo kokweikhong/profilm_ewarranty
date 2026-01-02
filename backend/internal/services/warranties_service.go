@@ -105,6 +105,7 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 		tx.Rollback(ctx)
 		return nil, err
 	}
+
 	// Update parts associated with the warranty
 	for _, partArg := range partsArgs {
 		partArg.WarrantyID = warranty.ID
@@ -114,6 +115,41 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 			return nil, err
 		}
 	}
+
+	// Delete parts that are duplicated in car_part_id for the same warranty
+	// to avoid multiple parts with the same car_part_id for a warranty
+	// delete the based on updated_at timestamp
+	existingParts, err := qtx.GetWarrantyPartsByWarrantyID(ctx, warranty.ID)
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+	existingPartsMap := make(map[int32][]*warranties.GetWarrantyPartsByWarrantyIDRow)
+	for _, part := range existingParts {
+		existingPartsMap[part.CarPartID] = append(existingPartsMap[part.CarPartID], part)
+	}
+	for _, parts := range existingPartsMap {
+		if len(parts) > 1 {
+			// sort parts by updated_at descending
+			// delete all but the latest one
+			latestPart := parts[0]
+			for _, part := range parts[1:] {
+				if part.UpdatedAt.After(latestPart.UpdatedAt) {
+					latestPart = part
+				}
+			}
+			for _, part := range parts {
+				if part.ID != latestPart.ID {
+					err = qtx.DeleteWarrantyPart(ctx, part.ID)
+					if err != nil {
+						tx.Rollback(ctx)
+						return nil, err
+					}
+				}
+			}
+		}
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}

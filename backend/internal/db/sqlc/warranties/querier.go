@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	CreateWarranty(ctx context.Context, arg *CreateWarrantyParams) (*Warranty, error)
 	CreateWarrantyPart(ctx context.Context, arg *CreateWarrantyPartParams) (*WarrantyPart, error)
+	DeleteWarrantyPart(ctx context.Context, id int32) error
 	GetCarParts(ctx context.Context) ([]*CarPart, error)
 	GetLatestWarrantyNoByPrefix(ctx context.Context, warrantyNo string) (string, error)
 	GetWarrantiesByExactSearch(ctx context.Context, lower string) ([]*GetWarrantiesByExactSearchRow, error)
