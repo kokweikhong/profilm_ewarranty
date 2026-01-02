@@ -398,6 +398,8 @@ var (
 	warrantyMonths = []int32{12, 24, 36, 48, 60, 72}
 )
 
+var spacesUrl = "https://profilm.sgp1.cdn.digitaloceanspaces.com/testing/"
+
 func main() {
 	ctx := context.Background()
 
@@ -492,20 +494,11 @@ func main() {
 
 	// 6. Seed Claims (30% of warranties)
 	log.Println("Seeding claims...")
-	claimsList, err := seedClaims(ctx, claimsService, warrantiesList, 30)
+	claimsList, err := seedClaims(ctx, claimsService, warrantiesService, warrantiesList, len(warrantiesList)*30/100)
 	if err != nil {
 		log.Fatalf("Failed to seed claims: %v", err)
 	}
 	log.Printf("Seeded %d claims", len(claimsList))
-
-	// 	// 7. Seed Claim Warranty Parts
-	// 	log.Println("Seeding claim warranty parts...")
-	// 	claimPartsCount, err := seedClaimWarrantyParts(ctx, claimsService, claimsList, warrantyPartsList)
-	// 	if err != nil {
-	// 		log.Fatalf("Failed to seed claim warranty parts: %v", err)
-	// 	}
-	// 	log.Printf("Seeded %d claim warranty parts", claimPartsCount)
-
 	log.Println("Database seeding completed successfully!")
 	log.Printf("Summary:")
 	// log print if admin user created
@@ -518,9 +511,7 @@ func main() {
 	log.Printf("  - Shops: %d", len(shopsList))
 	log.Printf("  - Product Allocations: %d", len(allocationsList))
 	log.Printf("  - Warranties: %d", len(warrantiesList))
-	// log.Printf("  - Warranty Parts: %d", len(warrantyPartsList))
 	log.Printf("  - Claims: %d", len(claimsList))
-	// 	log.Printf("  - Claim Warranty Parts: %d", claimPartsCount)
 }
 
 func seedProducts(ctx context.Context, svc services.ProductsService, count int) ([]*products.Product, error) {
@@ -588,8 +579,8 @@ func seedShops(ctx context.Context, svc services.ShopsService, count int) ([]*sh
 	var (
 		shopsList []*shops.Shop
 
-		sampleCompanyLicenseImageUrl = "https://profilm.sgp1.cdn.digitaloceanspaces.com/testing/sample_ssm.jpg"
-		sampleShopImageUrl           = "https://profilm.sgp1.cdn.digitaloceanspaces.com/testing/sample_shop.jpg"
+		sampleCompanyLicenseImageUrl = spacesUrl + "sample_ssm.jpg"
+		sampleShopImageUrl           = spacesUrl + "sample_shop.jpg"
 	)
 
 	// Get states
@@ -753,7 +744,7 @@ func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesSe
 			part := &warranties.CreateWarrantyPartParams{
 				ProductAllocationID:  productAllocationsFilter[rand.Intn(len(productAllocationsFilter))].AllocationID,
 				CarPartID:            carPart.ID,
-				InstallationImageUrl: fmt.Sprintf("https://example.com/installations/warranty_%d_part_%d.jpg", i+1, j+1),
+				InstallationImageUrl: generateInstallationImageUrl(carPart.Code),
 			}
 			parts = append(parts, part)
 		}
@@ -769,7 +760,7 @@ func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesSe
 	return warrantiesList, nil
 }
 
-func seedClaims(ctx context.Context, svc services.ClaimsService, warrantiesList []*warranties.Warranty, count int) ([]*claims.Claim, error) {
+func seedClaims(ctx context.Context, svc services.ClaimsService, warrantySvc services.WarrantiesService, warrantiesList []*warranties.Warranty, count int) ([]*claims.Claim, error) {
 	var claimsList []*claims.Claim
 
 	for i := 0; i < count; i++ {
@@ -786,85 +777,44 @@ func seedClaims(ctx context.Context, svc services.ClaimsService, warrantiesList 
 			return nil, err
 		}
 
-		claim, err := svc.CreateClaim(ctx, &claims.CreateClaimParams{
+		claimParams := &claims.CreateClaimParams{
 			WarrantyID: warranty.ID,
 			ClaimNo:    claimNo,
 			ClaimDate:  claimDate,
-		})
+		}
+
+		// retrieve warranty parts for the warranty
+		warrantyParts, err := warrantySvc.GetWarrantyPartsByWarrantyID(ctx, warranty.ID)
 		if err != nil {
 			return nil, err
 		}
+
+		claimWarrantyPartsParms := []*claims.CreateClaimWarrantyPartParams{}
+		// Each claim affects 1-3 parts
+		numParts := rand.Intn(3) + 1
+		if numParts > len(warrantyParts) {
+			numParts = len(warrantyParts)
+		}
+
+		for j := 0; j < numParts; j++ {
+			part := warrantyParts[rand.Intn(len(warrantyParts))]
+			remarks := fmt.Sprintf("Damage description for claim %d part %d", i+1, j+1)
+			claimWarrantyPartParam := &claims.CreateClaimWarrantyPartParams{
+				WarrantyPartID:  part.ID,
+				DamagedImageUrl: fmt.Sprintf("https://example.com/damages/claim_%d_part_%d.jpg", i+1, j+1),
+				Remarks:         &remarks,
+			}
+			claimWarrantyPartsParms = append(claimWarrantyPartsParms, claimWarrantyPartParam)
+		}
+		claim, err := svc.CreateClaimWithParts(ctx, claimParams, claimWarrantyPartsParms)
+		if err != nil {
+			return nil, err
+		}
+
 		claimsList = append(claimsList, claim)
 	}
-
 	return claimsList, nil
 }
-
-// func seedClaimWarrantyParts(ctx context.Context, svc services.ClaimsService, claimsList []*claims.Claim, warrantyPartsList []*warranties.WarrantyPart) (int, error) {
-// 	count := 0
-
-// 	// Create a map of warranty ID to warranty parts for easy lookup
-// 	warrantyPartsMap := make(map[int32][]*warranties.WarrantyPart)
-// 	for _, part := range warrantyPartsList {
-// 		warrantyPartsMap[part.WarrantyID] = append(warrantyPartsMap[part.WarrantyID], part)
-// 	}
-
-// 	for _, claim := range claimsList {
-// 		parts, ok := warrantyPartsMap[claim.WarrantyID]
-// 		if !ok || len(parts) == 0 {
-// 			continue
-// 		}
-
-// 		// Each claim affects 1-2 parts
-// 		numParts := rand.Intn(2) + 1
-// 		if numParts > len(parts) {
-// 			numParts = len(parts)
-// 		}
-
-// 		// Shuffle parts
-// 		shuffledParts := make([]*warranties.WarrantyPart, len(parts))
-// 		copy(shuffledParts, parts)
-// 		rand.Shuffle(len(shuffledParts), func(i, j int) {
-// 			shuffledParts[i], shuffledParts[j] = shuffledParts[j], shuffledParts[i]
-// 		})
-
-// 		for i := 0; i < numParts; i++ {
-// 			part := shuffledParts[i]
-
-// 			// 60% chance of being resolved
-// 			var resolutionDate *time.Time
-// 			var resolutionImageUrl *string
-// 			var remarks *string
-
-// 			if rand.Float32() < 0.6 {
-// 				resDate := claim.ClaimDate.AddDate(0, 0, rand.Intn(14)+1) // 1-14 days after claim
-// 				resolutionDate = &resDate
-// 				resImage := fmt.Sprintf("https://example.com/resolutions/claim_%d_part_%d.jpg", claim.ID, i+1)
-// 				resolutionImageUrl = &resImage
-// 				rem := "Issue resolved successfully"
-// 				remarks = &rem
-// 			} else {
-// 				rem := "Under investigation"
-// 				remarks = &rem
-// 			}
-
-// 			_, err := svc.CreateClaimWarrantyPart(ctx, &claims.CreateClaimWarrantyPartParams{
-// 				ClaimID:            claim.ID,
-// 				WarrantyPartID:     part.ID,
-// 				DamagedImageUrl:    fmt.Sprintf("https://example.com/damages/claim_%d_part_%d.jpg", claim.ID, i+1),
-// 				Remarks:            remarks,
-// 				ResolutionDate:     resolutionDate,
-// 				ResolutionImageUrl: resolutionImageUrl,
-// 			})
-// 			if err != nil {
-// 				return count, err
-// 			}
-// 			count++
-// 		}
-// 	}
-
-// 	return count, nil
-// }
 
 // Helper functions
 
@@ -889,4 +839,29 @@ func generateRandomString(length int) string {
 		result[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(result)
+}
+
+func generateInstallationImageUrl(partCode string) string {
+	switch partCode {
+	case "FW":
+		return spacesUrl + "sample_fw.jpg"
+	case "FR":
+		return spacesUrl + "sample_fr.jpg"
+	case "FL":
+		return spacesUrl + "sample_fl.jpg"
+	case "RR":
+		return spacesUrl + "sample_rr.jpg"
+	case "RL":
+		return spacesUrl + "sample_rl.jpg"
+	case "RW":
+		return spacesUrl + "sample_rw.jpg"
+	case "SR":
+		return spacesUrl + "sample_sr.jpg"
+	case "FB":
+		return spacesUrl + "sample_fb.jpg"
+	case "RB":
+		return spacesUrl + "sample_rb.jpg"
+	default:
+		return spacesUrl + "sample_installation.jpg"
+	}
 }

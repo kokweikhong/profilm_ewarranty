@@ -1,28 +1,50 @@
 import apiClient, { getServerApiClient } from "@/lib/axios";
-import { Claim, ListClaimsResponse } from "@/types/claimsType";
+import {
+  ClaimView,
+  Claim,
+  ListClaimsResponse,
+  ClaimWithPartsDetailResponse,
+} from "@/types/claimsType";
 
-export async function getClaimsApi(): Promise<ListClaimsResponse[]> {
+export async function getClaimsApi(): Promise<ClaimView[]> {
   const client =
     typeof window === "undefined" ? await getServerApiClient() : apiClient;
-  const response = await client.get<ListClaimsResponse[]>("/claims");
+  const response = await client.get<ClaimView[]>("/claims");
   return response.data;
 }
 
-export async function getClaimByIdApi(id: number): Promise<Claim> {
+export async function getClaimByIdApi(id: number): Promise<ClaimView> {
   const client =
     typeof window === "undefined" ? await getServerApiClient() : apiClient;
-  const response = await client.get<Claim>(`/claims/${id}`);
+  const response = await client.get<ClaimView>(`/claims/${id}`);
   return response.data;
+}
+
+export async function getClaimWarrantyPartsByClaimIdApi(claimId: number) {
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+  const response = await client.get(`/claims/claim-warranty-parts/${claimId}`);
+  return response.data;
+}
+
+export async function getClaimWithPartsByIdApi(
+  id: number
+): Promise<ClaimWithPartsDetailResponse> {
+  const client =
+    typeof window === "undefined" ? await getServerApiClient() : apiClient;
+
+  // Fetch claim and parts separately
+  const claim = await client.get(`/claims/${id}/details`);
+
+  return claim.data;
 }
 
 export async function getClaimsByShopIdApi(
   shopId: number
-): Promise<ListClaimsResponse[]> {
+): Promise<ClaimView[]> {
   const client =
     typeof window === "undefined" ? await getServerApiClient() : apiClient;
-  const response = await client.get<ListClaimsResponse[]>(
-    `/claims/by-shop/${shopId}`
-  );
+  const response = await client.get<ClaimView[]>(`/claims/by-shop/${shopId}`);
   return response.data;
 }
 

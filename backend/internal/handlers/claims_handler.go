@@ -14,24 +14,37 @@ import (
 type ClaimsHandler interface {
 	// ListClaimsView returns a list of claims from the view.
 	ListClaims(w http.ResponseWriter, r *http.Request)
+
 	// GetClaimsByShopID returns claims associated with a specific shop ID.
 	GetClaimsByShopID(w http.ResponseWriter, r *http.Request)
+
 	// GetClaimByID returns a single claim by ID.
 	GetClaimByID(w http.ResponseWriter, r *http.Request)
+
+	// GetClaimWithPartsByID returns a claim along with its associated parts by ID.
+	GetClaimWithPartsByID(w http.ResponseWriter, r *http.Request)
+
 	// GenerateNextClaimNo returns the next claim number based on warranty number and claim date.
 	GenerateNextClaimNo(w http.ResponseWriter, r *http.Request)
-	// CreateClaim creates a new claim.
-	CreateClaim(w http.ResponseWriter, r *http.Request)
-	// UpdateClaim updates an existing claim.
-	UpdateClaim(w http.ResponseWriter, r *http.Request)
+
+	// CreateClaimWithParts creates a new claim with its associated parts.
+	CreateClaimWithParts(w http.ResponseWriter, r *http.Request)
+
+	// UpdateClaimWithParts updates an existing claim along with its associated parts.
+	UpdateClaimWithParts(w http.ResponseWriter, r *http.Request)
+
 	// UpdateClaimApproval updates the approval status of an existing claim.
 	UpdateClaimApproval(w http.ResponseWriter, r *http.Request)
+
+	// UpdateClaimStatus updates the open/closed status of an existing claim.
+	UpdateClaimStatus(w http.ResponseWriter, r *http.Request)
+
+	// UpdateClaimWarrantyPartStatus updates the open/closed status of an existing claim warranty part.
+	UpdateClaimWarrantyPartStatus(w http.ResponseWriter, r *http.Request)
+
 	// ListClaimWarrantyPartsByClaimID returns a list of claim warranty parts by claim ID.
-	ListClaimWarrantyPartsByClaimID(w http.ResponseWriter, r *http.Request)
-	// CreateClaimWarrantyPart creates a new claim warranty part.
-	CreateClaimWarrantyPart(w http.ResponseWriter, r *http.Request)
-	// UpdateClaimWarrantyPart updates an existing claim warranty part.
-	UpdateClaimWarrantyPart(w http.ResponseWriter, r *http.Request)
+	GetClaimWarrantyPartsByClaimID(w http.ResponseWriter, r *http.Request)
+
 	// UpdateClaimWarrantyPartApproval updates the approval status of an existing claim warranty part.
 	UpdateClaimWarrantyPartApproval(w http.ResponseWriter, r *http.Request)
 }
@@ -67,7 +80,7 @@ func (h *claimsHandler) GetClaimsByShopID(w http.ResponseWriter, r *http.Request
 // ListClaims returns a list of claims from the view.
 func (h *claimsHandler) ListClaims(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	claimsList, err := h.claimsService.ListClaims(ctx)
+	claimsList, err := h.claimsService.GetClaims(ctx)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to list claims")
 		return
@@ -90,6 +103,32 @@ func (h *claimsHandler) GetClaimByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, claim)
+}
+
+// GetClaimWithPartsByID returns a claim along with its associated parts by ID.
+func (h *claimsHandler) GetClaimWithPartsByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idStr := chi.URLParam(r, "id")
+	id, err := utils.ConvertParamToInt32(idStr)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid claim ID")
+		return
+	}
+	claim, err := h.claimsService.GetClaimByID(ctx, id)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to get claim")
+		return
+	}
+	parts, err := h.claimsService.GetClaimWarrantyPartsByClaimID(ctx, id)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to get claim warranty parts")
+		return
+	}
+	response := dto.ClaimWithPartsResponse{
+		Claim: claim,
+		Parts: parts,
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, response)
 }
 
 // GenerateNextClaimNo returns the next claim number based on warranty number and claim date.
@@ -117,28 +156,49 @@ func (h *claimsHandler) GenerateNextClaimNo(w http.ResponseWriter, r *http.Reque
 }
 
 // CreateClaim creates a new claim.
-func (h *claimsHandler) CreateClaim(w http.ResponseWriter, r *http.Request) {
+// func (h *claimsHandler) CreateClaim(w http.ResponseWriter, r *http.Request) {
+// 	ctx := r.Context()
+// 	var req dto.CreateClaimRequest
+// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
+// 		return
+// 	}
+// 	params, err := req.ToCreateClaimParams()
+// 	if err != nil {
+// 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
+// 		return
+// 	}
+// 	claim, err := h.claimsService.CreateClaim(ctx, params)
+// 	if err != nil {
+// 		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to create claim")
+// 		return
+// 	}
+// 	utils.NewHTTPSuccessResponse(w, http.StatusCreated, claim)
+// }
+
+// CreateClaimWithParts creates a new claim with its associated parts.
+func (h *claimsHandler) CreateClaimWithParts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var req dto.CreateClaimRequest
+	var req dto.CreateClaimWithPartsRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
-	params, err := req.ToCreateClaimParams()
+	params, partsParams, err := req.ToCreateClaimParamsAndParts()
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	claim, err := h.claimsService.CreateClaim(ctx, params)
+	claim, err := h.claimsService.CreateClaimWithParts(ctx, params, partsParams)
 	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to create claim")
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to create claim with parts")
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusCreated, claim)
 }
 
-// UpdateClaim updates an existing claim.
-func (h *claimsHandler) UpdateClaim(w http.ResponseWriter, r *http.Request) {
+// UpdateClaimWithParts updates an existing claim along with its associated parts.
+func (h *claimsHandler) UpdateClaimWithParts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")
 	id, err := utils.ConvertParamToInt32(idStr)
@@ -146,19 +206,19 @@ func (h *claimsHandler) UpdateClaim(w http.ResponseWriter, r *http.Request) {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid claim ID")
 		return
 	}
-	var req dto.UpdateClaimRequest
+	var req dto.UpdateClaimWithPartsRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
-	params, err := req.ToUpdateClaimParams(id)
+	claimParams, partsParams, err := req.ToUpdateClaimParamsAndParts(id)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	claim, err := h.claimsService.UpdateClaim(ctx, params)
+	claim, err := h.claimsService.UpdateClaimWithParts(ctx, claimParams, partsParams)
 	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to update claim")
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to update claim with parts")
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, claim)
@@ -188,46 +248,33 @@ func (h *claimsHandler) UpdateClaimApproval(w http.ResponseWriter, r *http.Reque
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, claim)
 }
 
-// ListClaimWarrantyPartsByClaimID returns a list of claim warranty parts by claim ID.
-func (h *claimsHandler) ListClaimWarrantyPartsByClaimID(w http.ResponseWriter, r *http.Request) {
+// UpdateClaimStatus updates the open/closed status of an existing claim.
+func (h *claimsHandler) UpdateClaimStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	claimIDStr := chi.URLParam(r, "claimId")
-	claimID, err := utils.ConvertParamToInt32(claimIDStr)
+	idStr := chi.URLParam(r, "id")
+	id, err := utils.ConvertParamToInt32(idStr)
 	if err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid claim ID")
 		return
 	}
-	parts, err := h.claimsService.ListClaimWarrantyPartsByClaimID(ctx, claimID)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to list claim warranty parts")
-		return
+	type requestBody struct {
+		IsOpen bool `json:"isOpen"`
 	}
-	utils.NewHTTPSuccessResponse(w, http.StatusOK, parts)
-}
-
-// CreateClaimWarrantyPart creates a new claim warranty part.
-func (h *claimsHandler) CreateClaimWarrantyPart(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	var req dto.CreateClaimWarrantyPartRequest
+	var req requestBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
-	params, err := req.ToCreateClaimWarrantyPartParams()
+	claim, err := h.claimsService.UpdateClaimStatus(ctx, id, req.IsOpen)
 	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to update claim status")
 		return
 	}
-	part, err := h.claimsService.CreateClaimWarrantyPart(ctx, params)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to create claim warranty part")
-		return
-	}
-	utils.NewHTTPSuccessResponse(w, http.StatusCreated, part)
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, claim)
 }
 
-// UpdateClaimWarrantyPart updates an existing claim warranty part.
-func (h *claimsHandler) UpdateClaimWarrantyPart(w http.ResponseWriter, r *http.Request) {
+// UpdateClaimWarrantyPartStatus updates the open/closed status of an existing claim warranty part.
+func (h *claimsHandler) UpdateClaimWarrantyPartStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")
 	id, err := utils.ConvertParamToInt32(idStr)
@@ -235,22 +282,37 @@ func (h *claimsHandler) UpdateClaimWarrantyPart(w http.ResponseWriter, r *http.R
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid claim warranty part ID")
 		return
 	}
-	var req dto.UpdateClaimWarrantyPartRequest
+	type requestBody struct {
+		IsOpen bool `json:"isOpen"`
+	}
+	var req requestBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
-	params, err := req.ToUpdateClaimWarrantyPartParams(id)
+	part, err := h.claimsService.UpdateClaimWarrantyPartStatus(ctx, id, req.IsOpen)
 	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	part, err := h.claimsService.UpdateClaimWarrantyPart(ctx, params)
-	if err != nil {
-		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to update claim warranty part")
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to update claim warranty part status")
 		return
 	}
 	utils.NewHTTPSuccessResponse(w, http.StatusOK, part)
+}
+
+// GetClaimWarrantyPartsByClaimID returns a list of claim warranty parts by claim ID.
+func (h *claimsHandler) GetClaimWarrantyPartsByClaimID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	claimIDStr := chi.URLParam(r, "claimId")
+	claimID, err := utils.ConvertParamToInt32(claimIDStr)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusBadRequest, "Invalid claim ID")
+		return
+	}
+	parts, err := h.claimsService.GetClaimWarrantyPartsByClaimID(ctx, claimID)
+	if err != nil {
+		utils.NewHTTPErrorResponse(w, http.StatusInternalServerError, "Failed to list claim warranty parts")
+		return
+	}
+	utils.NewHTTPSuccessResponse(w, http.StatusOK, parts)
 }
 
 // UpdateClaimWarrantyPartApproval updates the approval status of an existing claim warranty part.

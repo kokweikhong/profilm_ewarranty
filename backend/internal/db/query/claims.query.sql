@@ -1,27 +1,30 @@
--- name: ListClaims :many
+-- name: GetClaims :many
+-- claim_view
 SELECT
-    c.*,
-    w.warranty_no,
-    w.car_plate_no
-FROM claims c
-JOIN warranties w ON c.warranty_id = w.id
-ORDER BY c.created_at DESC;
+    *
+FROM claim_view
+ORDER BY created_at DESC;
 
 -- name: GetClaimsByShopID :many
 SELECT
-    c.*,
-    w.warranty_no,
-    w.car_plate_no
-FROM claims c
-JOIN warranties w ON c.warranty_id = w.id
-WHERE w.shop_id = $1
-ORDER BY c.created_at DESC;
+    *
+FROM claim_view
+WHERE shop_id = $1
+ORDER BY created_at DESC;
 
 -- name: GetClaimByID :one
 SELECT
     *
-FROM claims
+FROM claim_view
 WHERE id = $1;
+
+-- name: GetClaimWarrantyPartsByClaimID :many
+SELECT
+    *
+FROM claim_warranty_parts_view
+WHERE claim_id = $1
+ORDER BY created_at DESC;
+
 
 -- name: GetLatestWarrantyNoByPrefix :one
 SELECT
@@ -59,13 +62,6 @@ SET
 WHERE id = $1
 RETURNING *;
 
--- name: ListClaimWarrantyPartsByClaimID :many
-SELECT
-    *
-FROM claim_warranty_parts
-WHERE claim_id = $1
-ORDER BY created_at DESC;
-
 -- name: CreateClaimWarrantyPart :one
 INSERT INTO claim_warranty_parts (
     claim_id,
@@ -96,6 +92,22 @@ RETURNING *;
 UPDATE claim_warranty_parts
 SET
     is_approved = $2,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;
+
+-- name: UpdateClaimStatus :one
+UPDATE claims
+SET
+    status = $2,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;
+
+-- name: UpdateClaimWarrantyPartStatus :one
+UPDATE claim_warranty_parts
+SET
+    status = $2,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;

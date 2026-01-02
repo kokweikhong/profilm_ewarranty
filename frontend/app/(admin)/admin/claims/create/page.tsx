@@ -4,27 +4,40 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
-import { getWarrantiesWithPartsByShopIdApi } from "@/lib/apis/warrantiesApi";
-import { WarrantyWithPartsResponse } from "@/types/warrantiesType";
+import {
+  getWarrantiesWithPartsByShopIdApi,
+  getWarrantyWithPartsByIdApi,
+} from "@/lib/apis/warrantiesApi";
+import {
+  WarrantyPartDetails,
+  WarrantyWithPartsResponse,
+} from "@/types/warrantiesType";
+import { getClaimsByShopIdApi } from "@/lib/apis/claimsApi";
+import { ClaimView } from "@/types/claimsType";
 import ClaimForm from "../_components/ClaimForm";
 
 export default function Page() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
+  const [warrantyParts, setWarrantyParts] = useState<WarrantyPartDetails[]>([]);
 
-  const [warranties, setWarranties] = useState<WarrantyWithPartsResponse[]>([]);
-  const [filteredWarranties, setFilteredWarranties] = useState<
-    WarrantyWithPartsResponse[]
-  >([]);
-  const [selectedWarranty, setSelectedWarranty] =
-    useState<WarrantyWithPartsResponse | null>(null);
+  // const [warranties, setWarranties] = useState<WarrantyWithPartsResponse[]>([]);
+  // const [filteredWarranties, setFilteredWarranties] = useState<
+  //   WarrantyWithPartsResponse[]
+  // >([]);
+  // const [selectedWarranty, setSelectedWarranty] =
+  //   useState<WarrantyWithPartsResponse | null>(null);
+
+  const [claims, setClaims] = useState<ClaimView[]>([]);
+  const [filteredClaims, setFilteredClaims] = useState<ClaimView[]>([]);
+  const [selectedClaim, setSelectedClaim] = useState<ClaimView | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Fetch warranties for the shop
+  // Fetch claims for the shop
   useEffect(() => {
-    async function fetchWarranties() {
+    async function fetchClaims() {
       if (authLoading || !user?.shopId) {
         setLoading(false);
         return;
@@ -32,11 +45,9 @@ export default function Page() {
 
       try {
         setLoading(true);
-        const shopWarranties = await getWarrantiesWithPartsByShopIdApi(
-          user.shopId
-        );
+        const shopClaims = await getClaimsByShopIdApi(user.shopId);
 
-        console.log("All fetched warranties:", shopWarranties);
+        console.log("All fetched claims:", shopClaims);
         console.log("User's shop ID:", user.shopId);
 
         // FIXME: temporary commented out for testing
@@ -47,11 +58,11 @@ export default function Page() {
 
         // const shopWarranties = data.filter((w) => w.shopId === user.shopId);
 
-        console.log("Fetched warranties:", shopWarranties);
+        console.log("Fetched claims:", shopClaims);
 
-        setWarranties(shopWarranties);
-        setFilteredWarranties(shopWarranties);
-        console.log("Filtered warranties set:", filteredWarranties);
+        setClaims(shopClaims);
+        setFilteredClaims(shopClaims);
+        console.log("Filtered claims set:", filteredClaims);
       } catch (error: any) {
         console.error("Error loading warranties:", error);
         showToast("Failed to load warranties", "error");
@@ -60,34 +71,66 @@ export default function Page() {
       }
     }
 
-    fetchWarranties();
+    fetchClaims();
   }, [user, authLoading]);
 
-  // Search warranties
+  // Fetch warranty parts for if claim been selected
+  useEffect(() => {
+    async function fetchWarrantyParts() {
+      if (authLoading || !user?.shopId || !selectedClaim) {
+        return;
+      }
+      try {
+        const data = await getWarrantyWithPartsByIdApi(
+          selectedClaim.warrantyId
+        );
+
+        setWarrantyParts(data.parts);
+      } catch (error: any) {
+        console.error("Error loading warranty parts:", error);
+        showToast("Failed to load warranty parts", "error");
+      }
+    }
+
+    if (selectedClaim) {
+      fetchWarrantyParts();
+    }
+  }, [selectedClaim, user, authLoading, showToast]);
+
+  // Search claims
   const handleSearch = (value: string) => {
-    console.log("Filtering warranties with search term:", filteredWarranties);
+    console.log("Filtering claims with search term:", filteredClaims);
     setSearchTerm(value);
 
     if (!value.trim()) {
-      setFilteredWarranties(warranties);
+      // setFilteredWarranties(warranties);
+      setFilteredClaims(claims);
       return;
     }
 
     // Local search filtering
-    const filtered = warranties.filter(
-      (w) =>
-        w.warranty?.warrantyNo?.toLowerCase().includes(value.toLowerCase()) ||
-        w.warranty?.carPlateNo?.toLowerCase().includes(value.toLowerCase()) ||
-        w.warranty?.clientName?.toLowerCase().includes(value.toLowerCase())
+    const filtered = claims.filter(
+      (c) =>
+        c.claimNo?.toLowerCase().includes(value.toLowerCase()) ||
+        c.carPlateNo?.toLowerCase().includes(value.toLowerCase()) ||
+        c.clientName?.toLowerCase().includes(value.toLowerCase())
     );
-    setFilteredWarranties(filtered);
+    setFilteredClaims(filtered);
   };
 
   // Select warranty
-  const handleSelectWarranty = (warrantyId: number) => {
-    const warrantyData = warranties.find((w) => w.warranty?.id === warrantyId);
-    if (warrantyData && warrantyData.warranty) {
-      setSelectedWarranty(warrantyData);
+  // const handleSelectWarranty = (warrantyId: number) => {
+  //   const warrantyData = warranties.find((w) => w.warranty?.id === warrantyId);
+  //   if (warrantyData && warrantyData.warranty) {
+  //     setSelectedWarranty(warrantyData);
+  //   }
+  // };
+
+  // Select claim
+  const handleSelectClaim = (claimId: number) => {
+    const claimData = claims.find((c) => c.id === claimId);
+    if (claimData) {
+      setSelectedClaim(claimData);
     }
   };
 
@@ -153,7 +196,7 @@ export default function Page() {
         </div>
       </div>
 
-      {!selectedWarranty ? (
+      {!selectedClaim ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
           {/* Search Box */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -199,7 +242,7 @@ export default function Page() {
                   Loading warranties...
                 </p>
               </div>
-            ) : filteredWarranties.length === 0 ? (
+            ) : filteredClaims.length === 0 ? (
               <div className="text-center py-8">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400"
@@ -225,22 +268,22 @@ export default function Page() {
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredWarranties.map((data) => {
-                  if (!data.warranty) return null;
+                {filteredClaims.map((data) => {
+                  if (!data) return null;
                   return (
                     <div
-                      key={data.warranty.id}
-                      onClick={() => handleSelectWarranty(data.warranty.id)}
+                      key={data.id}
+                      onClick={() => handleSelectClaim(data.id)}
                       className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                              {data.warranty.warrantyNo}
+                              {data.warrantyNo}
                             </span>
                             <span className="font-mono text-sm text-gray-900 dark:text-white">
-                              {data.warranty.carPlateNo}
+                              {data.carPlateNo}
                             </span>
                           </div>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
@@ -249,7 +292,7 @@ export default function Page() {
                                 Client:
                               </span>
                               <span className="ml-2 text-gray-900 dark:text-white">
-                                {data.warranty.clientName}
+                                {data.clientName}
                               </span>
                             </div>
                             <div>
@@ -257,8 +300,7 @@ export default function Page() {
                                 Car:
                               </span>
                               <span className="ml-2 text-gray-900 dark:text-white">
-                                {data.warranty.carBrand}{" "}
-                                {data.warranty.carModel}
+                                {data.carBrand} {data.carModel}
                               </span>
                             </div>
                             <div>
@@ -267,7 +309,7 @@ export default function Page() {
                               </span>
                               <span className="ml-2 text-gray-900 dark:text-white">
                                 {new Date(
-                                  data.warranty.installationDate
+                                  data.installationDate
                                 ).toLocaleDateString()}
                               </span>
                             </div>
@@ -296,10 +338,12 @@ export default function Page() {
             )}
           </div>
         </div>
-      ) : selectedWarranty ? (
+      ) : selectedClaim ? (
         <ClaimForm
-          warrantyData={selectedWarranty}
-          onCancel={() => setSelectedWarranty(null)}
+          claimData={{ claim: selectedClaim, parts: [] }}
+          isEditMode={false}
+          warrantyParts={warrantyParts}
+          onCancel={() => setSelectedClaim(null)}
         />
       ) : null}
     </div>

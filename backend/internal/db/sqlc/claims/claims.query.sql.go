@@ -18,7 +18,7 @@ INSERT INTO claims (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, warranty_id, claim_no, claim_date, is_approved, created_at, updated_at
+RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
 `
 
 type CreateClaimParams struct {
@@ -36,6 +36,8 @@ func (q *Queries) CreateClaim(ctx context.Context, arg *CreateClaimParams) (*Cla
 		&i.ClaimNo,
 		&i.ClaimDate,
 		&i.IsApproved,
+		&i.Status,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -93,68 +95,182 @@ func (q *Queries) CreateClaimWarrantyPart(ctx context.Context, arg *CreateClaimW
 
 const getClaimByID = `-- name: GetClaimByID :one
 SELECT
-    id, warranty_id, claim_no, claim_date, is_approved, created_at, updated_at
-FROM claims
+    id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
+FROM claim_view
 WHERE id = $1
 `
 
-func (q *Queries) GetClaimByID(ctx context.Context, id int32) (*Claim, error) {
+func (q *Queries) GetClaimByID(ctx context.Context, id int32) (*ClaimView, error) {
 	row := q.db.QueryRow(ctx, getClaimByID, id)
-	var i Claim
+	var i ClaimView
 	err := row.Scan(
 		&i.ID,
 		&i.WarrantyID,
 		&i.ClaimNo,
 		&i.ClaimDate,
 		&i.IsApproved,
+		&i.Status,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ShopID,
+		&i.ClientName,
+		&i.ClientContact,
+		&i.ClientEmail,
+		&i.CarBrand,
+		&i.CarModel,
+		&i.CarColour,
+		&i.CarPlateNo,
+		&i.CarChassisNo,
+		&i.InstallationDate,
+		&i.ReferenceNo,
+		&i.WarrantyNo,
+		&i.InvoiceAttachmentUrl,
 	)
 	return &i, err
 }
 
-const getClaimsByShopID = `-- name: GetClaimsByShopID :many
+const getClaimWarrantyPartsByClaimID = `-- name: GetClaimWarrantyPartsByClaimID :many
 SELECT
-    c.id, c.warranty_id, c.claim_no, c.claim_date, c.is_approved, c.created_at, c.updated_at,
-    w.warranty_no,
-    w.car_plate_no
-FROM claims c
-JOIN warranties w ON c.warranty_id = w.id
-WHERE w.shop_id = $1
-ORDER BY c.created_at DESC
+    id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at, installation_image_url, car_part_name, car_part_code, product_allocation_id, brand_name, type_name, series_name, product_name, film_serial_number, warranty_in_months
+FROM claim_warranty_parts_view
+WHERE claim_id = $1
+ORDER BY created_at DESC
 `
 
-type GetClaimsByShopIDRow struct {
-	ID         int32     `db:"id" json:"id"`
-	WarrantyID int32     `db:"warranty_id" json:"warrantyId"`
-	ClaimNo    string    `db:"claim_no" json:"claimNo"`
-	ClaimDate  time.Time `db:"claim_date" json:"claimDate"`
-	IsApproved bool      `db:"is_approved" json:"isApproved"`
-	CreatedAt  time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt  time.Time `db:"updated_at" json:"updatedAt"`
-	WarrantyNo string    `db:"warranty_no" json:"warrantyNo"`
-	CarPlateNo string    `db:"car_plate_no" json:"carPlateNo"`
-}
-
-func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*GetClaimsByShopIDRow, error) {
-	rows, err := q.db.Query(ctx, getClaimsByShopID, shopID)
+func (q *Queries) GetClaimWarrantyPartsByClaimID(ctx context.Context, claimID int32) ([]*ClaimWarrantyPartsView, error) {
+	rows, err := q.db.Query(ctx, getClaimWarrantyPartsByClaimID, claimID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*GetClaimsByShopIDRow{}
+	items := []*ClaimWarrantyPartsView{}
 	for rows.Next() {
-		var i GetClaimsByShopIDRow
+		var i ClaimWarrantyPartsView
+		if err := rows.Scan(
+			&i.ID,
+			&i.ClaimID,
+			&i.WarrantyPartID,
+			&i.DamagedImageUrl,
+			&i.Status,
+			&i.Remarks,
+			&i.ResolutionDate,
+			&i.ResolutionImageUrl,
+			&i.IsApproved,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.InstallationImageUrl,
+			&i.CarPartName,
+			&i.CarPartCode,
+			&i.ProductAllocationID,
+			&i.BrandName,
+			&i.TypeName,
+			&i.SeriesName,
+			&i.ProductName,
+			&i.FilmSerialNumber,
+			&i.WarrantyInMonths,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getClaims = `-- name: GetClaims :many
+SELECT
+    id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
+FROM claim_view
+ORDER BY created_at DESC
+`
+
+// claim_view
+func (q *Queries) GetClaims(ctx context.Context) ([]*ClaimView, error) {
+	rows, err := q.db.Query(ctx, getClaims)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ClaimView{}
+	for rows.Next() {
+		var i ClaimView
 		if err := rows.Scan(
 			&i.ID,
 			&i.WarrantyID,
 			&i.ClaimNo,
 			&i.ClaimDate,
 			&i.IsApproved,
+			&i.Status,
+			&i.Remarks,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.WarrantyNo,
+			&i.ShopID,
+			&i.ClientName,
+			&i.ClientContact,
+			&i.ClientEmail,
+			&i.CarBrand,
+			&i.CarModel,
+			&i.CarColour,
 			&i.CarPlateNo,
+			&i.CarChassisNo,
+			&i.InstallationDate,
+			&i.ReferenceNo,
+			&i.WarrantyNo,
+			&i.InvoiceAttachmentUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getClaimsByShopID = `-- name: GetClaimsByShopID :many
+SELECT
+    id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
+FROM claim_view
+WHERE shop_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*ClaimView, error) {
+	rows, err := q.db.Query(ctx, getClaimsByShopID, shopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ClaimView{}
+	for rows.Next() {
+		var i ClaimView
+		if err := rows.Scan(
+			&i.ID,
+			&i.WarrantyID,
+			&i.ClaimNo,
+			&i.ClaimDate,
+			&i.IsApproved,
+			&i.Status,
+			&i.Remarks,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ShopID,
+			&i.ClientName,
+			&i.ClientContact,
+			&i.ClientEmail,
+			&i.CarBrand,
+			&i.CarModel,
+			&i.CarColour,
+			&i.CarPlateNo,
+			&i.CarChassisNo,
+			&i.InstallationDate,
+			&i.ReferenceNo,
+			&i.WarrantyNo,
+			&i.InvoiceAttachmentUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -182,98 +298,6 @@ func (q *Queries) GetLatestWarrantyNoByPrefix(ctx context.Context, claimNo strin
 	return claim_no, err
 }
 
-const listClaimWarrantyPartsByClaimID = `-- name: ListClaimWarrantyPartsByClaimID :many
-SELECT
-    id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at
-FROM claim_warranty_parts
-WHERE claim_id = $1
-ORDER BY created_at DESC
-`
-
-func (q *Queries) ListClaimWarrantyPartsByClaimID(ctx context.Context, claimID int32) ([]*ClaimWarrantyPart, error) {
-	rows, err := q.db.Query(ctx, listClaimWarrantyPartsByClaimID, claimID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*ClaimWarrantyPart{}
-	for rows.Next() {
-		var i ClaimWarrantyPart
-		if err := rows.Scan(
-			&i.ID,
-			&i.ClaimID,
-			&i.WarrantyPartID,
-			&i.DamagedImageUrl,
-			&i.Status,
-			&i.Remarks,
-			&i.ResolutionDate,
-			&i.ResolutionImageUrl,
-			&i.IsApproved,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listClaims = `-- name: ListClaims :many
-SELECT
-    c.id, c.warranty_id, c.claim_no, c.claim_date, c.is_approved, c.created_at, c.updated_at,
-    w.warranty_no,
-    w.car_plate_no
-FROM claims c
-JOIN warranties w ON c.warranty_id = w.id
-ORDER BY c.created_at DESC
-`
-
-type ListClaimsRow struct {
-	ID         int32     `db:"id" json:"id"`
-	WarrantyID int32     `db:"warranty_id" json:"warrantyId"`
-	ClaimNo    string    `db:"claim_no" json:"claimNo"`
-	ClaimDate  time.Time `db:"claim_date" json:"claimDate"`
-	IsApproved bool      `db:"is_approved" json:"isApproved"`
-	CreatedAt  time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt  time.Time `db:"updated_at" json:"updatedAt"`
-	WarrantyNo string    `db:"warranty_no" json:"warrantyNo"`
-	CarPlateNo string    `db:"car_plate_no" json:"carPlateNo"`
-}
-
-func (q *Queries) ListClaims(ctx context.Context) ([]*ListClaimsRow, error) {
-	rows, err := q.db.Query(ctx, listClaims)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*ListClaimsRow{}
-	for rows.Next() {
-		var i ListClaimsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.WarrantyID,
-			&i.ClaimNo,
-			&i.ClaimDate,
-			&i.IsApproved,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.WarrantyNo,
-			&i.CarPlateNo,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const updateClaim = `-- name: UpdateClaim :one
 UPDATE claims
 SET
@@ -282,7 +306,7 @@ SET
     claim_date = $4,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, warranty_id, claim_no, claim_date, is_approved, created_at, updated_at
+RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
 `
 
 type UpdateClaimParams struct {
@@ -306,6 +330,8 @@ func (q *Queries) UpdateClaim(ctx context.Context, arg *UpdateClaimParams) (*Cla
 		&i.ClaimNo,
 		&i.ClaimDate,
 		&i.IsApproved,
+		&i.Status,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -318,7 +344,7 @@ SET
     is_approved = $2,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, warranty_id, claim_no, claim_date, is_approved, created_at, updated_at
+RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
 `
 
 type UpdateClaimApprovalParams struct {
@@ -335,6 +361,39 @@ func (q *Queries) UpdateClaimApproval(ctx context.Context, arg *UpdateClaimAppro
 		&i.ClaimNo,
 		&i.ClaimDate,
 		&i.IsApproved,
+		&i.Status,
+		&i.Remarks,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const updateClaimStatus = `-- name: UpdateClaimStatus :one
+UPDATE claims
+SET
+    status = $2,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
+`
+
+type UpdateClaimStatusParams struct {
+	ID     int32  `db:"id" json:"id"`
+	Status string `db:"status" json:"status"`
+}
+
+func (q *Queries) UpdateClaimStatus(ctx context.Context, arg *UpdateClaimStatusParams) (*Claim, error) {
+	row := q.db.QueryRow(ctx, updateClaimStatus, arg.ID, arg.Status)
+	var i Claim
+	err := row.Scan(
+		&i.ID,
+		&i.WarrantyID,
+		&i.ClaimNo,
+		&i.ClaimDate,
+		&i.IsApproved,
+		&i.Status,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -408,6 +467,39 @@ type UpdateClaimWarrantyPartApprovalParams struct {
 
 func (q *Queries) UpdateClaimWarrantyPartApproval(ctx context.Context, arg *UpdateClaimWarrantyPartApprovalParams) (*ClaimWarrantyPart, error) {
 	row := q.db.QueryRow(ctx, updateClaimWarrantyPartApproval, arg.ID, arg.IsApproved)
+	var i ClaimWarrantyPart
+	err := row.Scan(
+		&i.ID,
+		&i.ClaimID,
+		&i.WarrantyPartID,
+		&i.DamagedImageUrl,
+		&i.Status,
+		&i.Remarks,
+		&i.ResolutionDate,
+		&i.ResolutionImageUrl,
+		&i.IsApproved,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const updateClaimWarrantyPartStatus = `-- name: UpdateClaimWarrantyPartStatus :one
+UPDATE claim_warranty_parts
+SET
+    status = $2,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at
+`
+
+type UpdateClaimWarrantyPartStatusParams struct {
+	ID     int32  `db:"id" json:"id"`
+	Status string `db:"status" json:"status"`
+}
+
+func (q *Queries) UpdateClaimWarrantyPartStatus(ctx context.Context, arg *UpdateClaimWarrantyPartStatusParams) (*ClaimWarrantyPart, error) {
+	row := q.db.QueryRow(ctx, updateClaimWarrantyPartStatus, arg.ID, arg.Status)
 	var i ClaimWarrantyPart
 	err := row.Scan(
 		&i.ID,

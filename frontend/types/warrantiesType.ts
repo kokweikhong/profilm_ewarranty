@@ -47,9 +47,6 @@ export interface CreateWarrantyRequest {
   invoiceAttachmentUrl: string;
 }
 
-// TODO: warranty no can't be changed
-// TODO: branch code shouldn't be changed and need to disable in the form
-
 export interface UpdateWarrantyRequest extends CreateWarrantyRequest {
   id: number;
 }

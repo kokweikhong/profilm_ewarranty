@@ -3,7 +3,7 @@ import { ProductDetailResponse } from "@/types/productsType";
 import { Shop, ShopListResponse } from "@/types/shopsType";
 import { ProductAllocationsListResponse } from "@/types/productAllocationsType";
 import { Warranty, WarrantyDetails } from "@/types/warrantiesType";
-import { ListClaimsResponse } from "@/types/claimsType";
+import { ClaimView } from "@/types/claimsType";
 import { ListUsersResponse } from "@/types/usersType";
 
 const productColumnHelper = createColumnHelper<ProductDetailResponse>();
@@ -541,7 +541,7 @@ export const WarrantyColumns = [
   }),
 ];
 
-const claimColumnHelper = createColumnHelper<ListClaimsResponse>();
+const claimColumnHelper = createColumnHelper<ClaimView>();
 export const ClaimColumns = [
   claimColumnHelper.accessor("claimNo", {
     header: "Claim No.",
@@ -587,7 +587,7 @@ export const ClaimColumns = [
     enableSorting: true,
   }),
   claimColumnHelper.accessor("isApproved", {
-    header: "Status",
+    header: "Approval Status",
     cell: (info) =>
       info.getValue() ? (
         <span className="inline-flex items-center gap-x-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
@@ -612,6 +612,40 @@ export const ClaimColumns = [
           Pending
         </span>
       ),
+    enableSorting: true,
+  }),
+  claimColumnHelper.accessor("status", {
+    header: "Status",
+    cell: (info) => {
+      const status = info.getValue();
+      const statusConfig = {
+        open: {
+          bg: "bg-blue-50",
+          text: "text-blue-700",
+          ring: "ring-blue-700/10",
+          label: "Open",
+        },
+        closed: {
+          bg: "bg-gray-50",
+          text: "text-gray-700",
+          ring: "ring-gray-500/10",
+          label: "Closed",
+        },
+      };
+      const config = statusConfig[status as keyof typeof statusConfig] || {
+        bg: "bg-gray-50",
+        text: "text-gray-700",
+        ring: "ring-gray-500/10",
+        label: status,
+      };
+      return (
+        <span
+          className={`inline-flex items-center rounded-md ${config.bg} px-2 py-1 text-xs font-medium ${config.text} ring-1 ring-inset ${config.ring}`}
+        >
+          {config.label}
+        </span>
+      );
+    },
     enableSorting: true,
   }),
   claimColumnHelper.accessor("createdAt", {

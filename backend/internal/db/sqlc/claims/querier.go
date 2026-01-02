@@ -11,15 +11,18 @@ import (
 type Querier interface {
 	CreateClaim(ctx context.Context, arg *CreateClaimParams) (*Claim, error)
 	CreateClaimWarrantyPart(ctx context.Context, arg *CreateClaimWarrantyPartParams) (*ClaimWarrantyPart, error)
-	GetClaimByID(ctx context.Context, id int32) (*Claim, error)
-	GetClaimsByShopID(ctx context.Context, shopID int32) ([]*GetClaimsByShopIDRow, error)
+	GetClaimByID(ctx context.Context, id int32) (*ClaimView, error)
+	GetClaimWarrantyPartsByClaimID(ctx context.Context, claimID int32) ([]*ClaimWarrantyPartsView, error)
+	// claim_view
+	GetClaims(ctx context.Context) ([]*ClaimView, error)
+	GetClaimsByShopID(ctx context.Context, shopID int32) ([]*ClaimView, error)
 	GetLatestWarrantyNoByPrefix(ctx context.Context, claimNo string) (string, error)
-	ListClaimWarrantyPartsByClaimID(ctx context.Context, claimID int32) ([]*ClaimWarrantyPart, error)
-	ListClaims(ctx context.Context) ([]*ListClaimsRow, error)
 	UpdateClaim(ctx context.Context, arg *UpdateClaimParams) (*Claim, error)
 	UpdateClaimApproval(ctx context.Context, arg *UpdateClaimApprovalParams) (*Claim, error)
+	UpdateClaimStatus(ctx context.Context, arg *UpdateClaimStatusParams) (*Claim, error)
 	UpdateClaimWarrantyPart(ctx context.Context, arg *UpdateClaimWarrantyPartParams) (*ClaimWarrantyPart, error)
 	UpdateClaimWarrantyPartApproval(ctx context.Context, arg *UpdateClaimWarrantyPartApprovalParams) (*ClaimWarrantyPart, error)
+	UpdateClaimWarrantyPartStatus(ctx context.Context, arg *UpdateClaimWarrantyPartStatusParams) (*ClaimWarrantyPart, error)
 }
 
 var _ Querier = (*Queries)(nil)

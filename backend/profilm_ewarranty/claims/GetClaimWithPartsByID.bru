@@ -1,0 +1,20 @@
+meta {
+  name: GetClaimWithPartsByID
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8080/api/v1/claims/61/details
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJ0b2tlblR5cGUiOiJhY2Nlc3MiLCJleHAiOjE3NjczMzE3MzQsImlhdCI6MTc2NzMzMDgzNH0.Af_ltRT8Zbiz8andPPcxtU91LwjXcG7GL9AcIffZQls
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

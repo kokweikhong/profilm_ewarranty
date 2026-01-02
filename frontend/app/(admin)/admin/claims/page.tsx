@@ -18,7 +18,7 @@ import {
   DocumentTextIcon,
 } from "@heroicons/react/20/solid";
 import { ClaimColumns } from "@/components/TableColumns";
-import { ListClaimsResponse } from "@/types/claimsType";
+import { ClaimView } from "@/types/claimsType";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
 import { getClaimsApi, getClaimsByShopIdApi } from "@/lib/apis/claimsApi";
@@ -26,7 +26,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Page() {
   const { user } = useAuth();
-  const [claims, setClaims] = useState<ListClaimsResponse[]>([]);
+  const [claims, setClaims] = useState<ClaimView[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<any[]>([]);
   const [pagination, setPagination] = useState({
@@ -56,11 +56,13 @@ export default function Page() {
       // If user is admin, fetch all claims
       getClaimsApi().then((data) => {
         setClaims(data);
+        console.log("admin claims", data);
       });
     } else if (user?.shopId) {
       // If user is shop_admin, fetch claims by shop ID
       getClaimsByShopIdApi(user.shopId).then((data) => {
         setClaims(data);
+        console.log("shop claims", data);
       });
     }
   }, [user?.role, user?.shopId]);
@@ -306,25 +308,51 @@ export default function Page() {
                             </td>
                           ))}
                           <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <a
-                              href={`/admin/claims/edit/${row.original.id}`}
-                              className="inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-primary shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
-                            >
-                              <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="currentColor"
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`/admin/claims/details/${row.original.id}`}
+                                className="inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                                />
-                              </svg>
-                              Edit
-                            </a>
+                                <svg
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                </svg>
+                                View
+                              </a>
+                              <a
+                                href={`/admin/claims/edit/${row.original.id}`}
+                                className="inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-primary shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
+                              >
+                                <svg
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                                  />
+                                </svg>
+                                Edit
+                              </a>
+                            </div>
                           </td>
                         </tr>
                       ))

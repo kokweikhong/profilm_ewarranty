@@ -100,13 +100,9 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Get("/car-parts", rt.handler.WarrantiesHandler.GetCarParts)
 
 				r.Route("/warranty-parts", func(r chi.Router) {
-					// r.Post("/", rt.handler.WarrantiesHandler.CreateWarrantyPart)
-					// r.Put("/{id}", rt.handler.WarrantiesHandler.UpdateWarrantyPart)
 					r.Put("/{id}/approval", rt.handler.WarrantiesHandler.UpdateWarrantyPartApproval)
 					r.Get("/{id}", rt.handler.WarrantiesHandler.GetWarrantyPartsByWarrantyID)
 
-					// r.Post("/batch-create", rt.handler.WarrantiesHandler.CreateWarrantyWithParts)
-					// r.Put("/batch-update", rt.handler.WarrantiesHandler.UpdateWarrantyWithParts)
 				})
 			})
 
@@ -115,15 +111,17 @@ func (rt *Routes) RegisterRoutes(router chi.Router) {
 				r.Get("/", rt.handler.ClaimsHandler.ListClaims)
 				r.Get("/{id}", rt.handler.ClaimsHandler.GetClaimByID)
 				r.Post("/generate-claim-no", rt.handler.ClaimsHandler.GenerateNextClaimNo)
-				r.Post("/", rt.handler.ClaimsHandler.CreateClaim)
-				r.Put("/{id}", rt.handler.ClaimsHandler.UpdateClaim)
+				r.Post("/", rt.handler.ClaimsHandler.CreateClaimWithParts)
+				r.Put("/{id}", rt.handler.ClaimsHandler.UpdateClaimWithParts)
 				r.Put("/{id}/approval", rt.handler.ClaimsHandler.UpdateClaimApproval)
+				r.Put("/{id}/status", rt.handler.ClaimsHandler.UpdateClaimStatus)
+
+				r.Get("/{id}/details", rt.handler.ClaimsHandler.GetClaimWithPartsByID)
 
 				r.Route("/claim-warranty-parts", func(r chi.Router) {
-					r.Get("/{id}", rt.handler.ClaimsHandler.ListClaimWarrantyPartsByClaimID)
-					r.Post("/", rt.handler.ClaimsHandler.CreateClaimWarrantyPart)
-					r.Put("/{id}", rt.handler.ClaimsHandler.UpdateClaimWarrantyPart)
-					r.Put("/{id}/approve", rt.handler.ClaimsHandler.UpdateClaimWarrantyPartApproval)
+					r.Get("/{id}", rt.handler.ClaimsHandler.GetClaimWarrantyPartsByClaimID)
+					r.Put("/{id}/approval", rt.handler.ClaimsHandler.UpdateClaimWarrantyPartApproval)
+					r.Put("/{id}/status", rt.handler.ClaimsHandler.UpdateClaimWarrantyPartStatus)
 				})
 			})
 
