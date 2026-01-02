@@ -150,6 +150,21 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 		}
 	}
 
+	// remove warranty parts that are not in the updated partsArgs
+	updatedPartIDs := make(map[int32]struct{})
+	for _, partArg := range partsArgs {
+		updatedPartIDs[partArg.ID] = struct{}{}
+	}
+	for _, existingPart := range existingParts {
+		if _, ok := updatedPartIDs[existingPart.ID]; !ok {
+			err = qtx.DeleteWarrantyPart(ctx, existingPart.ID)
+			if err != nil {
+				tx.Rollback(ctx)
+				return nil, err
+			}
+		}
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
