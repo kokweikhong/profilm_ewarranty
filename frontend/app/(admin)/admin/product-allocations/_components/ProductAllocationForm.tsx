@@ -197,8 +197,6 @@ export default function ProductAllocationForm({
               registration.
             </p>
 
-            <pre>{JSON.stringify(watch(), null, 2)}</pre>
-
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               {/* Product ID */}
               <div className="col-span-full">
