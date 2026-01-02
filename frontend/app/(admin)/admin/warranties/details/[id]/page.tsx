@@ -701,6 +701,50 @@ export default function Page() {
           </div>
         </div>
       )}
+
+      {/* Status Badges */}
+      <div className="flex items-center gap-3 my-6">
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+            warranty.isActive
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          {warranty.isActive ? (
+            <CheckCircleIcon className="h-4 w-4" />
+          ) : (
+            <XCircleIcon className="h-4 w-4" />
+          )}
+          {warranty.isActive ? "Active" : "Inactive"}
+        </span>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+            warranty.isApproved
+              ? "bg-blue-100 text-blue-700"
+              : "bg-yellow-100 text-yellow-700"
+          }`}
+        >
+          {warranty.isApproved ? (
+            <ClipboardDocumentCheckIcon className="h-4 w-4" />
+          ) : (
+            <ClipboardDocumentCheckIcon className="h-4 w-4" />
+          )}
+          {warranty.isApproved ? "Approved" : "Pending Approval"}
+        </span>
+        {isAdmin && (
+          <button
+            onClick={handleToggleWarrantyApproval}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+              warranty.isApproved
+                ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            {warranty.isApproved ? "Unapprove" : "Approve"} Warranty
+          </button>
+        )}
+      </div>
     </div>
   );
 }
