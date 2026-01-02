@@ -122,7 +122,42 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 
 // UpdateWarrantyApproval updates the approval status of a warranty in the database.
 func (s *warrantiesService) UpdateWarrantyApproval(ctx context.Context, arg *warranties.UpdateWarrantyApprovalParams) (*warranties.Warranty, error) {
-	return s.q.UpdateWarrantyApproval(ctx, arg)
+	// Update the warranty approval status
+	// if true then all warranty parts should also be approved
+	// use a transaction to ensure both warranty and parts are updated successfully
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	qtx := warranties.New(tx)
+	warranty, err := qtx.UpdateWarrantyApproval(ctx, arg)
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+	if arg.IsApproved {
+		// get all warranty parts associated with the warranty
+		parts, err := qtx.GetWarrantyPartsByWarrantyID(ctx, arg.ID)
+		if err != nil {
+			tx.Rollback(ctx)
+			return nil, err
+		}
+		// update each part to approved
+		for _, part := range parts {
+			_, err = qtx.UpdateWarrantyPartApproval(ctx, &warranties.UpdateWarrantyPartApprovalParams{
+				ID:         part.ID,
+				IsApproved: true,
+			})
+			if err != nil {
+				tx.Rollback(ctx)
+				return nil, err
+			}
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	return warranty, nil
 }
 
 // GetWarrantiesByExactSearch retrieves warranties with their parts matching an exact search term from the database.
