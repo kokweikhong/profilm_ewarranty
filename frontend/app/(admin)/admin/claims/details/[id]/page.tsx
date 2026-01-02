@@ -146,7 +146,7 @@ export default function ClaimDetailsPage() {
   if (!claimData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-gray-600 dark:text-gray-400 mb-4">Claim not found</p>
+        <p className="text-gray-600  mb-4">Claim not found</p>
         <button
           onClick={() => router.push("/admin/claims")}
           className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
@@ -197,11 +197,11 @@ export default function ClaimDetailsPage() {
       {/* Confirmation Modal */}
       {confirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <div className="bg-white  rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900  mb-2">
               {confirmModal.title}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-sm text-gray-600  mb-6">
               {confirmModal.message}
             </p>
             <div className="flex flex-col-reverse sm:flex-row gap-3">
@@ -209,7 +209,7 @@ export default function ClaimDetailsPage() {
                 type="button"
                 onClick={() => setConfirmModal(null)}
                 disabled={isUpdating}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700  bg-white  border border-gray-300  rounded-lg hover:bg-gray-50  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -232,7 +232,7 @@ export default function ClaimDetailsPage() {
           <div>
             <button
               onClick={() => router.push("/admin/claims")}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary mb-2 flex items-center gap-1"
+              className="text-sm text-gray-600  hover:text-primary mb-2 flex items-center gap-1"
             >
               <svg
                 className="w-4 h-4"
@@ -249,44 +249,42 @@ export default function ClaimDetailsPage() {
               </svg>
               Back to Claims
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Claim Details
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Claim Details</h1>
           </div>
         </div>
 
         {/* Claim Information Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white  rounded-lg shadow mb-6 p-6">
+          <h2 className="text-lg font-semibold text-gray-900  mb-4">
             Claim Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Claim Number
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.claimNo}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Claim Date
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {new Date(claimData.claim.claimDate).toLocaleDateString()}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Approval Status
               </label>
               <p className="mt-1">
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     claimData.claim.isApproved
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
                   {claimData.claim.isApproved ? "Approved" : "Not Approved"}
@@ -294,38 +292,38 @@ export default function ClaimDetailsPage() {
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Status
               </label>
               <p className="mt-1">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   {claimData.claim.status?.toUpperCase() || "N/A"}
                 </span>
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Warranty Number
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.warrantyNo}
               </p>
             </div>
             {claimData.claim.referenceNo && (
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+                <label className="block text-sm font-medium text-gray-500">
                   Reference Number
                 </label>
-                <p className="mt-1 text-base text-gray-900 dark:text-white">
+                <p className="mt-1 text-base text-gray-900">
                   {claimData.claim.referenceNo}
                 </p>
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Installation Date
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {new Date(
                   claimData.claim.installationDate
                 ).toLocaleDateString()}
@@ -333,17 +331,17 @@ export default function ClaimDetailsPage() {
             </div>
             {claimData.claim.remarks && (
               <div className="md:col-span-2 lg:col-span-3">
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+                <label className="block text-sm font-medium text-gray-500">
                   Remarks
                 </label>
-                <p className="mt-1 text-base text-gray-900 dark:text-white">
+                <p className="mt-1 text-base text-gray-900">
                   {claimData.claim.remarks}
                 </p>
               </div>
             )}
             {claimData.claim.invoiceAttachmentUrl && (
               <div className="md:col-span-2 lg:col-span-3">
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                <label className="block text-sm font-medium text-gray-500  mb-2">
                   Invoice Attachment
                 </label>
                 <a
@@ -372,15 +370,15 @@ export default function ClaimDetailsPage() {
           </div>
 
           {/* Claim Action Buttons */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900  mb-3">
               Claim Actions
             </h3>
             <div className="space-y-3">
               {/* Approval Actions - Admin Only */}
               {user?.role === "admin" && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-medium text-gray-500  mb-2">
                     Approval Status
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -399,8 +397,8 @@ export default function ClaimDetailsPage() {
                       disabled={claimData.claim.isApproved}
                       className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                         claimData.claim.isApproved
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 cursor-not-allowed opacity-60"
-                          : "bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+                          ? "bg-green-100 text-green-800   cursor-not-allowed opacity-60"
+                          : "bg-green-600 text-white hover:bg-green-700"
                       }`}
                     >
                       <svg
@@ -433,8 +431,8 @@ export default function ClaimDetailsPage() {
                       disabled={!claimData.claim.isApproved}
                       className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                         !claimData.claim.isApproved
-                          ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 cursor-not-allowed opacity-60"
-                          : "bg-yellow-600 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
+                          ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
+                          : "bg-yellow-600 text-white hover:bg-yellow-700"
                       }`}
                     >
                       <svg
@@ -462,7 +460,7 @@ export default function ClaimDetailsPage() {
               {/* User only */}
               {user?.role === "shop_admin" && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-medium text-gray-500  mb-2">
                     Claim Status
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -481,8 +479,8 @@ export default function ClaimDetailsPage() {
                       disabled={claimData.claim.status.toLowerCase() === "open"}
                       className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                         claimData.claim.status.toLowerCase() === "open"
-                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed opacity-60"
-                          : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+                          ? "bg-blue-100 text-blue-800   cursor-not-allowed opacity-60"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
                       }`}
                     >
                       <svg
@@ -517,8 +515,8 @@ export default function ClaimDetailsPage() {
                       }
                       className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                         claimData.claim.status.toLowerCase() === "closed"
-                          ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 cursor-not-allowed opacity-60"
-                          : "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
+                          ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
+                          : "bg-red-600 text-white hover:bg-red-700"
                       }`}
                     >
                       <svg
@@ -544,32 +542,32 @@ export default function ClaimDetailsPage() {
         </div>
 
         {/* Client Information Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white  rounded-lg shadow mb-6 p-6">
+          <h2 className="text-lg font-semibold text-gray-900  mb-4">
             Client Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Customer Name
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.clientName}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Phone Number
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.clientContact}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Email
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.clientEmail}
               </p>
             </div>
@@ -577,48 +575,48 @@ export default function ClaimDetailsPage() {
         </div>
 
         {/* Vehicle Information Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white  rounded-lg shadow mb-6 p-6">
+          <h2 className="text-lg font-semibold text-gray-900  mb-4">
             Vehicle Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Plate Number
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.carPlateNo}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Chassis Number
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.carChassisNo}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Brand
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.carBrand}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Model
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.carModel}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+              <label className="block text-sm font-medium text-gray-500">
                 Colour
               </label>
-              <p className="mt-1 text-base text-gray-900 dark:text-white">
+              <p className="mt-1 text-base text-gray-900">
                 {claimData.claim.carColour}
               </p>
             </div>
@@ -626,35 +624,34 @@ export default function ClaimDetailsPage() {
         </div>
 
         {/* Claimed Parts */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white  rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900  mb-4">
             Claimed Parts ({claimData.parts.length})
           </h2>
           <div className="space-y-6">
             {claimData.parts.map((part) => (
               <div
                 key={part.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                className="border border-gray-200  rounded-lg p-4"
               >
                 {/* Part Information */}
                 <div className="flex flex-col gap-4 mb-4">
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-base text-gray-900 dark:text-white mb-2 wrap-break-word">
+                      <h3 className="font-medium text-base text-gray-900  mb-2 wrap-break-word">
                         {part.carPartName}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 wrap-break-word">
-                        {part.brandName} - {part.typeName} - {part.seriesName} -{" "}
+                      <p className="text-sm text-gray-600  mb-2 wrap-break-word">
+                        {part.brandName} - {part.typeName} - {part.seriesName} -
+                        {""}
                         {part.productName}
                       </p>
                       <div className="flex flex-wrap gap-1.5 text-xs">
-                        <span className="text-gray-500 dark:text-gray-500 break-all">
+                        <span className="text-gray-500  break-all">
                           Serial: {part.filmSerialNumber}
                         </span>
-                        <span className="text-gray-500 dark:text-gray-500">
-                          •
-                        </span>
-                        <span className="text-gray-500 dark:text-gray-500">
+                        <span className="text-gray-500">•</span>
+                        <span className="text-gray-500">
                           Warranty: {part.warrantyInMonths} months
                         </span>
                       </div>
@@ -674,30 +671,30 @@ export default function ClaimDetailsPage() {
                   {/* Status Badges - Stack on mobile */}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 shrink-0">
+                      <span className="text-xs font-medium text-gray-500  shrink-0">
                         Approval:
                       </span>
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
                           part.isApproved
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
                         {part.isApproved ? "Approved" : "Not Approved"}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 shrink-0">
+                      <span className="text-xs font-medium text-gray-500  shrink-0">
                         Status:
                       </span>
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
                           part.status === "approved"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            ? "bg-green-100 text-green-800"
                             : part.status === "rejected"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-blue-100 text-blue-800"
                         }`}
                       >
                         {part.status?.toUpperCase() || "PENDING"}
@@ -710,10 +707,10 @@ export default function ClaimDetailsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   {/* Damaged Image */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700  mb-2">
                       Damaged Image
                     </label>
-                    <div className="relative h-48 rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+                    <div className="relative h-48 rounded-lg border border-gray-300  overflow-hidden">
                       <img
                         src={part.damagedImageUrl}
                         alt="Damaged"
@@ -726,10 +723,10 @@ export default function ClaimDetailsPage() {
                   {/* Resolution Image */}
                   {part.resolutionImageUrl && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700  mb-2">
                         Resolution Image
                       </label>
-                      <div className="relative h-48 rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+                      <div className="relative h-48 rounded-lg border border-gray-300  overflow-hidden">
                         <img
                           src={part.resolutionImageUrl}
                           alt="Resolution"
@@ -745,23 +742,23 @@ export default function ClaimDetailsPage() {
 
                 {/* Additional Details */}
                 {(part.remarks || part.resolutionDate) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200  mb-4">
                     {part.resolutionDate && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <label className="block text-sm font-medium text-gray-500">
                           Resolution Date
                         </label>
-                        <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                        <p className="mt-1 text-sm text-gray-900">
                           {new Date(part.resolutionDate).toLocaleDateString()}
                         </p>
                       </div>
                     )}
                     {part.remarks && (
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <label className="block text-sm font-medium text-gray-500">
                           Remarks
                         </label>
-                        <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                        <p className="mt-1 text-sm text-gray-900">
                           {part.remarks}
                         </p>
                       </div>
@@ -771,15 +768,15 @@ export default function ClaimDetailsPage() {
 
                 {/* Part Action Buttons */}
                 {(user?.role === "admin" || user?.role === "shop_admin") && (
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  <div className="pt-4 border-t border-gray-200">
+                    <h4 className="text-xs font-semibold text-gray-700  mb-3">
                       Part Actions
                     </h4>
                     <div className="space-y-2">
                       {/* Approval Actions - Admin Only */}
                       {user?.role === "admin" && (
                         <div>
-                          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+                          <label className="block text-xs text-gray-500  mb-1.5">
                             Approval
                           </label>
                           <div className="flex flex-wrap gap-2">
@@ -791,14 +788,14 @@ export default function ClaimDetailsPage() {
                                   id: part.id,
                                   currentValue: part.isApproved,
                                   title: "Approve Part?",
-                                  message: `Are you sure you want to approve "${part.carPartName}"?`,
+                                  message: `Are you sure you want to approve"${part.carPartName}"?`,
                                 })
                               }
                               disabled={part.isApproved}
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                                 part.isApproved
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 cursor-not-allowed opacity-60"
-                                  : "bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+                                  ? "bg-green-100 text-green-800   cursor-not-allowed opacity-60"
+                                  : "bg-green-600 text-white hover:bg-green-700"
                               }`}
                             >
                               <svg
@@ -824,14 +821,14 @@ export default function ClaimDetailsPage() {
                                   id: part.id,
                                   currentValue: part.isApproved,
                                   title: "Unapprove Part?",
-                                  message: `Are you sure you want to mark "${part.carPartName}" as not approved?`,
+                                  message: `Are you sure you want to mark"${part.carPartName}" as not approved?`,
                                 })
                               }
                               disabled={!part.isApproved}
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                                 !part.isApproved
-                                  ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 cursor-not-allowed opacity-60"
-                                  : "bg-yellow-600 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
+                                  ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
+                                  : "bg-yellow-600 text-white hover:bg-yellow-700"
                               }`}
                             >
                               <svg
@@ -855,7 +852,7 @@ export default function ClaimDetailsPage() {
                       {/* Status Actions - User Only */}
                       {user?.role === "shop_admin" && (
                         <div>
-                          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+                          <label className="block text-xs text-gray-500  mb-1.5">
                             Status
                           </label>
                           <div className="flex flex-wrap gap-2">
@@ -868,14 +865,14 @@ export default function ClaimDetailsPage() {
                                   currentValue:
                                     part.status.toLowerCase() === "open",
                                   title: "Open Part?",
-                                  message: `Are you sure you want to open "${part.carPartName}"?`,
+                                  message: `Are you sure you want to open"${part.carPartName}"?`,
                                 })
                               }
                               disabled={part.status.toLowerCase() === "open"}
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                                 part.status.toLowerCase() === "open"
-                                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed opacity-60"
-                                  : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+                                  ? "bg-blue-100 text-blue-800   cursor-not-allowed opacity-60"
+                                  : "bg-blue-600 text-white hover:bg-blue-700"
                               }`}
                             >
                               <svg
@@ -902,14 +899,14 @@ export default function ClaimDetailsPage() {
                                   currentValue:
                                     part.status.toLowerCase() === "open",
                                   title: "Close Part?",
-                                  message: `Are you sure you want to close "${part.carPartName}"?`,
+                                  message: `Are you sure you want to close"${part.carPartName}"?`,
                                 })
                               }
                               disabled={part.status.toLowerCase() !== "open"}
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                                 part.status.toLowerCase() !== "open"
-                                  ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 cursor-not-allowed opacity-60"
-                                  : "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
+                                  ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
+                                  : "bg-red-600 text-white hover:bg-red-700"
                               }`}
                             >
                               <svg

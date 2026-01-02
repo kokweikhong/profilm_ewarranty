@@ -71,16 +71,16 @@ export default function Page() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-semibold text-gray-900">
             Update Password
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm text-gray-600">
             Change your account password
           </p>
         </div>
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700  bg-white  border border-gray-300  rounded-lg hover:bg-gray-50  transition-colors"
         >
           <svg
             className="h-4 w-4 mr-1.5"
@@ -99,14 +99,14 @@ export default function Page() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="bg-white  rounded-lg shadow">
         <div className="px-4 py-5 sm:p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* New Password */}
             <div>
               <label
                 htmlFor="newPassword"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-gray-700  mb-2"
               >
                 New Password <span className="text-red-600">*</span>
               </label>
@@ -121,13 +121,13 @@ export default function Page() {
                   })}
                   type={showNewPassword ? "text" : "password"}
                   id="newPassword"
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 pr-10 text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                  className="block w-full rounded-lg border border-gray-300  bg-white  px-3 py-2 pr-10 text-sm sm:text-base text-gray-900  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   placeholder="Enter your new password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                 >
                   {showNewPassword ? (
                     <svg
@@ -171,7 +171,7 @@ export default function Page() {
                   {errors.newPassword.message}
                 </p>
               )}
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-xs text-gray-500">
                 Password must be at least 8 characters long
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function Page() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-gray-700  mb-2"
               >
                 Confirm New Password <span className="text-red-600">*</span>
               </label>
@@ -193,13 +193,13 @@ export default function Page() {
                   })}
                   type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 pr-10 text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                  className="block w-full rounded-lg border border-gray-300  bg-white  px-3 py-2 pr-10 text-sm sm:text-base text-gray-900  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                   placeholder="Confirm your new password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                 >
                   {showConfirmPassword ? (
                     <svg
@@ -246,7 +246,7 @@ export default function Page() {
             </div>
 
             {/* Security Notice */}
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
+            <div className="bg-yellow-50  rounded-lg p-4">
               <div className="flex">
                 <div className="shrink-0">
                   <svg
@@ -262,10 +262,10 @@ export default function Page() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                  <h3 className="text-sm font-medium text-yellow-800">
                     Security Notice
                   </h3>
-                  <p className="mt-1 text-xs text-yellow-700 dark:text-yellow-300">
+                  <p className="mt-1 text-xs text-yellow-700">
                     Make sure your new password is strong and unique. Avoid
                     using common words or personal information.
                   </p>
@@ -274,12 +274,12 @@ export default function Page() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-6 border-t border-gray-200">
               <button
                 type="button"
                 onClick={() => router.back()}
                 disabled={isSubmitting}
-                className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2.5 text-sm font-medium text-gray-700  bg-white  border border-gray-300  rounded-lg hover:bg-gray-50  disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Cancel
               </button>

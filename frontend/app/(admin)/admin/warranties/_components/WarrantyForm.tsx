@@ -66,13 +66,13 @@ export default function WarrantyForm({
 
   if (isAdmin || (!isAdmin && !user?.shopId)) {
     return (
-      <div className="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20">
+      <div className="rounded-md bg-yellow-50 p-4">
         <div className="flex">
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+            <h3 className="text-sm font-medium text-yellow-800">
               Access Restricted
             </h3>
-            <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+            <div className="mt-2 text-sm text-yellow-700">
               <p>
                 Only shop users are allowed to create or edit warranties. Admin
                 users can only view warranty records.
@@ -387,7 +387,7 @@ export default function WarrantyForm({
   //       carPartId,
   //       carPartName,
   //       productAllocationId: 0,
-  //       installationImageUrl: "",
+  //       installationImageUrl:"",
   //     });
   //   }
   //   setSelectedCarParts(newSelected);
@@ -654,8 +654,8 @@ export default function WarrantyForm({
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white  rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <h3 className="text-lg font-semibold text-gray-900  mb-4">
             {isEditMode
               ? "Confirm Warranty Update"
               : "Confirm Warranty Details"}
@@ -664,32 +664,32 @@ export default function WarrantyForm({
           <div className="space-y-6 text-sm">
             {/* Warranty Information */}
             <div className="border-b pb-4">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+              <h4 className="font-semibold text-gray-900  mb-3">
                 Warranty Information
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                  <span className="font-medium text-gray-700">
                     Warranty No:
                   </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="ml-2 text-gray-900">
                     {warranty.warrantyNo}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                  <span className="font-medium text-gray-700">
                     Installation Date:
                   </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="ml-2 text-gray-900">
                     {warranty.installationDate}
                   </span>
                 </div>
                 {warranty.referenceNo && (
                   <div>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                    <span className="font-medium text-gray-700">
                       Reference No:
                     </span>
-                    <span className="ml-2 text-gray-900 dark:text-white">
+                    <span className="ml-2 text-gray-900">
                       {warranty.referenceNo}
                     </span>
                   </div>
@@ -699,31 +699,25 @@ export default function WarrantyForm({
 
             {/* Client Information */}
             <div className="border-b pb-4">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+              <h4 className="font-semibold text-gray-900  mb-3">
                 Client Information
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Name:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Name:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.clientName}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Contact:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Contact:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.clientContact}
                   </span>
                 </div>
                 <div className="col-span-2">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Email:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Email:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.clientEmail}
                   </span>
                 </div>
@@ -732,47 +726,37 @@ export default function WarrantyForm({
 
             {/* Vehicle Information */}
             <div className="border-b pb-4">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+              <h4 className="font-semibold text-gray-900  mb-3">
                 Vehicle Information
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Brand:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Brand:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.carBrand}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Model:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Model:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.carModel}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Colour:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Colour:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.carColour}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Plate No:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Plate No:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.carPlateNo}
                   </span>
                 </div>
                 <div className="col-span-2">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Chassis No:
-                  </span>
-                  <span className="ml-2 text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700">Chassis No:</span>
+                  <span className="ml-2 text-gray-900">
                     {warranty.carChassisNo}
                   </span>
                 </div>
@@ -782,17 +766,17 @@ export default function WarrantyForm({
             {/* Invoice Attachment */}
             {(invoiceFile || invoicePreview) && (
               <div className="border-b pb-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                <h4 className="font-semibold text-gray-900  mb-3">
                   Invoice Attachment
                 </h4>
                 {invoicePreview ? (
                   <img
                     src={invoicePreview}
                     alt="Invoice preview"
-                    className="max-h-48 rounded border border-gray-300 dark:border-gray-600"
+                    className="max-h-48 rounded border border-gray-300"
                   />
                 ) : invoiceFile ? (
-                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center gap-2 text-gray-700">
                     <svg
                       className="h-5 w-5"
                       fill="none"
@@ -814,7 +798,7 @@ export default function WarrantyForm({
 
             {/* Car Parts with Installation Images */}
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+              <h4 className="font-semibold text-gray-900  mb-3">
                 Selected Car Parts ({warrantyParts.length})
               </h4>
               {warrantyParts.length > 0 ? (
@@ -831,10 +815,7 @@ export default function WarrantyForm({
                       part.installationImageUrl;
 
                     return (
-                      <div
-                        key={index}
-                        className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md"
-                      >
+                      <div key={index} className="bg-gray-50  p-4 rounded-md">
                         <div className="flex gap-4">
                           {/* Installation Image Preview */}
                           {imageUrl && (
@@ -842,30 +823,32 @@ export default function WarrantyForm({
                               <img
                                 src={imageUrl}
                                 alt={`${carPart?.name} installation`}
-                                className="h-24 w-24 object-contain rounded border border-gray-300 dark:border-gray-600"
+                                className="h-24 w-24 object-contain rounded border border-gray-300"
                               />
                             </div>
                           )}
 
                           {/* Part Details */}
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900 dark:text-white">
+                            <p className="font-medium text-gray-900">
                               {carPart?.name || `Car Part ${part.carPartId}`}
                             </p>
                             {carPart?.code && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                              <p className="text-xs text-gray-500">
                                 Code: {carPart.code}
                               </p>
                             )}
                             {product && (
                               <div className="mt-2 text-xs">
-                                <p className="text-gray-700 dark:text-gray-300">
-                                  <span className="font-medium">Product:</span>{" "}
-                                  {product.brandName} - {product.typeName} -{" "}
+                                <p className="text-gray-700">
+                                  <span className="font-medium">Product:</span>
+                                  {""}
+                                  {product.brandName} - {product.typeName} -{""}
                                   {product.seriesName} - {product.productName}
                                 </p>
-                                <p className="text-gray-600 dark:text-gray-400">
-                                  <span className="font-medium">Warranty:</span>{" "}
+                                <p className="text-gray-600">
+                                  <span className="font-medium">Warranty:</span>
+                                  {""}
                                   {product.warrantyInMonths} months
                                 </p>
                               </div>
@@ -896,7 +879,7 @@ export default function WarrantyForm({
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
+              className="px-4 py-2 bg-gray-300  text-gray-800  rounded-md hover:bg-gray-400  transition-colors"
             >
               Cancel
             </button>
@@ -912,11 +895,11 @@ export default function WarrantyForm({
 
       {/* Validation Errors Display */}
       {validationErrors.length > 0 && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 dark:bg-red-900/20 dark:border-red-800">
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-start">
             <div className="shrink-0">
               <svg
-                className="h-5 w-5 text-red-600 dark:text-red-400"
+                className="h-5 w-5 text-red-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -930,10 +913,10 @@ export default function WarrantyForm({
               </svg>
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">
+              <h3 className="text-sm font-medium text-red-800">
                 Please fix the following errors:
               </h3>
-              <ul className="mt-2 text-sm text-red-700 dark:text-red-400 list-disc list-inside space-y-1">
+              <ul className="mt-2 text-sm text-red-700  list-disc list-inside space-y-1">
                 {validationErrors.map((error, index) => (
                   <li key={index}>{error}</li>
                 ))}
@@ -941,7 +924,7 @@ export default function WarrantyForm({
             </div>
             <button
               onClick={() => setValidationErrors([])}
-              className="ml-3 shrink-0 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+              className="ml-3 shrink-0 text-red-600 hover:text-red-800"
             >
               <svg
                 className="h-5 w-5"
@@ -964,8 +947,8 @@ export default function WarrantyForm({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-12">
           {/* Basic warranty fields */}
-          <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+          <div className="border-b border-gray-900/10 pb-12">
+            <h2 className="text-lg font-semibold text-gray-900  mb-6">
               Warranty Information
             </h2>
 
@@ -980,7 +963,7 @@ export default function WarrantyForm({
               />
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Client Name <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -993,7 +976,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Client Contact <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1006,7 +989,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Client Email <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1020,7 +1003,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Car Brand <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1030,7 +1013,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Car Model <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1040,7 +1023,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Car Colour <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1050,7 +1033,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Car Plate No <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1060,7 +1043,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Car Chassis No <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1070,7 +1053,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Installation Date <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1081,7 +1064,7 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Reference No
                 </label>
                 <input
@@ -1091,14 +1074,14 @@ export default function WarrantyForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Warranty No <span className="text-red-600">*</span>
                 </label>
                 <input
                   {...register("warranty.warrantyNo", { required: true })}
                   readOnly
                   disabled
-                  className="mt-2 block w-full rounded-md bg-gray-100 px-3 py-1.5 text-gray-700 outline-1 outline-gray-300 cursor-not-allowed dark:bg-gray-700 dark:text-gray-300"
+                  className="mt-2 block w-full rounded-md bg-gray-100 px-3 py-1.5 text-gray-700 outline-1 outline-gray-300 cursor-not-allowed"
                   placeholder="Auto-generated"
                 />
                 <p className="mt-1 text-xs text-gray-500">
@@ -1108,7 +1091,7 @@ export default function WarrantyForm({
 
               {/* Warranty invoice attachment url */}
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                <label className="block text-sm font-medium text-gray-900">
                   Invoice Attachment <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -1121,7 +1104,7 @@ export default function WarrantyForm({
                   </p>
                 )}
                 <div className="mt-2">
-                  <div className="relative w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
+                  <div className="relative w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50  hover:border-primary/50 transition-colors overflow-hidden group">
                     <input
                       type="file"
                       id="invoice-upload"
@@ -1143,7 +1126,7 @@ export default function WarrantyForm({
                               className="h-32 w-32 object-contain rounded"
                             />
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              <p className="text-sm font-medium text-gray-900">
                                 {invoiceFile.name}
                               </p>
                               <p
@@ -1174,7 +1157,7 @@ export default function WarrantyForm({
                           </div>
                         ) : (
                           <div className="flex items-center gap-4">
-                            <div className="shrink-0 h-16 w-16 bg-red-100 dark:bg-red-900/20 rounded flex items-center justify-center">
+                            <div className="shrink-0 h-16 w-16 bg-red-100  rounded flex items-center justify-center">
                               <svg
                                 className="h-8 w-8 text-red-600"
                                 fill="none"
@@ -1190,7 +1173,7 @@ export default function WarrantyForm({
                               </svg>
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              <p className="text-sm font-medium text-gray-900">
                                 {invoiceFile.name}
                               </p>
                               <p
@@ -1224,7 +1207,7 @@ export default function WarrantyForm({
                     ) : isEditMode && data?.warranty.invoiceAttachmentUrl ? (
                       <div className="p-4">
                         <div className="flex items-center gap-4">
-                          <div className="shrink-0 h-16 w-16 bg-blue-100 dark:bg-blue-900/20 rounded flex items-center justify-center">
+                          <div className="shrink-0 h-16 w-16 bg-blue-100  rounded flex items-center justify-center">
                             <svg
                               className="h-8 w-8 text-blue-600"
                               fill="none"
@@ -1240,7 +1223,7 @@ export default function WarrantyForm({
                             </svg>
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            <p className="text-sm font-medium text-gray-900">
                               Existing Invoice
                             </p>
                             <a
@@ -1284,11 +1267,11 @@ export default function WarrantyForm({
           </div>
 
           {/* Car Parts Selection */}
-          <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <div className="border-b border-gray-900/10 pb-12">
+            <h2 className="text-lg font-semibold text-gray-900  mb-2">
               Car Parts Selection
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-sm text-gray-600  mb-6">
               Select car parts and provide details for each
             </p>
 
@@ -1309,8 +1292,8 @@ export default function WarrantyForm({
                     key={carPart.id}
                     className={`border rounded-lg p-4 transition-all ${
                       isSelected
-                        ? "border-primary bg-primary/5 dark:bg-primary/10"
-                        : "border-gray-300 dark:border-gray-600"
+                        ? "border-primary bg-primary/5"
+                        : "border-gray-300"
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -1325,7 +1308,7 @@ export default function WarrantyForm({
                       <div className="flex-1">
                         <label
                           htmlFor={`carPart-${carPart.id}`}
-                          className={`block font-medium text-gray-900 dark:text-white ${
+                          className={`block font-medium text-gray-900  ${
                             isEditMode && isSelected
                               ? "cursor-default"
                               : "cursor-pointer"
@@ -1334,7 +1317,7 @@ export default function WarrantyForm({
                           {carPart.name} ({carPart.code})
                         </label>
                         {carPart.description && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-sm text-gray-500  mt-1">
                             {carPart.description}
                           </p>
                         )}
@@ -1343,7 +1326,7 @@ export default function WarrantyForm({
                           <div className="mt-4 space-y-4">
                             {/* PRODUCT SELECT */}
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                              <label className="block text-sm font-medium text-gray-700">
                                 Product <span className="text-red-600">*</span>
                               </label>
                               <select
@@ -1354,7 +1337,7 @@ export default function WarrantyForm({
                                     valueAsNumber: true,
                                   }
                                 )}
-                                className="mt-2 block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
+                                className="mt-2 block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-primary/60"
                               >
                                 <option value={0} disabled>
                                   Select Product
@@ -1364,8 +1347,8 @@ export default function WarrantyForm({
                                     key={product.productAllocationId}
                                     value={product.productAllocationId}
                                   >
-                                    {`${product.brandName} - ${product.typeName} - ${product.seriesName} - ${product.productName}`}{" "}
-                                    ({product.warrantyInMonths} months)
+                                    {`${product.brandName} - ${product.typeName} - ${product.seriesName} - ${product.productName}`}
+                                    {""}({product.warrantyInMonths} months)
                                   </option>
                                 ))}
                               </select>
@@ -1373,8 +1356,8 @@ export default function WarrantyForm({
 
                             {/* IMAGE UPLOAD */}
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Installation Image{" "}
+                              <label className="block text-sm font-medium text-gray-700">
+                                Installation Image{""}
                                 <span className="text-red-600">*</span>
                               </label>
                               <div className="mt-2">
@@ -1384,22 +1367,23 @@ export default function WarrantyForm({
                                       className={`text-xs ${
                                         imageFileSizeErrors.get(carPart.id)
                                           ? "text-red-600 font-semibold"
-                                          : "text-gray-500 dark:text-gray-400"
+                                          : "text-gray-500"
                                       }`}
                                     >
-                                      File size:{" "}
+                                      File size:{""}
                                       {(
                                         selectedFiles.get(carPart.id)!.size /
                                         1024 /
                                         1024
-                                      ).toFixed(2)}{" "}
+                                      ).toFixed(2)}
+                                      {""}
                                       MB
                                       {imageFileSizeErrors.get(carPart.id) &&
                                         " - Exceeds 50MB limit!"}
                                     </p>
                                   </div>
                                 )}
-                                <div className="relative w-full h-64 sm:h-48 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
+                                <div className="relative w-full h-64 sm:h-48 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50  hover:border-primary/50 transition-colors overflow-hidden group">
                                   <input
                                     type="file"
                                     id={`image-upload-${carPart.id}`}
@@ -1445,7 +1429,7 @@ export default function WarrantyForm({
                                           d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                                         />
                                       </svg>
-                                      <span className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                      <span className="text-sm text-gray-500  mt-2">
                                         Click to select image
                                       </span>
                                     </div>
@@ -1475,7 +1459,7 @@ export default function WarrantyForm({
           <button
             type="button"
             onClick={() => router.push("/admin/warranties")}
-            className="text-sm font-semibold text-gray-900 dark:text-white"
+            className="text-sm font-semibold text-gray-900"
           >
             Cancel
           </button>

@@ -179,7 +179,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
     if (!pendingFileUpload) return;
 
     setIsUploading(true);
-    // if uploading company license image, set folder to "company_licenses", else "shop_images"
+    // if uploading company license image, set folder to"company_licenses", else"shop_images"
     try {
       const uploadedUrl = await uploadFile(
         pendingFileUpload.file,
@@ -358,11 +358,11 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-12">
-        <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
-          <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
+        <div className="border-b border-gray-900/10 pb-12">
+          <h2 className="text-base/7 font-semibold text-gray-900">
             Shop Information
           </h2>
-          <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm/6 text-gray-600">
             Enter accurate shop information for warranty registration.
           </p>
 
@@ -371,7 +371,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="companyName"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Company Name
               </label>
@@ -389,7 +389,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="companyRegistrationNo"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Company Registration No.
               </label>
@@ -407,12 +407,12 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="companyLicenseImageUrl"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Company License Image
               </label>
               <div className="mt-2 flex items-center gap-x-6">
-                <div className="relative h-32 w-32 rounded-lg border-2 border-dashed border-gray-300 bg-white dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
+                <div className="relative h-32 w-32 rounded-lg border-2 border-dashed border-gray-300 bg-white  hover:border-primary/50 transition-colors overflow-hidden group">
                   <input
                     ref={companyLicenseInputRef}
                     id="companyLicenseImageUrl"
@@ -472,10 +472,10 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600">
                     Upload a clear image of the company's license document.
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500  mt-1">
                     PNG, JPG, GIF up to 10MB.
                   </p>
                   <div className="mt-3 flex items-center gap-3">
@@ -505,7 +505,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                       <button
                         type="button"
                         onClick={handleRemoveCompanyLicenseImage}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700"
                       >
                         <svg
                           className="h-4 w-4"
@@ -524,7 +524,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                       </button>
                     )}
                   </div>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-2 text-sm text-gray-500">
                     {companyLicenseImagePreview
                       ? "Click image to enlarge"
                       : "No image selected."}
@@ -537,7 +537,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="companyContactNumber"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Company Contact No.
               </label>
@@ -555,7 +555,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="companyEmail"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Company Email
               </label>
@@ -573,7 +573,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="companyWebsiteUrl"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Company Website
               </label>
@@ -591,7 +591,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="shopName"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Shop Name
               </label>
@@ -609,7 +609,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="shopAddress"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Shop Address
               </label>
@@ -627,7 +627,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="msiaStateId"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Shop State
               </label>
@@ -639,7 +639,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                   })}
                   disabled={isEditMode}
                   id="msiaStateId"
-                  className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
+                  className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
                 >
                   <option value={0}>Select a state</option>
                   {msiaStates.map((state) => (
@@ -650,12 +650,12 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                 </select>
                 <ChevronDownIcon
                   aria-hidden="true"
-                  className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4 dark:text-gray-400"
+                  className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
                 />
               </div>
               {/* display msiaStateId */}
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Shop State ID: {shop?.msiaStateId} | Form Value:{" "}
+              <p className="mt-2 text-sm text-gray-600">
+                Shop State ID: {shop?.msiaStateId} | Form Value:{""}
                 {watch("msiaStateId")} | Type: {typeof watch("msiaStateId")}
               </p>
             </div>
@@ -664,7 +664,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="branchCode"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Branch Code
               </label>
@@ -683,12 +683,12 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="shopImage"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 Shop Image
               </label>
               <div className="mt-2 flex items-center gap-x-6">
-                <div className="relative h-32 w-32 rounded-lg border-2 border-dashed border-gray-300 bg-white dark:bg-gray-800 hover:border-primary/50 transition-colors overflow-hidden group">
+                <div className="relative h-32 w-32 rounded-lg border-2 border-dashed border-gray-300 bg-white  hover:border-primary/50 transition-colors overflow-hidden group">
                   <input
                     ref={shopImageInputRef}
                     id="shopImage"
@@ -744,10 +744,8 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Upload a shop image
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  <p className="text-sm text-gray-600">Upload a shop image</p>
+                  <p className="text-xs text-gray-500  mt-1">
                     PNG, JPG, GIF up to 10MB.
                   </p>
                   <div className="mt-3 flex items-center gap-3">
@@ -775,7 +773,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                       <button
                         type="button"
                         onClick={handleRemoveShopImage}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700"
                       >
                         <svg
                           className="h-4 w-4"
@@ -794,7 +792,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                       </button>
                     )}
                   </div>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-2 text-sm text-gray-500">
                     {shopImagePreview
                       ? "Click image to enlarge"
                       : "No image selected."}
@@ -807,7 +805,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="picName"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 PIC Name
               </label>
@@ -825,7 +823,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="picPosition"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 PIC Position
               </label>
@@ -843,7 +841,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="picContactNumber"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 PIC Contact
               </label>
@@ -861,7 +859,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             <div className="col-span-full">
               <label
                 htmlFor="picEmail"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="block text-sm/6 font-medium text-gray-900"
               >
                 PIC Email
               </label>
@@ -878,7 +876,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
             {/* Is Active - Only for update mode */}
             {isEditMode && (
               <div className="col-span-full">
-                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white mb-3">
+                <label className="block text-sm/6 font-medium text-gray-900  mb-3">
                   Status
                 </label>
                 <div className="relative inline-flex items-center">
@@ -894,9 +892,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                     />
                     <div
                       className={`w-11 h-6 rounded-full peer-focus:ring-4 peer-focus:ring-primary/20 transition-colors duration-200 ease-in-out relative ${
-                        watch("isActive")
-                          ? "bg-primary"
-                          : "bg-gray-300 dark:bg-gray-600"
+                        watch("isActive") ? "bg-primary" : "bg-gray-300"
                       }`}
                     >
                       <div
@@ -905,7 +901,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                         }`}
                       ></div>
                     </div>
-                    <span className="ml-3 text-sm font-medium text-gray-900 dark:text-white">
+                    <span className="ml-3 text-sm font-medium text-gray-900">
                       {watch("isActive") ? "Active" : "Inactive"}
                     </span>
                   </label>
@@ -928,16 +924,17 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
       {/* Upload Confirmation Modal */}
       {showUploadModal && pendingFileUpload && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white  rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900  mb-4">
               Confirm File Upload
             </h3>
             <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Do you want to upload this{" "}
+              <p className="text-sm text-gray-600  mb-3">
+                Do you want to upload this{""}
                 {pendingFileUpload.type === "companyLicense"
                   ? "company license"
-                  : "shop"}{" "}
+                  : "shop"}
+                {""}
                 image to the server?
               </p>
               <div className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg">
@@ -947,7 +944,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                   className="max-h-48 max-w-full object-contain"
                 />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+              <p className="text-xs text-gray-500  mt-2">
                 File: {pendingFileUpload.file.name} (
                 {(pendingFileUpload.file.size / 1024).toFixed(2)} KB)
               </p>
@@ -963,7 +960,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
               <button
                 onClick={handleCancelUpload}
                 disabled={isUploading}
-                className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-gray-300  text-gray-800  rounded-md hover:bg-gray-400  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -975,8 +972,8 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
       {/* Confirmation Modal */}
       {showConfirmModal && formData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white  rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold text-gray-900  mb-4">
               Confirm Shop Details
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -1012,7 +1009,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                       isImageField ? "col-span-2" : "col-span-2 sm:col-span-1"
                     }
                   >
-                    <span className="block font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <span className="block font-medium text-gray-700  mb-1">
                       {key === "isActive"
                         ? "Active"
                         : camelToNormalCase(key)
@@ -1021,7 +1018,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                             .trim()}
                     </span>
                     {isImageField && imagePreview ? (
-                      <div className="mt-2 flex items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900">
+                      <div className="mt-2 flex items-center justify-center p-4 border-2 border-dashed border-gray-300  rounded-lg bg-gray-50">
                         <Image
                           src={imagePreview}
                           alt={
@@ -1036,7 +1033,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
                         />
                       </div>
                     ) : (
-                      <span className="block text-gray-900 dark:text-white wrap-break-word">
+                      <span className="block text-gray-900  wrap-break-word">
                         {String(displayValue) || "-"}
                       </span>
                     )}
@@ -1053,7 +1050,7 @@ export default function ShopForm({ msiaStates, shop, mode = "create" }: Props) {
               </button>
               <button
                 onClick={handleCancel}
-                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
+                className="px-4 py-2 bg-gray-300  text-gray-800  rounded-md hover:bg-gray-400  transition-colors"
               >
                 Cancel
               </button>

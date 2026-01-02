@@ -172,7 +172,8 @@ export default function AdminLayout({
                     </li>
                   ))}
                 </ul>
-              </li>{" "}
+              </li>
+              {""}
             </ul>
           </nav>
         </div>
@@ -206,7 +207,7 @@ export default function AdminLayout({
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <MenuButton
-                  className="relative flex items-center gap-x-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors duration-200 focus:outline-none"
+                  className="relative flex items-center gap-x-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100   transition-colors duration-200 focus:outline-none"
                   suppressHydrationWarning
                 >
                   <span className="sr-only">Open user menu</span>
@@ -214,12 +215,12 @@ export default function AdminLayout({
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-sm font-semibold">
                       {user?.username?.charAt(0).toUpperCase() || "U"}
                     </div>
-                    <span className="hidden sm:block text-sm font-semibold text-gray-900 dark:text-white">
+                    <span className="hidden sm:block text-sm font-semibold text-gray-900">
                       {user?.username || "User"}
                     </span>
                     <ChevronDownIcon
                       aria-hidden="true"
-                      className="h-5 w-5 text-gray-500 dark:text-gray-400"
+                      className="h-5 w-5 text-gray-500"
                     />
                   </div>
                 </MenuButton>

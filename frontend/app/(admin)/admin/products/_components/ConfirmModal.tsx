@@ -60,8 +60,8 @@ export const ConfirmModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white  rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 className="text-lg font-semibold text-gray-900  mb-4">
           Confirm Product Details
         </h3>
         <div className="space-y-3 text-sm">
@@ -74,20 +74,18 @@ export const ConfirmModal = ({
               ([key, value]) =>
                 key === "isActive" ? (
                   <div key={key} className="flex justify-between">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Active
-                    </span>
-                    <span className="text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700">Active</span>
+                    <span className="text-gray-900">
                       {/* if data is CreateProductRequest (no id), isActive always Yes */}
                       {"id" in formData ? (value ? "Yes" : "No") : "Yes"}
                     </span>
                   </div>
                 ) : (
                   <div key={key} className="flex justify-between">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                    <span className="font-medium text-gray-700">
                       {removeIdSuffix(camelToNormalCase(key))}
                     </span>
-                    <span className="text-gray-900 dark:text-white">
+                    <span className="text-gray-900">
                       {getDisplayValue(key, value)}
                     </span>
                   </div>

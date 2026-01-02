@@ -182,11 +182,11 @@ export default function ProductForm({
       />
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-12">
-          <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
-            <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
+          <div className="border-b border-gray-900/10 pb-12">
+            <h2 className="text-base/7 font-semibold text-gray-900">
               Product Information
             </h2>
-            <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+            <p className="mt-1 text-sm/6 text-gray-600">
               Enter accurate product information for warranty registration.
             </p>
 
@@ -195,7 +195,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="brandId"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Brand <span className="text-red-600">*</span>
                 </label>
@@ -206,7 +206,7 @@ export default function ProductForm({
                       valueAsNumber: true,
                     })}
                     id="brandId"
-                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
+                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6"
                   >
                     <option value="">Select a brand</option>
                     {brands.map((brand) => (
@@ -217,7 +217,7 @@ export default function ProductForm({
                   </select>
                   <ChevronDownIcon
                     aria-hidden="true"
-                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4 dark:text-gray-400"
+                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
                   />
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="typeId"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Type <span className="text-red-600">*</span>
                 </label>
@@ -237,7 +237,7 @@ export default function ProductForm({
                       valueAsNumber: true,
                     })}
                     id="typeId"
-                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
+                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6"
                   >
                     <option value="">Select a type</option>
                     {filteredTypes.map((type) => (
@@ -248,7 +248,7 @@ export default function ProductForm({
                   </select>
                   <ChevronDownIcon
                     aria-hidden="true"
-                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4 dark:text-gray-400"
+                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
                   />
                 </div>
               </div>
@@ -257,7 +257,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="seriesId"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Series <span className="text-red-600">*</span>
                 </label>
@@ -268,7 +268,7 @@ export default function ProductForm({
                       valueAsNumber: true,
                     })}
                     id="seriesId"
-                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
+                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6"
                   >
                     <option value="">Select a series</option>
                     {filteredSeries.map((series) => (
@@ -279,7 +279,7 @@ export default function ProductForm({
                   </select>
                   <ChevronDownIcon
                     aria-hidden="true"
-                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4 dark:text-gray-400"
+                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
                   />
                 </div>
               </div>
@@ -288,7 +288,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="nameId"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Name <span className="text-red-600">*</span>
                 </label>
@@ -299,7 +299,7 @@ export default function ProductForm({
                       valueAsNumber: true,
                     })}
                     id="nameId"
-                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:*:bg-gray-800 dark:focus:outline-primary/50"
+                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6"
                   >
                     <option value="">Select a name</option>
                     {filteredNames.map((name) => (
@@ -310,7 +310,7 @@ export default function ProductForm({
                   </select>
                   <ChevronDownIcon
                     aria-hidden="true"
-                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4 dark:text-gray-400"
+                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
                   />
                 </div>
                 {errors.nameId && (
@@ -324,7 +324,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="warrantyInMonths"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Warranty (months)<span className="text-red-600">*</span>
                 </label>
@@ -350,7 +350,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="filmSerialNumber"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Film Serial No. <span className="text-red-600">*</span>
                 </label>
@@ -373,7 +373,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="filmQuantity"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Film Quantity <span className="text-red-600">*</span>
                 </label>
@@ -400,7 +400,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="shipmentNumber"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Shipment No.
                 </label>
@@ -419,7 +419,7 @@ export default function ProductForm({
               <div className="col-span-full">
                 <label
                   htmlFor="description"
-                  className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                  className="block text-sm/6 font-medium text-gray-900"
                 >
                   Description
                 </label>
@@ -436,15 +436,15 @@ export default function ProductForm({
 
               {/* Is Active */}
               <div className="col-span-full">
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between p-4 bg-gray-50  rounded-lg border border-gray-200">
                   <div className="flex flex-col">
                     <label
                       htmlFor="isActive"
-                      className="text-sm font-semibold text-gray-900 dark:text-white"
+                      className="text-sm font-semibold text-gray-900"
                     >
                       Product Status
                     </label>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    <p className="text-xs text-gray-500  mt-0.5">
                       {mode === "create" || watch("isActive")
                         ? "Product is active and visible"
                         : "Product is inactive and hidden"}
@@ -466,8 +466,8 @@ export default function ProductForm({
                       defaultChecked={isEditMode ? product?.isActive : true}
                       disabled={mode === "create"}
                     />
-                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/40 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                    <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20  rounded-full peer  peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all  peer-checked:bg-primary"></div>
+                    <span className="ms-3 text-sm font-medium text-gray-900">
                       {mode === "create" || watch("isActive")
                         ? "Active"
                         : "Inactive"}

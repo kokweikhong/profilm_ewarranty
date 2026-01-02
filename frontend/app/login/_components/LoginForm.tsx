@@ -46,7 +46,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen bg-linear-to-br from-primary/5 via-white to-primary/10 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="flex min-h-screen bg-linear-to-br from-primary/5 via-white to-primary/10">
       <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
@@ -68,21 +68,21 @@ export default function LoginForm() {
               </div>
             </div>
           </div>
-          <h2 className="mt-8 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <h2 className="mt-8 text-center text-3xl font-bold tracking-tight text-gray-900">
             Welcome Back
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-center text-sm text-gray-600">
             Sign in to access your e-warranty dashboard
           </p>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white dark:bg-gray-800 px-8 py-10 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700">
+          <div className="bg-white  px-8 py-10 shadow-xl rounded-2xl border border-gray-100">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
                   htmlFor="username"
-                  className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"
+                  className="block text-sm font-semibold text-gray-900  mb-2"
                 >
                   Username
                 </label>
@@ -111,7 +111,7 @@ export default function LoginForm() {
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="your username"
                     disabled={isLoading}
-                    className="block w-full rounded-lg bg-white dark:bg-gray-900 pl-10 pr-3 py-3 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-primary dark:focus:outline-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="block w-full rounded-lg bg-white  pl-10 pr-3 py-3 text-base text-gray-900  outline-1 -outline-offset-1 outline-gray-300  placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-primary  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -120,14 +120,14 @@ export default function LoginForm() {
                 <div className="flex items-center justify-between mb-2">
                   <label
                     htmlFor="password"
-                    className="block text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    className="block text-sm font-semibold text-gray-900"
                   >
                     Password
                   </label>
                   <div className="text-sm">
                     <a
                       href="#"
-                      className="font-semibold text-primary hover:text-primary/80 dark:text-primary/90 dark:hover:text-primary/70 transition-colors"
+                      className="font-semibold text-primary hover:text-primary/80   transition-colors"
                     >
                       Forgot password?
                     </a>
@@ -159,13 +159,13 @@ export default function LoginForm() {
                     autoComplete="current-password"
                     placeholder="••••••••"
                     disabled={isLoading}
-                    className="block w-full rounded-lg bg-white dark:bg-gray-900 pl-10 pr-10 py-3 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-primary dark:focus:outline-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="block w-full rounded-lg bg-white  pl-10 pr-10 py-3 text-base text-gray-900  outline-1 -outline-offset-1 outline-gray-300  placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-primary  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={
                       showPassword ? "Hide password" : "Show password"
                     }

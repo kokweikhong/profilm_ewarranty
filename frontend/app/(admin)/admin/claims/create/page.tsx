@@ -187,22 +187,20 @@ export default function Page() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-            Create Claim
-          </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl font-semibold text-gray-900">Create Claim</h1>
+          <p className="mt-1 text-sm text-gray-600">
             Search and select a warranty to create a claim
           </p>
         </div>
       </div>
 
       {!selectedClaim ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="bg-white  rounded-lg shadow">
           {/* Search Box */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200">
             <label
               htmlFor="search"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-medium text-gray-700  mb-2"
             >
               Search Warranty
             </label>
@@ -228,7 +226,7 @@ export default function Page() {
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="Search by Warranty No, Car Plate No, or Client Name"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300  rounded-md leading-5 bg-white  text-gray-900  placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -238,9 +236,7 @@ export default function Page() {
             {loading ? (
               <div className="text-center py-8">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  Loading warranties...
-                </p>
+                <p className="mt-2 text-gray-600">Loading warranties...</p>
               </div>
             ) : filteredClaims.length === 0 ? (
               <div className="text-center py-8">
@@ -257,10 +253,10 @@ export default function Page() {
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
                   No warranties found
                 </h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-sm text-gray-500">
                   {searchTerm
                     ? "Try a different search term"
                     : "No approved warranties available for your shop"}
@@ -274,7 +270,7 @@ export default function Page() {
                     <div
                       key={data.id}
                       onClick={() => handleSelectClaim(data.id)}
-                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all"
+                      className="border border-gray-200  rounded-lg p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -282,32 +278,28 @@ export default function Page() {
                             <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
                               {data.warrantyNo}
                             </span>
-                            <span className="font-mono text-sm text-gray-900 dark:text-white">
+                            <span className="font-mono text-sm text-gray-900">
                               {data.carPlateNo}
                             </span>
                           </div>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                             <div>
-                              <span className="text-gray-500 dark:text-gray-400">
-                                Client:
-                              </span>
-                              <span className="ml-2 text-gray-900 dark:text-white">
+                              <span className="text-gray-500">Client:</span>
+                              <span className="ml-2 text-gray-900">
                                 {data.clientName}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-500 dark:text-gray-400">
-                                Car:
-                              </span>
-                              <span className="ml-2 text-gray-900 dark:text-white">
+                              <span className="text-gray-500">Car:</span>
+                              <span className="ml-2 text-gray-900">
                                 {data.carBrand} {data.carModel}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-500 dark:text-gray-400">
+                              <span className="text-gray-500">
                                 Installation:
                               </span>
-                              <span className="ml-2 text-gray-900 dark:text-white">
+                              <span className="ml-2 text-gray-900">
                                 {new Date(
                                   data.installationDate
                                 ).toLocaleDateString()}

@@ -464,22 +464,22 @@ export default function ClaimForm({
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white  rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900  mb-2">
                 {isEditMode ? "Confirm Update" : "Confirm Submission"}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 {isEditMode
                   ? "Are you sure you want to update this claim? This action will save all changes."
                   : "Are you sure you want to create this claim? Please review all information before submitting."}
               </p>
               {pendingFormData && (
-                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <div className="mt-4 p-3 bg-gray-50  rounded-lg">
+                  <p className="text-sm font-medium text-gray-700  mb-2">
                     Summary:
                   </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  <ul className="text-sm text-gray-600  space-y-1">
                     <li>• Claim No: {pendingFormData.claimNo}</li>
                     <li>• Claim Date: {pendingFormData.claimDate}</li>
                     <li>
@@ -497,7 +497,7 @@ export default function ClaimForm({
                   setPendingFormData(null);
                 }}
                 disabled={isSubmitting}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700  bg-white  border border-gray-300  rounded-lg hover:bg-gray-50  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -514,7 +514,7 @@ export default function ClaimForm({
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="bg-white  rounded-lg shadow">
         {/* Warranty information */}
         <WarrantyInformation claimData={claimData!.claim} onCancel={onCancel} />
 
@@ -524,13 +524,13 @@ export default function ClaimForm({
         >
           {/* Claim Details */}
           <div className="space-y-4">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold text-gray-900">
               {isEditMode ? "Edit Claim Details" : "Claim Details"}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700  mb-2">
                   Claim Number <span className="text-red-600">*</span>
                 </label>
                 <div className="relative">
@@ -541,10 +541,8 @@ export default function ClaimForm({
                     type="text"
                     readOnly={!isEditMode}
                     disabled={isGeneratingClaimNo && !isEditMode}
-                    className={`block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
-                      isEditMode
-                        ? "bg-white dark:bg-gray-700"
-                        : "bg-gray-50 dark:bg-gray-800 cursor-not-allowed"
+                    className={`block w-full rounded-lg border border-gray-300  px-3 py-2 text-sm sm:text-base text-gray-900  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
+                      isEditMode ? "bg-white" : "bg-gray-50  cursor-not-allowed"
                     }`}
                     placeholder={
                       isGeneratingClaimNo
@@ -568,7 +566,7 @@ export default function ClaimForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700  mb-2">
                   Claim Date <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -576,7 +574,7 @@ export default function ClaimForm({
                     required: "Claim date is required",
                   })}
                   type="date"
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                  className="block w-full rounded-lg border border-gray-300  bg-white  px-3 py-2 text-sm sm:text-base text-gray-900  focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                 />
                 {errors.claimDate && (
                   <p className="mt-1 text-sm text-red-600">
@@ -590,10 +588,10 @@ export default function ClaimForm({
           {/* Warranty Parts Selection */}
           <div className="space-y-4">
             <div>
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-base font-semibold text-gray-900">
                 Select Warranty Parts to Claim
               </h3>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-xs sm:text-sm text-gray-600  mt-1">
                 Select the parts you want to claim and provide damage
                 information
               </p>
@@ -633,7 +631,7 @@ export default function ClaimForm({
                     className={`border rounded-lg p-3 sm:p-4 transition-all ${
                       isSelected
                         ? "border-primary bg-primary/5"
-                        : "border-gray-300 dark:border-gray-600"
+                        : "border-gray-300"
                     }`}
                   >
                     <div className="flex items-start gap-2 sm:gap-3">
@@ -651,18 +649,19 @@ export default function ClaimForm({
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
                           <div className="flex-1 min-w-0">
                             <h4
-                              className="font-medium text-sm sm:text-base text-gray-900 dark:text-white wrap-break-word cursor-pointer hover:text-primary transition-colors"
+                              className="font-medium text-sm sm:text-base text-gray-900  wrap-break-word cursor-pointer hover:text-primary transition-colors"
                               onClick={() => togglePart(partId)}
                             >
                               {part.carPartName}
                             </h4>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 wrap-break-word mt-1">
+                            <p className="text-xs sm:text-sm text-gray-600  wrap-break-word mt-1">
                               {"brandName" in part
                                 ? `${part.brandName} - ${part.typeName} - ${part.seriesName} - ${part.productName}`
                                 : `${part.productBrand} - ${part.productType} - ${part.productSeries} - ${part.productName}`}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 break-all">
-                              Warranty: {part.warrantyInMonths} months | Serial:{" "}
+                            <p className="text-xs text-gray-500  mt-1 break-all">
+                              Warranty: {part.warrantyInMonths} months | Serial:
+                              {""}
                               {part.filmSerialNumber}
                             </p>
                           </div>
@@ -683,11 +682,11 @@ export default function ClaimForm({
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {/* Damaged Image */}
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                  Damaged Image{" "}
+                                <label className="block text-sm font-medium text-gray-700  mb-2">
+                                  Damaged Image{""}
                                   <span className="text-red-600">*</span>
                                 </label>
-                                <div className="relative h-40 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary transition-colors overflow-hidden group">
+                                <div className="relative h-40 rounded-lg border-2 border-dashed border-gray-300  hover:border-primary transition-colors overflow-hidden group">
                                   <input
                                     key={`damaged-${partId}-${
                                       damagedPreviews.get(partId) || "new"
@@ -745,10 +744,10 @@ export default function ClaimForm({
 
                               {/* Resolution Image */}
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-gray-700  mb-2">
                                   Resolution Image (Optional)
                                 </label>
-                                <div className="relative h-40 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary transition-colors overflow-hidden group">
+                                <div className="relative h-40 rounded-lg border-2 border-dashed border-gray-300  hover:border-primary transition-colors overflow-hidden group">
                                   <input
                                     type="file"
                                     accept="image/*"
@@ -807,7 +806,7 @@ export default function ClaimForm({
 
                             {/* Resolution Date */}
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              <label className="block text-sm font-medium text-gray-700  mb-2">
                                 Resolution Date (Optional)
                               </label>
                               <input
@@ -815,13 +814,13 @@ export default function ClaimForm({
                                   `claimParts.${fieldIndex}.resolutionDate`
                                 )}
                                 type="date"
-                                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                className="block w-full rounded-lg border border-gray-300  bg-white  px-3 py-2 text-sm sm:text-base text-gray-900  focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                               />
                             </div>
 
                             {/* Remarks */}
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              <label className="block text-sm font-medium text-gray-700  mb-2">
                                 Remarks (Optional)
                               </label>
                               <textarea
@@ -829,7 +828,7 @@ export default function ClaimForm({
                                   `claimParts.${fieldIndex}.remarks`
                                 )}
                                 rows={3}
-                                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none"
+                                className="block w-full rounded-lg border border-gray-300  bg-white  px-3 py-2 text-sm sm:text-base text-gray-900  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none"
                                 placeholder="Additional notes about the damage or resolution..."
                               />
                             </div>
@@ -851,18 +850,18 @@ export default function ClaimForm({
             </div>
 
             {(isEditMode ? claimData?.parts : warrantyParts)?.length === 0 && (
-              <p className="text-center py-8 text-gray-600 dark:text-gray-400">
+              <p className="text-center py-8 text-gray-600">
                 No warranty parts available for this warranty.
               </p>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-gray-700  bg-white  border border-gray-300  rounded-lg hover:bg-gray-50  transition-colors"
             >
               Cancel
             </button>
