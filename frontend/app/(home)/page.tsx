@@ -129,7 +129,7 @@ export default function Page() {
             </code>
             <span>or</span>
             <code className="px-2 py-1 bg-gray-100 rounded text-gray-700">
-              ABC1234
+              ABC 1234
             </code>
           </div>
         </div>
