@@ -936,13 +936,181 @@ export default function ClaimDetailsPage() {
         </div>
 
         {/* Action Button */}
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={() => router.push(`/admin/claims/edit/${params.id}`)}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Edit Claim
-          </button>
+        {user?.role === "shop_admin" && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={() => router.push(`/admin/claims/edit/${params.id}`)}
+              className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Edit Claim
+            </button>
+          </div>
+        )}
+
+        {/* Claim Action Buttons */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900  mb-3">
+            Claim Actions
+          </h3>
+          <div className="space-y-3">
+            {/* Approval Actions - Admin Only */}
+            {user?.role === "admin" && (
+              <div>
+                <label className="block text-xs font-medium text-gray-500  mb-2">
+                  Approval Status
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() =>
+                      setConfirmModal({
+                        show: true,
+                        type: "claim-approval",
+                        id: claimData.claim.id,
+                        currentValue: claimData.claim.isApproved,
+                        title: "Approve Claim?",
+                        message: "Are you sure you want to approve this claim?",
+                      })
+                    }
+                    disabled={claimData.claim.isApproved}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      claimData.claim.isApproved
+                        ? "bg-green-100 text-green-800   cursor-not-allowed opacity-60"
+                        : "bg-green-600 text-white hover:bg-green-700"
+                    }`}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {claimData.claim.isApproved ? "Approved" : "Approve"}
+                  </button>
+                  <button
+                    onClick={() =>
+                      setConfirmModal({
+                        show: true,
+                        type: "claim-approval",
+                        id: claimData.claim.id,
+                        currentValue: claimData.claim.isApproved,
+                        title: "Unapprove Claim?",
+                        message:
+                          "Are you sure you want to mark this claim as not approved?",
+                      })
+                    }
+                    disabled={!claimData.claim.isApproved}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      !claimData.claim.isApproved
+                        ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
+                        : "bg-yellow-600 text-white hover:bg-yellow-700"
+                    }`}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {!claimData.claim.isApproved ? "Not Approved" : "Unapprove"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Status Actions */}
+            {/* User only */}
+            {user?.role === "shop_admin" && (
+              <div>
+                <label className="block text-xs font-medium text-gray-500  mb-2">
+                  Claim Status
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() =>
+                      setConfirmModal({
+                        show: true,
+                        type: "claim-status",
+                        id: claimData.claim.id,
+                        currentValue:
+                          claimData.claim.status.toLowerCase() === "open",
+                        title: "Open Claim?",
+                        message: "Are you sure you want to open this claim?",
+                      })
+                    }
+                    disabled={claimData.claim.status.toLowerCase() === "open"}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      claimData.claim.status.toLowerCase() === "open"
+                        ? "bg-blue-100 text-blue-800   cursor-not-allowed opacity-60"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                      />
+                    </svg>
+                    {claimData.claim.status === "open" ? "Open" : "Open"}
+                  </button>
+                  <button
+                    onClick={() =>
+                      setConfirmModal({
+                        show: true,
+                        type: "claim-status",
+                        id: claimData.claim.id,
+                        currentValue:
+                          claimData.claim.status.toLowerCase() === "open",
+                        title: "Close Claim?",
+                        message: "Are you sure you want to close this claim?",
+                      })
+                    }
+                    disabled={claimData.claim.status.toLowerCase() === "closed"}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      claimData.claim.status.toLowerCase() === "closed"
+                        ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
+                        : "bg-red-600 text-white hover:bg-red-700"
+                    }`}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                      />
+                    </svg>
+                    {claimData.claim.status === "closed" ? "Closed" : "Close"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
