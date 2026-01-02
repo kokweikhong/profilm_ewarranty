@@ -88,15 +88,18 @@ export default function Page() {
             </div>
           </div>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <a
-            href="/admin/claims/create"
-            className="inline-flex items-center gap-x-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors"
-          >
-            <PlusIcon className="h-5 w-5" />
-            Add New Claim
-          </a>
-        </div>
+
+        {user?.role === "shop_admin" && (
+          <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <a
+              href="/admin/claims/create"
+              className="inline-flex items-center gap-x-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors"
+            >
+              <PlusIcon className="h-5 w-5" />
+              Add New Claim
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}
