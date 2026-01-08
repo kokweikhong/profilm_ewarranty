@@ -552,7 +552,12 @@ export const ClaimColumns = [
   claimColumnHelper.accessor("claimNo", {
     header: "Claim No.",
     cell: (info) => (
-      <span className="font-semibold text-gray-900">{info.getValue()}</span>
+      <Link
+        href={`/admin/claims/details/${info.row.original.id}`}
+        className="font-semibold text-primary hover:underline"
+      >
+        {info.getValue()}
+      </Link>
     ),
     enableSorting: true,
   }),

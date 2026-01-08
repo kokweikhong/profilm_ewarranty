@@ -23,6 +23,7 @@ import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
 import { getClaimsApi, getClaimsByShopIdApi } from "@/lib/apis/claimsApi";
 import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 export default function Page() {
   const { user } = useAuth();
@@ -264,12 +265,14 @@ export default function Page() {
                             )}
                           </th>
                         ))}
-                        <th
-                          scope="col"
-                          className="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 py-3.5 px-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
-                        >
-                          Actions
-                        </th>
+                        {user?.role === "shop_admin" && (
+                          <th
+                            scope="col"
+                            className="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 py-3.5 px-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
+                          >
+                            Actions
+                          </th>
+                        )}
                       </tr>
                     ))}
                   </thead>
@@ -310,35 +313,10 @@ export default function Page() {
                               )}
                             </td>
                           ))}
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <div className="flex items-center gap-2">
-                              <a
-                                href={`/admin/claims/details/${row.original.id}`}
-                                className="inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
-                              >
-                                <svg
-                                  className="h-4 w-4"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                                  />
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                  />
-                                </svg>
-                                View
-                              </a>
-
-                              {user?.role === "shop_admin" && (
-                                <a
+                          {user?.role === "shop_admin" && (
+                            <td className="whitespace-nowrap px-3 py-4 text-sm">
+                              <div className="flex items-center gap-2">
+                                <Link
                                   href={`/admin/claims/edit/${row.original.id}`}
                                   className="inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-primary shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
                                 >
@@ -356,10 +334,10 @@ export default function Page() {
                                     />
                                   </svg>
                                   Edit
-                                </a>
-                              )}
-                            </div>
-                          </td>
+                                </Link>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))
                     )}
