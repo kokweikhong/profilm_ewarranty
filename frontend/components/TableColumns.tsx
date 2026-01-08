@@ -54,7 +54,7 @@ export const ProductColumns = [
     enableSorting: true,
   }),
   productColumnHelper.accessor("filmSerialNumber", {
-    header: "Serial No",
+    header: "Serial Number",
     cell: (info) => (
       <span className="font-mono text-xs text-gray-600">{info.getValue()}</span>
     ),
@@ -397,7 +397,7 @@ export const ProductAllocationColumns = [
 const warrantyColumnHelper = createColumnHelper<WarrantyDetails>();
 export const WarrantyColumns = [
   warrantyColumnHelper.accessor("warrantyNo", {
-    header: "Warranty No.",
+    header: "Warranty Number",
     cell: (info) => (
       <Link
         href={`/admin/warranties/details/${info.row.original.id}`}
@@ -463,7 +463,7 @@ export const WarrantyColumns = [
     enableSorting: true,
   }),
   warrantyColumnHelper.accessor("carPlateNo", {
-    header: "Plate No.",
+    header: "Car Plate Number",
     cell: (info) => (
       <span className="font-mono text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded">
         {info.getValue()}
@@ -472,7 +472,7 @@ export const WarrantyColumns = [
     enableSorting: true,
   }),
   warrantyColumnHelper.accessor("carChassisNo", {
-    header: "Chassis No.",
+    header: "Chassis Number",
     cell: (info) => (
       <span className="font-mono text-xs text-gray-600">{info.getValue()}</span>
     ),
@@ -550,7 +550,7 @@ export const WarrantyColumns = [
 const claimColumnHelper = createColumnHelper<ClaimView>();
 export const ClaimColumns = [
   claimColumnHelper.accessor("claimNo", {
-    header: "Claim No.",
+    header: "Claim Number",
     cell: (info) => (
       <Link
         href={`/admin/claims/details/${info.row.original.id}`}
@@ -582,7 +582,7 @@ export const ClaimColumns = [
     enableSorting: true,
   }),
   claimColumnHelper.accessor("warrantyNo", {
-    header: "Warranty No.",
+    header: "Warranty Number",
     cell: (info) => (
       <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
         {info.getValue()}
@@ -591,7 +591,7 @@ export const ClaimColumns = [
     enableSorting: true,
   }),
   claimColumnHelper.accessor("carPlateNo", {
-    header: "Car Plate No.",
+    header: "Car Plate Number",
     cell: (info) => (
       <span className="font-mono text-sm text-gray-900">{info.getValue()}</span>
     ),

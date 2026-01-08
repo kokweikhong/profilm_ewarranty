@@ -225,7 +225,7 @@ export default function Page() {
                 id="search"
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
-                placeholder="Search by Warranty No, Car Plate No, or Client Name"
+                placeholder="Search by Warranty Number, Car Plate Number, or Client Name"
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300  rounded-md leading-5 bg-white  text-gray-900  placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               />
             </div>

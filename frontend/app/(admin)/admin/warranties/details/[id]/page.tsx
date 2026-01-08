@@ -198,7 +198,7 @@ export default function Page() {
                 Warranty Details
               </h1>
               <p className="mt-1 text-sm text-gray-500">
-                Warranty No: {warranty.warrantyNo}
+                Warranty Number: {warranty.warrantyNo}
               </p>
             </div>
           </div>

@@ -25,7 +25,7 @@ export default function WarrantyInformation({ claimData, onCancel }: Props) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-4">
         <div>
-          <span className="font-medium text-gray-700">Warranty No:</span>
+          <span className="font-medium text-gray-700">Warranty Number:</span>
           <span className="ml-2 text-gray-900">{claimData.warrantyNo}</span>
         </div>
         <div>
@@ -55,7 +55,7 @@ export default function WarrantyInformation({ claimData, onCancel }: Props) {
           <span className="ml-2 text-gray-900">{claimData.carColour}</span>
         </div>
         <div>
-          <span className="font-medium text-gray-700">Chassis No:</span>
+          <span className="font-medium text-gray-700">Chassis Number:</span>
           <span className="ml-2 text-gray-900">{claimData.carChassisNo}</span>
         </div>
         <div>

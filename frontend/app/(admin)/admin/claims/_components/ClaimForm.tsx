@@ -480,7 +480,7 @@ export default function ClaimForm({
                     Summary:
                   </p>
                   <ul className="text-sm text-gray-600  space-y-1">
-                    <li>• Claim No: {pendingFormData.claimNo}</li>
+                    <li>• Claim Number: {pendingFormData.claimNo}</li>
                     <li>• Claim Date: {pendingFormData.claimDate}</li>
                     <li>
                       • Selected Parts: {pendingFormData.claimParts.length}

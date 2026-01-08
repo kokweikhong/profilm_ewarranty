@@ -346,13 +346,13 @@ export default function ProductForm({
                 )}
               </div>
 
-              {/* Film Serial No */}
+              {/* Film Serial Number */}
               <div className="col-span-full">
                 <label
                   htmlFor="filmSerialNumber"
                   className="block text-sm/6 font-medium text-gray-900"
                 >
-                  Film Serial No. <span className="text-red-600">*</span>
+                  Film Serial Number <span className="text-red-600">*</span>
                 </label>
                 <div className="mt-2">
                   <input

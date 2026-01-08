@@ -518,9 +518,9 @@ Target to finish everything stated below in 2 weeks' time
 9. ⬜ Update Warranty
 10. ⬜ Create Claim
 11. ⬜ Update Claim
-12. ✅ Search Warranty by Car Plate No. or Warranty No. in Home
+12. ✅ Search Warranty by Car Plate Number or Warranty Number in Home
 13. ⬜ User Authentication
 14. ⬜ Upload Image (company license, shop image, installation image, damaged image)
 15. ⬜ Auto-Generate Branch Code in Create Shop
-16. ⬜ Auto-Generate Warranty No. in Create Warranty
-17. ⬜ Auto-Generate Claim No. in Create Claim
+16. ⬜ Auto-Generate Warranty Number in Create Warranty
+17. ⬜ Auto-Generate Claim Number in Create Claim

@@ -680,7 +680,7 @@ export default function WarrantyForm({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <span className="font-medium text-gray-700">
-                    Warranty No:
+                    Warranty Number:
                   </span>
                   <span className="ml-2 text-gray-900">
                     {warranty.warrantyNo}
@@ -759,13 +759,17 @@ export default function WarrantyForm({
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700">Plate No:</span>
+                  <span className="font-medium text-gray-700">
+                    Car Plate Number:
+                  </span>
                   <span className="ml-2 text-gray-900">
                     {warranty.carPlateNo}
                   </span>
                 </div>
                 <div className="col-span-2">
-                  <span className="font-medium text-gray-700">Chassis No:</span>
+                  <span className="font-medium text-gray-700">
+                    Chassis Number:
+                  </span>
                   <span className="ml-2 text-gray-900">
                     {warranty.carChassisNo}
                   </span>
@@ -1044,7 +1048,7 @@ export default function WarrantyForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-900">
-                  Car Plate No <span className="text-red-600">*</span>
+                  Car Plate Number <span className="text-red-600">*</span>
                 </label>
                 <input
                   {...register("warranty.carPlateNo", { required: true })}
@@ -1054,7 +1058,7 @@ export default function WarrantyForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-900">
-                  Car Chassis No <span className="text-red-600">*</span>
+                  Car Chassis Number <span className="text-red-600">*</span>
                 </label>
                 <input
                   {...register("warranty.carChassisNo", { required: true })}
@@ -1085,7 +1089,7 @@ export default function WarrantyForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-900">
-                  Warranty No <span className="text-red-600">*</span>
+                  Warranty Number <span className="text-red-600">*</span>
                 </label>
                 <input
                   {...register("warranty.warrantyNo", { required: true })}
