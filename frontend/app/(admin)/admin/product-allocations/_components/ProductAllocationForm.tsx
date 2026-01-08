@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -93,6 +93,111 @@ export default function ProductAllocationForm({
     setShowShopDropdown(false);
     // Optionally, move focus away or blur input
     shopInputRef.current?.blur();
+  };
+
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string>("");
+  const [selectedSeries, setSelectedSeries] = useState<string>("");
+  const [selectedName, setSelectedName] = useState<string>("");
+
+  // Extract unique brands
+  const brands = useMemo(
+    () => Array.from(new Set(products.map((p) => p.brandName))),
+    [products]
+  );
+
+  // Filter types by brand
+  const types = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          products
+            .filter((p) => p.brandName === selectedBrand)
+            .map((p) => p.typeName)
+        )
+      ),
+    [products, selectedBrand]
+  );
+
+  // Filter series by brand and type
+  const series = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          products
+            .filter(
+              (p) =>
+                p.brandName === selectedBrand && p.typeName === selectedType
+            )
+            .map((p) => p.seriesName)
+        )
+      ),
+    [products, selectedBrand, selectedType]
+  );
+
+  // Filter names by brand, type, and series
+  const names = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          products
+            .filter(
+              (p) =>
+                p.brandName === selectedBrand &&
+                p.typeName === selectedType &&
+                p.seriesName === selectedSeries
+            )
+            .map((p) => p.productName)
+        )
+      ),
+    [products, selectedBrand, selectedType, selectedSeries]
+  );
+
+  // Film serial numbers: show all unless filtered
+  const filmSerialNumbers = useMemo(() => {
+    // If type, series, or name is selected, filter
+    if (selectedType || selectedSeries || selectedName) {
+      return products.filter(
+        (p) =>
+          (!selectedType || p.typeName === selectedType) &&
+          (!selectedSeries || p.seriesName === selectedSeries) &&
+          (!selectedName || p.productName === selectedName) &&
+          (selectedBrand ? p.brandName === selectedBrand : true)
+      );
+    }
+    // Otherwise, show all
+    return products;
+  }, [products, selectedBrand, selectedType, selectedSeries, selectedName]);
+
+  const shopDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        shopDropdownRef.current &&
+        !shopDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowShopDropdown(false);
+      }
+    }
+    if (showShopDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showShopDropdown]);
+
+  // When film serial number is selected, auto-select type, series, name
+  const handleFilmSerialSelect = (productId: number) => {
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      setSelectedBrand(product.brandName);
+      setSelectedType(product.typeName);
+      setSelectedSeries(product.seriesName);
+      setSelectedName(product.productName);
+      setValue("productId", productId, { shouldValidate: true });
+    }
   };
 
   const onSubmit: SubmitHandler<
@@ -220,25 +325,136 @@ export default function ProductAllocationForm({
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              {/* Product ID */}
+              {/* Product Selection */}
               <div className="col-span-full">
-                <label
-                  htmlFor="productId"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Product ID <span className="text-red-600">*</span>
+                <label className="block text-sm/6 font-medium text-gray-900">
+                  Brand <span className="text-red-600">*</span>
                 </label>
-                <div className="mt-2 grid grid-cols-1">
+                <div className="form-select-container mt-2">
                   <select
-                    {...register("productId", {
-                      required: true,
-                      valueAsNumber: true,
-                    })}
-                    id="productId"
-                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6"
+                    value={selectedBrand}
+                    onChange={(e) => {
+                      setSelectedBrand(e.target.value);
+                      setSelectedType("");
+                      setSelectedSeries("");
+                      setSelectedName("");
+                      // setValue("productId", null);
+                    }}
+                    className="form-select"
                   >
-                    <option value="">Select a product</option>
-                    {products.map((product) => (
+                    <option value="" disabled>
+                      Select a brand
+                    </option>
+                    {brands.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon
+                    aria-hidden="true"
+                    className="form-select-chevron-down"
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-full">
+                <label className="block text-sm/6 font-medium text-gray-900">
+                  Type <span className="text-red-600">*</span>
+                </label>
+                <div className="form-select-container mt-2">
+                  <select
+                    value={selectedType}
+                    onChange={(e) => {
+                      setSelectedType(e.target.value);
+                      setSelectedSeries("");
+                      setSelectedName("");
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">Select a type</option>
+                    {types.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon
+                    aria-hidden="true"
+                    className="form-select-chevron-down"
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-full">
+                <label className="block text-sm/6 font-medium text-gray-900">
+                  Series <span className="text-red-600">*</span>
+                </label>
+                <div className="form-select-container mt-2">
+                  <select
+                    value={selectedSeries}
+                    onChange={(e) => {
+                      setSelectedSeries(e.target.value);
+                      setSelectedName("");
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">Select a series</option>
+                    {series.map((seriesName) => (
+                      <option key={seriesName} value={seriesName}>
+                        {seriesName}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon
+                    aria-hidden="true"
+                    className="form-select-chevron-down"
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-full">
+                <label className="block text-sm/6 font-medium text-gray-900">
+                  Product Name <span className="text-red-600">*</span>
+                </label>
+                <div className="form-select-container mt-2">
+                  <select
+                    value={selectedName}
+                    onChange={(e) => {
+                      setSelectedName(e.target.value);
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">Select a product name</option>
+                    {names.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon
+                    aria-hidden="true"
+                    className="form-select-chevron-down"
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-full">
+                <label className="block text-sm/6 font-medium text-gray-900">
+                  Film Serial Number <span className="text-red-600">*</span>
+                </label>
+                <div className="form-select-container mt-2">
+                  <select
+                    value={watch("productId") ?? ""}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      handleFilmSerialSelect(val);
+                    }}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select a film serial number</option>
+                    {filmSerialNumbers.map((product) => (
                       <option key={product.id} value={product.id}>
                         {product.filmSerialNumber}
                       </option>
@@ -246,13 +462,13 @@ export default function ProductAllocationForm({
                   </select>
                   <ChevronDownIcon
                     aria-hidden="true"
-                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
+                    className="form-select-chevron-down"
                   />
                 </div>
               </div>
 
               {/* Shop */}
-              <div className="col-span-full">
+              <div className="col-span-full" ref={shopDropdownRef}>
                 <label
                   htmlFor="shopSearch"
                   className="block text-sm/6 font-medium text-gray-900"
