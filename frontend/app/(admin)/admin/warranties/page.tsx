@@ -259,12 +259,14 @@ export default function Page() {
                             )}
                           </th>
                         ))}
-                        <th
-                          scope="col"
-                          className="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 py-3.5 px-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
-                        >
-                          Actions
-                        </th>
+                        {user?.role === "shop_admin" && (
+                          <th
+                            scope="col"
+                            className="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 py-3.5 px-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
+                          >
+                            Actions
+                          </th>
+                        )}
                       </tr>
                     ))}
                   </thead>
@@ -305,10 +307,10 @@ export default function Page() {
                               )}
                             </td>
                           ))}
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <div className="flex items-center gap-2">
-                              {/* Hide if is admin role */}
-                              {user?.role !== "admin" && (
+                          {/* Hide if is admin role */}
+                          {user?.role !== "admin" && (
+                            <td className="whitespace-nowrap px-3 py-4 text-sm">
+                              <div className="flex items-center gap-2">
                                 <Link
                                   href={`/admin/warranties/edit/${row.original.id}`}
                                   className="inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-primary shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
@@ -328,9 +330,9 @@ export default function Page() {
                                   </svg>
                                   Edit
                                 </Link>
-                              )}
-                            </div>
-                          </td>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))
                     )}
