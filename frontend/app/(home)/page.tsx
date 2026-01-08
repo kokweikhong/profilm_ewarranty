@@ -425,6 +425,26 @@ export default function Page() {
                                               {part.warrantyInMonths} months
                                             </dd>
                                           </div>
+                                          <div>
+                                            <dt className="text-gray-500">
+                                              Warranty Expiration Date
+                                            </dt>
+                                            <dd className="font-medium text-gray-900">
+                                              {formatDate(
+                                                (() => {
+                                                  const install = new Date(
+                                                    result.warranty.installationDate
+                                                  );
+                                                  install.setMonth(
+                                                    install.getMonth() +
+                                                      (part.warrantyInMonths ||
+                                                        0)
+                                                  );
+                                                  return install.toISOString();
+                                                })()
+                                              )}
+                                            </dd>
+                                          </div>
                                         </dl>
                                       </div>
                                     </div>
