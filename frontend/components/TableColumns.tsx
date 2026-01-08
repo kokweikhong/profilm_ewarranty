@@ -5,6 +5,7 @@ import { ProductAllocationsListResponse } from "@/types/productAllocationsType";
 import { Warranty, WarrantyDetails } from "@/types/warrantiesType";
 import { ClaimView } from "@/types/claimsType";
 import { ListUsersResponse } from "@/types/usersType";
+import Link from "next/link";
 
 const productColumnHelper = createColumnHelper<ProductDetailResponse>();
 export const ProductColumns = [
@@ -398,7 +399,12 @@ export const WarrantyColumns = [
   warrantyColumnHelper.accessor("warrantyNo", {
     header: "Warranty No.",
     cell: (info) => (
-      <span className="font-semibold text-gray-900">{info.getValue()}</span>
+      <Link
+        href={`/admin/warranties/details/${info.row.original.id}`}
+        className="font-semibold text-primary hover:underline"
+      >
+        {info.getValue()}
+      </Link>
     ),
     enableSorting: true,
   }),
