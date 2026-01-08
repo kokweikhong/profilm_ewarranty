@@ -264,6 +264,14 @@ export default function Page() {
                                   {result.warranty.branchCode}
                                 </dd>
                               </div>
+                              <div>
+                                <dt className="text-gray-500">
+                                  Reference Number
+                                </dt>
+                                <dd className="font-medium text-gray-900 font-mono">
+                                  {result.warranty.referenceNo || "-"}
+                                </dd>
+                              </div>
                             </dl>
                           </div>
 
