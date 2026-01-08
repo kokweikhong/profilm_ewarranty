@@ -64,12 +64,12 @@ export default function WarrantyInformation({ claimData, onCancel }: Props) {
             {new Date(claimData.installationDate).toLocaleDateString()}
           </span>
         </div>
-        {claimData.referenceNo && (
-          <div>
-            <span className="font-medium text-gray-700">Reference No:</span>
-            <span className="ml-2 text-gray-900">{claimData.referenceNo}</span>
-          </div>
-        )}
+        <div>
+          <span className="font-medium text-gray-700">Reference No:</span>
+          <span className="ml-2 text-gray-900">
+            {claimData.referenceNo || "-"}
+          </span>
+        </div>
       </div>
     </div>
   );

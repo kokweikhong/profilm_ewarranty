@@ -305,6 +305,14 @@ export default function Page() {
                                 ).toLocaleDateString()}
                               </span>
                             </div>
+                            <div>
+                              <span className="text-gray-500">
+                                Reference Number:
+                              </span>
+                              <span className="ml-2 text-gray-900">
+                                {data.referenceNo || "-"}
+                              </span>
+                            </div>
                           </div>
                         </div>
                         <div>
