@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -72,6 +72,28 @@ export default function ProductAllocationForm({
   const [formData, setFormData] = useState<
     CreateProductAllocationRequest | UpdateProductAllocationRequest | null
   >(null);
+
+  // const [shopSearch, setShopSearch] = useState("");
+  const [shopSearch, setShopSearch] = useState("");
+  const filteredShops = shops
+    .sort((a, b) => a.branchCode.localeCompare(b.branchCode))
+    .filter(
+      (shop) =>
+        shop.branchCode.toLowerCase().includes(shopSearch.toLowerCase()) ||
+        shop.shopName.toLowerCase().includes(shopSearch.toLowerCase())
+    );
+
+  const [showShopDropdown, setShowShopDropdown] = useState(false);
+  const shopInputRef = useRef<HTMLInputElement>(null);
+
+  // To set the selected shopId when clicking an option
+  const handleShopSelect = (shopId: number, shopLabel: string) => {
+    setValue("shopId", shopId, { shouldValidate: true });
+    setShopSearch(shopLabel);
+    setShowShopDropdown(false);
+    // Optionally, move focus away or blur input
+    shopInputRef.current?.blur();
+  };
 
   const onSubmit: SubmitHandler<
     CreateProductAllocationRequest | UpdateProductAllocationRequest
@@ -232,35 +254,60 @@ export default function ProductAllocationForm({
               {/* Shop */}
               <div className="col-span-full">
                 <label
-                  htmlFor="shopId"
+                  htmlFor="shopSearch"
                   className="block text-sm/6 font-medium text-gray-900"
                 >
                   Shop <span className="text-red-600">*</span>
                 </label>
-                <div className="mt-2 grid grid-cols-1">
-                  <select
+                <div className="relative mt-2">
+                  <input
+                    id="shopSearch"
+                    ref={shopInputRef}
+                    type="text"
+                    autoComplete="off"
+                    value={shopSearch}
+                    onChange={(e) => {
+                      setShopSearch(e.target.value);
+                      setShowShopDropdown(true);
+                      // setValue("shopId", undefined); // clear selection
+                    }}
+                    onFocus={() => setShowShopDropdown(true)}
+                    placeholder="Search shop by branch code or name..."
+                    className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/60"
+                  />
+                  {showShopDropdown && filteredShops.length > 0 && (
+                    <ul
+                      className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg"
+                      tabIndex={-1}
+                    >
+                      {filteredShops.map((shop) => (
+                        <li
+                          key={shop.id}
+                          className="cursor-pointer px-4 py-2 hover:bg-primary/10"
+                          onMouseDown={() =>
+                            handleShopSelect(
+                              shop.id,
+                              `${shop.branchCode} - ${shop.shopName}`
+                            )
+                          }
+                        >
+                          {shop.branchCode} - {shop.shopName}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {/* Hidden input for react-hook-form */}
+                  <input
+                    type="hidden"
                     {...register("shopId", {
                       required: true,
                       valueAsNumber: true,
                     })}
-                    id="shopId"
-                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-primary/60 sm:text-sm/6"
-                  >
-                    <option value="">Select a shop</option>
-                    {/* sort shops by branchCode */}
-                    {shops
-                      .sort((a, b) => a.branchCode.localeCompare(b.branchCode))
-                      .map((shop, index) => (
-                        <option key={index} value={shop.id}>
-                          {`${shop.branchCode} - ${shop.shopName}`}
-                        </option>
-                      ))}
-                  </select>
-                  <ChevronDownIcon
-                    aria-hidden="true"
-                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
                   />
                 </div>
+                {errors.shopId && (
+                  <p className="mt-2 text-sm text-red-600">Shop is required.</p>
+                )}
               </div>
 
               {/* Film Quantity */}
