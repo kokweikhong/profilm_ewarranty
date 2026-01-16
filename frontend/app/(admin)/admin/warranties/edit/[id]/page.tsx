@@ -59,6 +59,8 @@ export default function Page() {
     return <div>Loading...</div>;
   }
 
+  console.log("Warranty Data:", warranty);
+
   return (
     <div>
       <WarrantyForm
