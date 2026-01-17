@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/warranties"
@@ -186,23 +188,22 @@ func (s *warrantiesService) UpdateWarrantyApproval(ctx context.Context, arg *war
 		tx.Rollback(ctx)
 		return nil, err
 	}
-	if arg.IsApproved {
-		// get all warranty parts associated with the warranty
-		parts, err := qtx.GetWarrantyPartsByWarrantyID(ctx, arg.ID)
+	// approvalStatus := arg.ApprovalStatus.Scan()
+	// get all warranty parts associated with the warranty
+	parts, err := qtx.GetWarrantyPartsByWarrantyID(ctx, arg.ID)
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+	// update each part to approved
+	for _, part := range parts {
+		_, err = qtx.UpdateWarrantyPartApproval(ctx, &warranties.UpdateWarrantyPartApprovalParams{
+			ID:             part.ID,
+			ApprovalStatus: arg.ApprovalStatus,
+		})
 		if err != nil {
 			tx.Rollback(ctx)
 			return nil, err
-		}
-		// update each part to approved
-		for _, part := range parts {
-			_, err = qtx.UpdateWarrantyPartApproval(ctx, &warranties.UpdateWarrantyPartApprovalParams{
-				ID:         part.ID,
-				IsApproved: true,
-			})
-			if err != nil {
-				tx.Rollback(ctx)
-				return nil, err
-			}
 		}
 	}
 	if err := tx.Commit(ctx); err != nil {
@@ -228,16 +229,127 @@ func (s *warrantiesService) CreateWarrantyPart(ctx context.Context, arg *warrant
 
 // UpdateWarrantyPart updates a warranty part in the database.
 func (s *warrantiesService) UpdateWarrantyPart(ctx context.Context, arg *warranties.UpdateWarrantyPartParams) (*warranties.WarrantyPart, error) {
-	result, err := s.q.UpdateWarrantyPart(ctx, arg)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+	return s.q.UpdateWarrantyPart(ctx, arg)
 }
 
 // UpdateWarrantryPartApproval updates the approval status of a warranty part in the database.
 func (s *warrantiesService) UpdateWarrantyPartApproval(ctx context.Context, arg *warranties.UpdateWarrantyPartApprovalParams) (*warranties.WarrantyPart, error) {
-	return s.q.UpdateWarrantyPartApproval(ctx, arg)
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	qtx := warranties.New(tx)
+	// Get all warranty parts associated with the warranty
+	warrantyPart, err := qtx.GetWarrantyPartByID(ctx, arg.ID)
+	if err != nil {
+		// log error
+		log.Printf("Failed to get warranty part by ID: %v", err)
+		tx.Rollback(ctx)
+		return nil, err
+	}
+	warranty, err := qtx.GetWarrantyByID(ctx, warrantyPart.WarrantyID)
+	if err != nil {
+		tx.Rollback(ctx)
+		// log error
+		log.Printf("Failed to get warranty by ID: %v", err)
+		return nil, err
+	}
+	parts, err := qtx.GetWarrantyPartsByWarrantyID(ctx, warranty.ID)
+	if err != nil {
+		// log error
+		log.Printf("Failed to get warranty parts by warranty ID: %v", err)
+		tx.Rollback(ctx)
+		return nil, err
+	}
+
+	result, err := qtx.UpdateWarrantyPartApproval(ctx, arg)
+	if err != nil {
+		// log error
+		log.Printf("Failed to update current warranty part approval: %v", err)
+		tx.Rollback(ctx)
+		return nil, err
+	}
+
+	isAllApproved := true
+	isAllRejected := true
+
+	// Check if updating this part to approved would result in all parts being approved
+	if strings.ToLower(string(arg.ApprovalStatus)) == "approved" {
+		for _, part := range parts {
+
+			if part.ID != arg.ID && strings.ToLower(string(part.ApprovalStatus)) != "approved" {
+				isAllApproved = false
+				break
+			}
+		}
+	}
+
+	// Check if updating this part to rejected would result in all parts being rejected
+	if strings.ToLower(string(arg.ApprovalStatus)) == "rejected" {
+		for _, part := range parts {
+			if part.ID != arg.ID && strings.ToLower(string(part.ApprovalStatus)) != "rejected" {
+				isAllRejected = false
+				break
+			}
+		}
+	}
+
+	for _, part := range parts {
+		status := part.ApprovalStatus
+		if part.ID == arg.ID {
+			status = arg.ApprovalStatus // use the new status for the updated part
+		}
+		if strings.ToLower(string(status)) != "approved" {
+			isAllApproved = false
+		}
+		if strings.ToLower(string(status)) != "rejected" {
+			isAllRejected = false
+		}
+	}
+
+	if isAllApproved {
+		// If all parts are approved, update the warranty to approved as well
+		_, err = qtx.UpdateWarrantyApproval(ctx, &warranties.UpdateWarrantyApprovalParams{
+			ID:             warranty.ID,
+			ApprovalStatus: "APPROVED",
+		})
+		if err != nil {
+			log.Printf("Failed to update warranty approval: %v", err)
+			tx.Rollback(ctx)
+			return nil, err
+		}
+	}
+	if isAllRejected {
+		// If all parts are rejected, update the warranty to rejected as well
+		_, err = qtx.UpdateWarrantyApproval(ctx, &warranties.UpdateWarrantyApprovalParams{
+			ID:             warranty.ID,
+			ApprovalStatus: "REJECTED",
+		})
+		if err != nil {
+			log.Printf("Failed to update warranty approval: %v", err)
+			tx.Rollback(ctx)
+			return nil, err
+		}
+	}
+
+	if !isAllApproved && !isAllRejected {
+		// Otherwise, ensure the warranty is set to pending and update current part as approved
+		_, err = qtx.UpdateWarrantyApproval(ctx, &warranties.UpdateWarrantyApprovalParams{
+			ID:             warranty.ID,
+			ApprovalStatus: "PENDING",
+		})
+		if err != nil {
+			log.Printf("Failed to update warranty approval: %v", err)
+			tx.Rollback(ctx)
+			return nil, err
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 // GetWarrantyPartsByWarrantyID retrieves warranty parts by warranty ID from the database.

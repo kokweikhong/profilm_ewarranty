@@ -27,9 +27,10 @@ INSERT INTO warranties (
     installation_date,
     reference_no,
     warranty_no,
-    invoice_attachment_url
+    invoice_attachment_url,
+    remarks
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
 )
 RETURNING *;
 
@@ -49,6 +50,7 @@ SET
     reference_no = $12,
     warranty_no = $13,
     invoice_attachment_url = $14,
+    remarks = $15,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
@@ -56,7 +58,8 @@ RETURNING *;
 -- name: UpdateWarrantyApproval :one
 UPDATE warranties
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
@@ -80,9 +83,10 @@ INSERT INTO warranty_parts (
     warranty_id,
     car_part_id,
     product_allocation_id,
-    installation_image_url
+    installation_image_url,
+    remarks
 ) VALUES
-    ( $1, $2, $3, $4 )
+    ( $1, $2, $3, $4, $5 )
 RETURNING *;
 
 -- name: UpdateWarrantyPart :one
@@ -92,14 +96,22 @@ SET
     car_part_id = $3,
     product_allocation_id = $4,
     installation_image_url = $5,
+    remarks = $6,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
 
+-- name: GetWarrantyPartByID :one
+SELECT
+    *
+FROM warranty_parts
+WHERE id = $1;
+
 -- name: UpdateWarrantyPartApproval :one
 UPDATE warranty_parts
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;

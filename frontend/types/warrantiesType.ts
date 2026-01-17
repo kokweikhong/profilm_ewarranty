@@ -1,3 +1,9 @@
+export enum WarrantyApprovalStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
 // Warranty represents the warranty entity
 export interface Warranty {
   id: number;
@@ -15,7 +21,8 @@ export interface Warranty {
   warrantyNo: string;
   invoiceAttachmentUrl: string;
   isActive: boolean;
-  isApproved: boolean;
+  approvalStatus: WarrantyApprovalStatus;
+  remarks?: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 }
@@ -45,6 +52,7 @@ export interface CreateWarrantyRequest {
   referenceNo?: string; // Optional
   warrantyNo: string;
   invoiceAttachmentUrl: string;
+  remarks?: string; // Optional
 }
 
 export interface UpdateWarrantyRequest extends CreateWarrantyRequest {
@@ -64,6 +72,7 @@ export interface CreateWarrantyPartRequest {
   productAllocationId: number;
   carPartId: number;
   installationImageUrl: string;
+  remarks?: string; // Optional
 }
 
 export interface UpdateWarrantyPartRequest {
@@ -72,6 +81,7 @@ export interface UpdateWarrantyPartRequest {
   productAllocationId: number;
   carPartId: number;
   installationImageUrl: string;
+  remarks?: string; // Optional
 }
 
 export interface CreateWarrantyWithPartsRequest {
@@ -90,7 +100,8 @@ export interface WarrantyPartDetails {
   productAllocationId: number;
   carPartId: number;
   installationImageUrl: string;
-  isApproved: boolean;
+  approvalStatus: WarrantyApprovalStatus;
+  remarks?: string; // Optional
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   carPartName: string;

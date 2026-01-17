@@ -6,6 +6,7 @@ import {
   UpdateWarrantyRequest,
   CreateWarrantyWithPartsRequest,
   UpdateWarrantyWithPartsRequest,
+  WarrantyApprovalStatus,
 } from "@/types/warrantiesType";
 
 export async function createWarrantyWithPartsAction(
@@ -51,12 +52,15 @@ export async function updateWarrantyAction(
 
 export async function updateWarrantyApprovalAction(
   id: number,
-  isApproved: boolean
+  approvalStatus: WarrantyApprovalStatus,
+  remarks?: string
 ) {
   try {
     const response = await apiClient.put(`/warranties/${id}/approval`, {
-      isApproved,
+      approvalStatus,
+      remarks,
     });
+    console.log("Updated warranty approval:", response.data);
     return { success: true, data: response.data };
   } catch (error: any) {
     console.error("Error updating warranty approval:", {
@@ -78,15 +82,18 @@ export async function updateWarrantyApprovalAction(
 
 export async function updateWarrantyPartApprovalAction(
   warrantyPartId: number,
-  isApproved: boolean
+  approvalStatus: WarrantyApprovalStatus,
+  remarks?: string
 ) {
   try {
     const response = await apiClient.put(
       `/warranties/warranty-parts/${warrantyPartId}/approval`,
       {
-        isApproved,
+        approvalStatus,
+        remarks,
       }
     );
+    console.log("Updated warranty part approval:", response.data);
     return { success: true, data: response.data };
   } catch (error: any) {
     console.error("Error updating warranty part approval:", {
@@ -108,6 +115,7 @@ export async function createWarrantyPartAction(data: {
   carPartId: number;
   productAllocationId: number;
   installationImageUrl: string;
+  remarks?: string;
 }) {
   try {
     const response = await apiClient.post(`/warranties/warranty-parts`, data);

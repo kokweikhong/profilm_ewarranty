@@ -17,6 +17,7 @@ type Querier interface {
 	GetWarrantiesByExactSearch(ctx context.Context, lower string) ([]*GetWarrantiesByExactSearchRow, error)
 	GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*GetWarrantiesByShopIDRow, error)
 	GetWarrantyByID(ctx context.Context, id int32) (*Warranty, error)
+	GetWarrantyPartByID(ctx context.Context, id int32) (*WarrantyPart, error)
 	GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*GetWarrantyPartsByWarrantyIDRow, error)
 	ListWarranties(ctx context.Context) ([]*ListWarrantiesRow, error)
 	UpdateWarranty(ctx context.Context, arg *UpdateWarrantyParams) (*Warranty, error)

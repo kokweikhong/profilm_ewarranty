@@ -1,5 +1,17 @@
 -- +goose Up
 -- +goose StatementBegin
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'warranty_approval_status') THEN
+        CREATE TYPE warranty_approval_status AS ENUM (
+            'PENDING',
+            'APPROVED',
+            'REJECTED'
+        );
+    END IF;
+END
+$$;
+
 CREATE TABLE IF NOT EXISTS warranties (
     id SERIAL PRIMARY KEY,
     shop_id INT NOT NULL,
@@ -16,7 +28,8 @@ CREATE TABLE IF NOT EXISTS warranties (
     warranty_no VARCHAR(100) UNIQUE NOT NULL,
     invoice_attachment_url TEXT NOT NULL DEFAULT '',
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
+    approval_status warranty_approval_status NOT NULL DEFAULT 'PENDING',
+    remarks TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (shop_id) REFERENCES shops(id)
@@ -31,13 +44,16 @@ CREATE TABLE IF NOT EXISTS car_parts (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+
+
 CREATE TABLE IF NOT EXISTS warranty_parts (
     id SERIAL PRIMARY KEY,
     warranty_id INT NOT NULL,
     product_allocation_id INT NOT NULL,
     car_part_id INT NOT NULL,
     installation_image_url VARCHAR(255) NOT NULL,
-    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
+    approval_status warranty_approval_status NOT NULL DEFAULT 'PENDING',
+    remarks TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (warranty_id) REFERENCES warranties(id),
@@ -54,4 +70,5 @@ CREATE INDEX idx_warranty_parts_warranty_id ON warranty_parts(warranty_id);
 DROP TABLE IF EXISTS warranty_parts CASCADE;
 DROP TABLE IF EXISTS warranties CASCADE;
 DROP TABLE IF EXISTS car_parts CASCADE;
+DROP TYPE IF EXISTS warranty_approval_status CASCADE;
 -- +goose StatementEnd

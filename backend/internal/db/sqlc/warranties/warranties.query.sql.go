@@ -24,11 +24,12 @@ INSERT INTO warranties (
     installation_date,
     reference_no,
     warranty_no,
-    invoice_attachment_url
+    invoice_attachment_url,
+    remarks
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
 )
-RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
+RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, approval_status, remarks, created_at, updated_at
 `
 
 type CreateWarrantyParams struct {
@@ -45,6 +46,7 @@ type CreateWarrantyParams struct {
 	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
 	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
 	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	Remarks              *string   `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) CreateWarranty(ctx context.Context, arg *CreateWarrantyParams) (*Warranty, error) {
@@ -62,6 +64,7 @@ func (q *Queries) CreateWarranty(ctx context.Context, arg *CreateWarrantyParams)
 		arg.ReferenceNo,
 		arg.WarrantyNo,
 		arg.InvoiceAttachmentUrl,
+		arg.Remarks,
 	)
 	var i Warranty
 	err := row.Scan(
@@ -80,7 +83,8 @@ func (q *Queries) CreateWarranty(ctx context.Context, arg *CreateWarrantyParams)
 		&i.WarrantyNo,
 		&i.InvoiceAttachmentUrl,
 		&i.IsActive,
-		&i.IsApproved,
+		&i.ApprovalStatus,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -92,17 +96,19 @@ INSERT INTO warranty_parts (
     warranty_id,
     car_part_id,
     product_allocation_id,
-    installation_image_url
+    installation_image_url,
+    remarks
 ) VALUES
-    ( $1, $2, $3, $4 )
-RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_image_url, is_approved, created_at, updated_at
+    ( $1, $2, $3, $4, $5 )
+RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_image_url, approval_status, remarks, created_at, updated_at
 `
 
 type CreateWarrantyPartParams struct {
-	WarrantyID           int32  `db:"warranty_id" json:"warrantyId"`
-	CarPartID            int32  `db:"car_part_id" json:"carPartId"`
-	ProductAllocationID  int32  `db:"product_allocation_id" json:"productAllocationId"`
-	InstallationImageUrl string `db:"installation_image_url" json:"installationImageUrl"`
+	WarrantyID           int32   `db:"warranty_id" json:"warrantyId"`
+	CarPartID            int32   `db:"car_part_id" json:"carPartId"`
+	ProductAllocationID  int32   `db:"product_allocation_id" json:"productAllocationId"`
+	InstallationImageUrl string  `db:"installation_image_url" json:"installationImageUrl"`
+	Remarks              *string `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) CreateWarrantyPart(ctx context.Context, arg *CreateWarrantyPartParams) (*WarrantyPart, error) {
@@ -111,6 +117,7 @@ func (q *Queries) CreateWarrantyPart(ctx context.Context, arg *CreateWarrantyPar
 		arg.CarPartID,
 		arg.ProductAllocationID,
 		arg.InstallationImageUrl,
+		arg.Remarks,
 	)
 	var i WarrantyPart
 	err := row.Scan(
@@ -119,7 +126,8 @@ func (q *Queries) CreateWarrantyPart(ctx context.Context, arg *CreateWarrantyPar
 		&i.ProductAllocationID,
 		&i.CarPartID,
 		&i.InstallationImageUrl,
-		&i.IsApproved,
+		&i.ApprovalStatus,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -188,7 +196,7 @@ func (q *Queries) GetLatestWarrantyNoByPrefix(ctx context.Context, warrantyNo st
 
 const getWarrantiesByExactSearch = `-- name: GetWarrantiesByExactSearch :many
 SELECT DISTINCT
-    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.is_approved, w.created_at, w.updated_at,
+    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.approval_status, w.remarks, w.created_at, w.updated_at,
     s.shop_name,
     s.branch_code
 FROM warranties w
@@ -200,26 +208,27 @@ ORDER BY w.created_at DESC
 `
 
 type GetWarrantiesByExactSearchRow struct {
-	ID                   int32     `db:"id" json:"id"`
-	ShopID               int32     `db:"shop_id" json:"shopId"`
-	ClientName           string    `db:"client_name" json:"clientName"`
-	ClientContact        string    `db:"client_contact" json:"clientContact"`
-	ClientEmail          string    `db:"client_email" json:"clientEmail"`
-	CarBrand             string    `db:"car_brand" json:"carBrand"`
-	CarModel             string    `db:"car_model" json:"carModel"`
-	CarColour            string    `db:"car_colour" json:"carColour"`
-	CarPlateNo           string    `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
-	IsActive             bool      `db:"is_active" json:"isActive"`
-	IsApproved           bool      `db:"is_approved" json:"isApproved"`
-	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
-	ShopName             string    `db:"shop_name" json:"shopName"`
-	BranchCode           string    `db:"branch_code" json:"branchCode"`
+	ID                   int32                  `db:"id" json:"id"`
+	ShopID               int32                  `db:"shop_id" json:"shopId"`
+	ClientName           string                 `db:"client_name" json:"clientName"`
+	ClientContact        string                 `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                 `db:"client_email" json:"clientEmail"`
+	CarBrand             string                 `db:"car_brand" json:"carBrand"`
+	CarModel             string                 `db:"car_model" json:"carModel"`
+	CarColour            string                 `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                 `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                 `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time              `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string                `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                 `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                 `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool                   `db:"is_active" json:"isActive"`
+	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string                `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
+	ShopName             string                 `db:"shop_name" json:"shopName"`
+	BranchCode           string                 `db:"branch_code" json:"branchCode"`
 }
 
 func (q *Queries) GetWarrantiesByExactSearch(ctx context.Context, lower string) ([]*GetWarrantiesByExactSearchRow, error) {
@@ -247,7 +256,8 @@ func (q *Queries) GetWarrantiesByExactSearch(ctx context.Context, lower string) 
 			&i.WarrantyNo,
 			&i.InvoiceAttachmentUrl,
 			&i.IsActive,
-			&i.IsApproved,
+			&i.ApprovalStatus,
+			&i.Remarks,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.ShopName,
@@ -265,7 +275,7 @@ func (q *Queries) GetWarrantiesByExactSearch(ctx context.Context, lower string) 
 
 const getWarrantiesByShopID = `-- name: GetWarrantiesByShopID :many
 SELECT
-    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.is_approved, w.created_at, w.updated_at,
+    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.approval_status, w.remarks, w.created_at, w.updated_at,
     s.shop_name,
     s.branch_code
 FROM warranties w
@@ -275,26 +285,27 @@ ORDER BY w.created_at DESC
 `
 
 type GetWarrantiesByShopIDRow struct {
-	ID                   int32     `db:"id" json:"id"`
-	ShopID               int32     `db:"shop_id" json:"shopId"`
-	ClientName           string    `db:"client_name" json:"clientName"`
-	ClientContact        string    `db:"client_contact" json:"clientContact"`
-	ClientEmail          string    `db:"client_email" json:"clientEmail"`
-	CarBrand             string    `db:"car_brand" json:"carBrand"`
-	CarModel             string    `db:"car_model" json:"carModel"`
-	CarColour            string    `db:"car_colour" json:"carColour"`
-	CarPlateNo           string    `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
-	IsActive             bool      `db:"is_active" json:"isActive"`
-	IsApproved           bool      `db:"is_approved" json:"isApproved"`
-	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
-	ShopName             string    `db:"shop_name" json:"shopName"`
-	BranchCode           string    `db:"branch_code" json:"branchCode"`
+	ID                   int32                  `db:"id" json:"id"`
+	ShopID               int32                  `db:"shop_id" json:"shopId"`
+	ClientName           string                 `db:"client_name" json:"clientName"`
+	ClientContact        string                 `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                 `db:"client_email" json:"clientEmail"`
+	CarBrand             string                 `db:"car_brand" json:"carBrand"`
+	CarModel             string                 `db:"car_model" json:"carModel"`
+	CarColour            string                 `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                 `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                 `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time              `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string                `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                 `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                 `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool                   `db:"is_active" json:"isActive"`
+	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string                `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
+	ShopName             string                 `db:"shop_name" json:"shopName"`
+	BranchCode           string                 `db:"branch_code" json:"branchCode"`
 }
 
 func (q *Queries) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*GetWarrantiesByShopIDRow, error) {
@@ -322,7 +333,8 @@ func (q *Queries) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*G
 			&i.WarrantyNo,
 			&i.InvoiceAttachmentUrl,
 			&i.IsActive,
-			&i.IsApproved,
+			&i.ApprovalStatus,
+			&i.Remarks,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.ShopName,
@@ -340,7 +352,7 @@ func (q *Queries) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*G
 
 const getWarrantyByID = `-- name: GetWarrantyByID :one
 SELECT
-    id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
+    id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, approval_status, remarks, created_at, updated_at
 FROM warranties
 WHERE id = $1
 `
@@ -364,7 +376,32 @@ func (q *Queries) GetWarrantyByID(ctx context.Context, id int32) (*Warranty, err
 		&i.WarrantyNo,
 		&i.InvoiceAttachmentUrl,
 		&i.IsActive,
-		&i.IsApproved,
+		&i.ApprovalStatus,
+		&i.Remarks,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const getWarrantyPartByID = `-- name: GetWarrantyPartByID :one
+SELECT
+    id, warranty_id, product_allocation_id, car_part_id, installation_image_url, approval_status, remarks, created_at, updated_at
+FROM warranty_parts
+WHERE id = $1
+`
+
+func (q *Queries) GetWarrantyPartByID(ctx context.Context, id int32) (*WarrantyPart, error) {
+	row := q.db.QueryRow(ctx, getWarrantyPartByID, id)
+	var i WarrantyPart
+	err := row.Scan(
+		&i.ID,
+		&i.WarrantyID,
+		&i.ProductAllocationID,
+		&i.CarPartID,
+		&i.InstallationImageUrl,
+		&i.ApprovalStatus,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -373,7 +410,7 @@ func (q *Queries) GetWarrantyByID(ctx context.Context, id int32) (*Warranty, err
 
 const getWarrantyPartsByWarrantyID = `-- name: GetWarrantyPartsByWarrantyID :many
 SELECT
-    wp.id, wp.warranty_id, wp.product_allocation_id, wp.car_part_id, wp.installation_image_url, wp.is_approved, wp.created_at, wp.updated_at,
+    wp.id, wp.warranty_id, wp.product_allocation_id, wp.car_part_id, wp.installation_image_url, wp.approval_status, wp.remarks, wp.created_at, wp.updated_at,
     cp.name AS car_part_name,
     cp.code AS car_part_code,
     p.film_serial_number,
@@ -394,22 +431,23 @@ WHERE wp.warranty_id = $1
 `
 
 type GetWarrantyPartsByWarrantyIDRow struct {
-	ID                   int32     `db:"id" json:"id"`
-	WarrantyID           int32     `db:"warranty_id" json:"warrantyId"`
-	ProductAllocationID  int32     `db:"product_allocation_id" json:"productAllocationId"`
-	CarPartID            int32     `db:"car_part_id" json:"carPartId"`
-	InstallationImageUrl string    `db:"installation_image_url" json:"installationImageUrl"`
-	IsApproved           bool      `db:"is_approved" json:"isApproved"`
-	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
-	CarPartName          string    `db:"car_part_name" json:"carPartName"`
-	CarPartCode          string    `db:"car_part_code" json:"carPartCode"`
-	FilmSerialNumber     string    `db:"film_serial_number" json:"filmSerialNumber"`
-	WarrantyInMonths     int32     `db:"warranty_in_months" json:"warrantyInMonths"`
-	ProductBrand         string    `db:"product_brand" json:"productBrand"`
-	ProductType          string    `db:"product_type" json:"productType"`
-	ProductSeries        string    `db:"product_series" json:"productSeries"`
-	ProductName          string    `db:"product_name" json:"productName"`
+	ID                   int32                  `db:"id" json:"id"`
+	WarrantyID           int32                  `db:"warranty_id" json:"warrantyId"`
+	ProductAllocationID  int32                  `db:"product_allocation_id" json:"productAllocationId"`
+	CarPartID            int32                  `db:"car_part_id" json:"carPartId"`
+	InstallationImageUrl string                 `db:"installation_image_url" json:"installationImageUrl"`
+	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string                `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
+	CarPartName          string                 `db:"car_part_name" json:"carPartName"`
+	CarPartCode          string                 `db:"car_part_code" json:"carPartCode"`
+	FilmSerialNumber     string                 `db:"film_serial_number" json:"filmSerialNumber"`
+	WarrantyInMonths     int32                  `db:"warranty_in_months" json:"warrantyInMonths"`
+	ProductBrand         string                 `db:"product_brand" json:"productBrand"`
+	ProductType          string                 `db:"product_type" json:"productType"`
+	ProductSeries        string                 `db:"product_series" json:"productSeries"`
+	ProductName          string                 `db:"product_name" json:"productName"`
 }
 
 func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*GetWarrantyPartsByWarrantyIDRow, error) {
@@ -427,7 +465,8 @@ func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID i
 			&i.ProductAllocationID,
 			&i.CarPartID,
 			&i.InstallationImageUrl,
-			&i.IsApproved,
+			&i.ApprovalStatus,
+			&i.Remarks,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CarPartName,
@@ -451,7 +490,7 @@ func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID i
 
 const listWarranties = `-- name: ListWarranties :many
 SELECT
-    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.is_approved, w.created_at, w.updated_at,
+    w.id, w.shop_id, w.client_name, w.client_contact, w.client_email, w.car_brand, w.car_model, w.car_colour, w.car_plate_no, w.car_chassis_no, w.installation_date, w.reference_no, w.warranty_no, w.invoice_attachment_url, w.is_active, w.approval_status, w.remarks, w.created_at, w.updated_at,
     s.shop_name,
     s.branch_code
 FROM warranties w
@@ -460,26 +499,27 @@ ORDER BY w.created_at DESC
 `
 
 type ListWarrantiesRow struct {
-	ID                   int32     `db:"id" json:"id"`
-	ShopID               int32     `db:"shop_id" json:"shopId"`
-	ClientName           string    `db:"client_name" json:"clientName"`
-	ClientContact        string    `db:"client_contact" json:"clientContact"`
-	ClientEmail          string    `db:"client_email" json:"clientEmail"`
-	CarBrand             string    `db:"car_brand" json:"carBrand"`
-	CarModel             string    `db:"car_model" json:"carModel"`
-	CarColour            string    `db:"car_colour" json:"carColour"`
-	CarPlateNo           string    `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
-	IsActive             bool      `db:"is_active" json:"isActive"`
-	IsApproved           bool      `db:"is_approved" json:"isApproved"`
-	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
-	ShopName             string    `db:"shop_name" json:"shopName"`
-	BranchCode           string    `db:"branch_code" json:"branchCode"`
+	ID                   int32                  `db:"id" json:"id"`
+	ShopID               int32                  `db:"shop_id" json:"shopId"`
+	ClientName           string                 `db:"client_name" json:"clientName"`
+	ClientContact        string                 `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                 `db:"client_email" json:"clientEmail"`
+	CarBrand             string                 `db:"car_brand" json:"carBrand"`
+	CarModel             string                 `db:"car_model" json:"carModel"`
+	CarColour            string                 `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                 `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                 `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time              `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string                `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                 `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                 `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool                   `db:"is_active" json:"isActive"`
+	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string                `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
+	ShopName             string                 `db:"shop_name" json:"shopName"`
+	BranchCode           string                 `db:"branch_code" json:"branchCode"`
 }
 
 func (q *Queries) ListWarranties(ctx context.Context) ([]*ListWarrantiesRow, error) {
@@ -507,7 +547,8 @@ func (q *Queries) ListWarranties(ctx context.Context) ([]*ListWarrantiesRow, err
 			&i.WarrantyNo,
 			&i.InvoiceAttachmentUrl,
 			&i.IsActive,
-			&i.IsApproved,
+			&i.ApprovalStatus,
+			&i.Remarks,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.ShopName,
@@ -539,9 +580,10 @@ SET
     reference_no = $12,
     warranty_no = $13,
     invoice_attachment_url = $14,
+    remarks = $15,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
+RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, approval_status, remarks, created_at, updated_at
 `
 
 type UpdateWarrantyParams struct {
@@ -559,6 +601,7 @@ type UpdateWarrantyParams struct {
 	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
 	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
 	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	Remarks              *string   `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateWarranty(ctx context.Context, arg *UpdateWarrantyParams) (*Warranty, error) {
@@ -577,6 +620,7 @@ func (q *Queries) UpdateWarranty(ctx context.Context, arg *UpdateWarrantyParams)
 		arg.ReferenceNo,
 		arg.WarrantyNo,
 		arg.InvoiceAttachmentUrl,
+		arg.Remarks,
 	)
 	var i Warranty
 	err := row.Scan(
@@ -595,7 +639,8 @@ func (q *Queries) UpdateWarranty(ctx context.Context, arg *UpdateWarrantyParams)
 		&i.WarrantyNo,
 		&i.InvoiceAttachmentUrl,
 		&i.IsActive,
-		&i.IsApproved,
+		&i.ApprovalStatus,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -605,19 +650,21 @@ func (q *Queries) UpdateWarranty(ctx context.Context, arg *UpdateWarrantyParams)
 const updateWarrantyApproval = `-- name: UpdateWarrantyApproval :one
 UPDATE warranties
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, is_approved, created_at, updated_at
+RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url, is_active, approval_status, remarks, created_at, updated_at
 `
 
 type UpdateWarrantyApprovalParams struct {
-	ID         int32 `db:"id" json:"id"`
-	IsApproved bool  `db:"is_approved" json:"isApproved"`
+	ID             int32                  `db:"id" json:"id"`
+	ApprovalStatus WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks        *string                `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateWarrantyApproval(ctx context.Context, arg *UpdateWarrantyApprovalParams) (*Warranty, error) {
-	row := q.db.QueryRow(ctx, updateWarrantyApproval, arg.ID, arg.IsApproved)
+	row := q.db.QueryRow(ctx, updateWarrantyApproval, arg.ID, arg.ApprovalStatus, arg.Remarks)
 	var i Warranty
 	err := row.Scan(
 		&i.ID,
@@ -635,7 +682,8 @@ func (q *Queries) UpdateWarrantyApproval(ctx context.Context, arg *UpdateWarrant
 		&i.WarrantyNo,
 		&i.InvoiceAttachmentUrl,
 		&i.IsActive,
-		&i.IsApproved,
+		&i.ApprovalStatus,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -649,17 +697,19 @@ SET
     car_part_id = $3,
     product_allocation_id = $4,
     installation_image_url = $5,
+    remarks = $6,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_image_url, is_approved, created_at, updated_at
+RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_image_url, approval_status, remarks, created_at, updated_at
 `
 
 type UpdateWarrantyPartParams struct {
-	ID                   int32  `db:"id" json:"id"`
-	WarrantyID           int32  `db:"warranty_id" json:"warrantyId"`
-	CarPartID            int32  `db:"car_part_id" json:"carPartId"`
-	ProductAllocationID  int32  `db:"product_allocation_id" json:"productAllocationId"`
-	InstallationImageUrl string `db:"installation_image_url" json:"installationImageUrl"`
+	ID                   int32   `db:"id" json:"id"`
+	WarrantyID           int32   `db:"warranty_id" json:"warrantyId"`
+	CarPartID            int32   `db:"car_part_id" json:"carPartId"`
+	ProductAllocationID  int32   `db:"product_allocation_id" json:"productAllocationId"`
+	InstallationImageUrl string  `db:"installation_image_url" json:"installationImageUrl"`
+	Remarks              *string `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateWarrantyPart(ctx context.Context, arg *UpdateWarrantyPartParams) (*WarrantyPart, error) {
@@ -669,6 +719,7 @@ func (q *Queries) UpdateWarrantyPart(ctx context.Context, arg *UpdateWarrantyPar
 		arg.CarPartID,
 		arg.ProductAllocationID,
 		arg.InstallationImageUrl,
+		arg.Remarks,
 	)
 	var i WarrantyPart
 	err := row.Scan(
@@ -677,7 +728,8 @@ func (q *Queries) UpdateWarrantyPart(ctx context.Context, arg *UpdateWarrantyPar
 		&i.ProductAllocationID,
 		&i.CarPartID,
 		&i.InstallationImageUrl,
-		&i.IsApproved,
+		&i.ApprovalStatus,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -687,19 +739,21 @@ func (q *Queries) UpdateWarrantyPart(ctx context.Context, arg *UpdateWarrantyPar
 const updateWarrantyPartApproval = `-- name: UpdateWarrantyPartApproval :one
 UPDATE warranty_parts
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_image_url, is_approved, created_at, updated_at
+RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_image_url, approval_status, remarks, created_at, updated_at
 `
 
 type UpdateWarrantyPartApprovalParams struct {
-	ID         int32 `db:"id" json:"id"`
-	IsApproved bool  `db:"is_approved" json:"isApproved"`
+	ID             int32                  `db:"id" json:"id"`
+	ApprovalStatus WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks        *string                `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateWarrantyPartApproval(ctx context.Context, arg *UpdateWarrantyPartApprovalParams) (*WarrantyPart, error) {
-	row := q.db.QueryRow(ctx, updateWarrantyPartApproval, arg.ID, arg.IsApproved)
+	row := q.db.QueryRow(ctx, updateWarrantyPartApproval, arg.ID, arg.ApprovalStatus, arg.Remarks)
 	var i WarrantyPart
 	err := row.Scan(
 		&i.ID,
@@ -707,7 +761,8 @@ func (q *Queries) UpdateWarrantyPartApproval(ctx context.Context, arg *UpdateWar
 		&i.ProductAllocationID,
 		&i.CarPartID,
 		&i.InstallationImageUrl,
-		&i.IsApproved,
+		&i.ApprovalStatus,
+		&i.Remarks,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

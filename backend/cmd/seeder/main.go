@@ -486,7 +486,7 @@ func main() {
 
 	// 4. Seed Warranties (100 warranties)
 	log.Println("Seeding warranties...")
-	warrantiesList, err := seedWarranties(ctx, warrantiesService, shopsService, productAllocationsService, shopsList, 100)
+	warrantiesList, err := seedWarranties(ctx, warrantiesService, shopsService, productAllocationsService, shopsList, 10)
 	if err != nil {
 		log.Fatalf("Failed to seed warranties: %v", err)
 	}
@@ -663,98 +663,96 @@ func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesSe
 		return nil, err
 	}
 
-	for i := 0; i < count; i++ {
-		shop := shopsList[rand.Intn(len(shopsList))]
+	for i := range len(shopsList) {
+		// shop := shopsList[rand.Intn(len(shopsList))]
 
 		// product allocations based on shop id
 		productAllocationsFilter := []*productallocations.ListProductAllocationsViewRow{}
 		for _, pa := range productAllocations {
-			if pa.ShopName == shop.ShopName {
+			if pa.ShopName == shopsList[i].ShopName {
 				productAllocationsFilter = append(productAllocationsFilter, pa)
 			}
 		}
 
-		// Random installation date within the last 3 months
-		daysAgo := rand.Intn(90)
-		installationDate := time.Now().AddDate(0, 0, -daysAgo)
+		for range count {
 
-		// Get shop details for branch code
-		shopDetail, err := shopsService.GetShopByID(ctx, shop.ID)
-		if err != nil {
-			return nil, err
-		}
+			// Random installation date within the last 3 months
+			daysAgo := rand.Intn(90)
+			installationDate := time.Now().AddDate(0, 0, -daysAgo)
 
-		// Format installation date as YYMMDD
-		installDateStr := installationDate.Format("060102")
+			// Get shop details for branch code
+			// shopDetail, err := shopsService.GetShopByID(ctx, shop.ID)
+			// if err != nil {
+			// 	return nil, err
+			// }
 
-		// Generate warranty number using service
-		warrantyNo, err := warrantiesService.GenerateNextWarrantyNo(ctx, shopDetail.BranchCode, installDateStr)
-		if err != nil {
-			return nil, err
-		}
+			// Format installation date as YYMMDD
+			installDateStr := installationDate.Format("060102")
 
-		// 30% chance of having a reference number
-		var refNo *string
-		if rand.Float32() < 0.3 {
-			ref := fmt.Sprintf("REF-%05d", rand.Intn(99999))
-			refNo = &ref
-		}
+			// Generate warranty number using service
+			warrantyNo, err := warrantiesService.GenerateNextWarrantyNo(ctx, shopsList[i].BranchCode, installDateStr)
+			if err != nil {
+				return nil, err
+			}
 
-		clientFirstName := firstNames[rand.Intn(len(firstNames))]
-		clientLastName := lastNames[rand.Intn(len(lastNames))]
+			refNo := fmt.Sprintf("REF-%05d", rand.Intn(99999))
 
-		createWarrantyParams := &warranties.CreateWarrantyParams{
-			ShopID:               shop.ID,
-			ClientName:           fmt.Sprintf("%s %s", clientFirstName, clientLastName),
-			ClientContact:        generatePhoneNumber(),
-			ClientEmail:          fmt.Sprintf("%s.%s@example.com", clientFirstName, clientLastName),
-			CarBrand:             carBrands[rand.Intn(len(carBrands))],
-			CarModel:             carModels[rand.Intn(len(carModels))],
-			CarColour:            carColors[rand.Intn(len(carColors))],
-			CarPlateNo:           generateCarPlateNumber(),
-			CarChassisNo:         fmt.Sprintf("CHASSIS-%s-%05d", generateRandomString(5), rand.Intn(99999)),
-			InstallationDate:     installationDate,
-			ReferenceNo:          refNo,
-			WarrantyNo:           warrantyNo,
-			InvoiceAttachmentUrl: fmt.Sprintf("https://example.com/invoices/invoice_%d.pdf", i+1),
-		}
+			clientFirstName := firstNames[rand.Intn(len(firstNames))]
+			clientLastName := lastNames[rand.Intn(len(lastNames))]
 
-		parts := []*warranties.CreateWarrantyPartParams{}
-		// 	WarrantyID           int32  `db:"warranty_id" json:"warrantyId"`
-		// ProductAllocationID  int32  `db:"product_allocation_id" json:"productAllocationId"`
-		// CarPartID            int32  `db:"car_part_id" json:"carPartId"`
-		// InstallationImageUrl string `db:"installation_image_url" json:"installationImageUrl"`
-		carParts, err := warrantiesService.GetCarParts(ctx)
-		if err != nil {
-			return nil, err
-		}
-		// Each warranty has 5 - 7 parts
-		numParts := rand.Intn(3) + 5
-		usedCarParts := make(map[int32]bool)
-		for j := 0; j < numParts; j++ {
-			// Select a car part that hasn't been used for this warranty
-			var carPart *warranties.CarPart
-			for {
-				carPart = carParts[rand.Intn(len(carParts))]
-				if !usedCarParts[carPart.ID] {
-					usedCarParts[carPart.ID] = true
-					break
+			createWarrantyParams := &warranties.CreateWarrantyParams{
+				ShopID:               shopsList[i].ID,
+				ClientName:           fmt.Sprintf("%s %s", clientFirstName, clientLastName),
+				ClientContact:        generatePhoneNumber(),
+				ClientEmail:          fmt.Sprintf("%s.%s@example.com", clientFirstName, clientLastName),
+				CarBrand:             carBrands[rand.Intn(len(carBrands))],
+				CarModel:             carModels[rand.Intn(len(carModels))],
+				CarColour:            carColors[rand.Intn(len(carColors))],
+				CarPlateNo:           generateCarPlateNumber(),
+				CarChassisNo:         fmt.Sprintf("CHASSIS-%s-%05d", generateRandomString(5), rand.Intn(99999)),
+				InstallationDate:     installationDate,
+				ReferenceNo:          &refNo,
+				WarrantyNo:           warrantyNo,
+				InvoiceAttachmentUrl: fmt.Sprintf("https://example.com/invoices/invoice_%d.pdf", i+1),
+			}
+
+			parts := []*warranties.CreateWarrantyPartParams{}
+			// 	WarrantyID           int32  `db:"warranty_id" json:"warrantyId"`
+			// ProductAllocationID  int32  `db:"product_allocation_id" json:"productAllocationId"`
+			// CarPartID            int32  `db:"car_part_id" json:"carPartId"`
+			// InstallationImageUrl string `db:"installation_image_url" json:"installationImageUrl"`
+			carParts, err := warrantiesService.GetCarParts(ctx)
+			if err != nil {
+				return nil, err
+			}
+			// Each warranty has 5 - 7 parts
+			numParts := rand.Intn(3) + 5
+			usedCarParts := make(map[int32]bool)
+			for j := 0; j < numParts; j++ {
+				// Select a car part that hasn't been used for this warranty
+				var carPart *warranties.CarPart
+				for {
+					carPart = carParts[rand.Intn(len(carParts))]
+					if !usedCarParts[carPart.ID] {
+						usedCarParts[carPart.ID] = true
+						break
+					}
 				}
+				part := &warranties.CreateWarrantyPartParams{
+					ProductAllocationID:  productAllocationsFilter[rand.Intn(len(productAllocationsFilter))].AllocationID,
+					CarPartID:            carPart.ID,
+					InstallationImageUrl: generateInstallationImageUrl(carPart.Code),
+				}
+				parts = append(parts, part)
 			}
-			part := &warranties.CreateWarrantyPartParams{
-				ProductAllocationID:  productAllocationsFilter[rand.Intn(len(productAllocationsFilter))].AllocationID,
-				CarPartID:            carPart.ID,
-				InstallationImageUrl: generateInstallationImageUrl(carPart.Code),
+
+			warranty, err := warrantiesService.CreateWarrantyWithParts(ctx, createWarrantyParams, parts)
+			if err != nil {
+				return nil, err
 			}
-			parts = append(parts, part)
-		}
 
-		warranty, err := warrantiesService.CreateWarrantyWithParts(ctx, createWarrantyParams, parts)
-		if err != nil {
-			return nil, err
+			warrantiesList = append(warrantiesList, warranty)
 		}
-
-		warrantiesList = append(warrantiesList, warranty)
 	}
 
 	return warrantiesList, nil

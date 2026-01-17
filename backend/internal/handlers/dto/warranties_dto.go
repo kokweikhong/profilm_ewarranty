@@ -88,15 +88,17 @@ func (r *UpdateWarrantyRequest) ToUpdateWarrantyParams(id int32) (*warranties.Up
 
 // UpdateWarrantyApprovalRequest represents the request body for updating warranty approval
 type UpdateWarrantyApprovalRequest struct {
-	ID         int32 `json:"id" binding:"required"`
-	IsApproved bool  `json:"isApproved"`
+	ID             int32   `json:"id" binding:"required"`
+	ApprovalStatus string  `json:"approvalStatus" binding:"required,oneof=PENDING APPROVED REJECTED"`
+	Remarks        *string `json:"remarks"`
 }
 
 // ToUpdateWarrantyApprovalParams converts UpdateWarrantyApprovalRequest to warranties.UpdateWarrantyApprovalParams
 func (r *UpdateWarrantyApprovalRequest) ToUpdateWarrantyApprovalParams(id int32) *warranties.UpdateWarrantyApprovalParams {
 	return &warranties.UpdateWarrantyApprovalParams{
-		ID:         id,
-		IsApproved: r.IsApproved,
+		ID:             id,
+		ApprovalStatus: warranties.WarrantyApprovalStatus(r.ApprovalStatus),
+		Remarks:        r.Remarks,
 	}
 }
 
@@ -140,14 +142,16 @@ func (r *UpdateWarrantyPartRequest) ToUpdateWarrantyPartParams(id int32) *warran
 
 // UpdateWarrantyPartApprovalRequest represents the request body for updating warranty part approval
 type UpdateWarrantyPartApprovalRequest struct {
-	IsApproved bool `json:"isApproved"`
+	ApprovalStatus string  `json:"approvalStatus" binding:"required,oneof=PENDING APPROVED REJECTED"`
+	Remarks        *string `json:"remarks"`
 }
 
 // ToUpdateWarrantyPartApprovalParams converts UpdateWarrantyPartApprovalRequest to warranties.UpdateWarrantyPartApprovalParams
 func (r *UpdateWarrantyPartApprovalRequest) ToUpdateWarrantyPartApprovalParams(id int32) *warranties.UpdateWarrantyPartApprovalParams {
 	return &warranties.UpdateWarrantyPartApprovalParams{
-		ID:         id,
-		IsApproved: r.IsApproved,
+		ID:             id,
+		ApprovalStatus: warranties.WarrantyApprovalStatus(r.ApprovalStatus),
+		Remarks:        r.Remarks,
 	}
 }
 
