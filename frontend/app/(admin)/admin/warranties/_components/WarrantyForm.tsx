@@ -14,6 +14,7 @@ import {
   UpdateWarrantyRequest,
   WarrantyWithPartsResponse,
   UpdateWarrantyPartRequest,
+  WarrantyApprovalStatus,
 } from "@/types/warrantiesType";
 import {
   createWarrantyPartAction,
@@ -170,7 +171,7 @@ export default function WarrantyForm({
             const formattedDate = formatDateForInput(installationDate);
             const response = await generateNextWarrantyNoApi(
               branchCode,
-              formattedDate
+              formattedDate,
             );
             setValue("warranty.warrantyNo", response.warrantyNo);
             console.log("Generated warranty number:", response.warrantyNo);
@@ -193,7 +194,7 @@ export default function WarrantyForm({
         ) {
           const branchCode = user.username.toUpperCase();
           const formattedDate = formatDateForInput(
-            value.warranty.installationDate
+            value.warranty.installationDate,
           );
           generateNextWarrantyNoApi(branchCode, formattedDate)
             .then((response) => {
@@ -217,13 +218,13 @@ export default function WarrantyForm({
     (CreateWarrantyPartRequest | UpdateWarrantyPartRequest)[]
   >([]);
   const [uploadingImages, setUploadingImages] = useState<Map<number, boolean>>(
-    new Map()
+    new Map(),
   );
   const [imagePreview, setImagePreview] = useState<Map<number, string>>(
-    new Map()
+    new Map(),
   );
   const [selectedFiles, setSelectedFiles] = useState<Map<number, File>>(
-    new Map()
+    new Map(),
   );
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const [invoicePreview, setInvoicePreview] = useState<string | null>(null);
@@ -246,9 +247,9 @@ export default function WarrantyForm({
       setImageFileSizeErrors((prev) => new Map(prev).set(fieldIdx, true));
       showToast(
         `Image file size (${(file.size / 1024 / 1024).toFixed(
-          2
+          2,
         )} MB) exceeds 50MB limit`,
-        "error"
+        "error",
       );
     } else {
       setImageFileSizeErrors((prev) => {
@@ -265,7 +266,7 @@ export default function WarrantyForm({
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview((prev) =>
-        new Map(prev).set(fieldIdx, reader.result as string)
+        new Map(prev).set(fieldIdx, reader.result as string),
       );
     };
     reader.readAsDataURL(file);
@@ -344,7 +345,7 @@ export default function WarrantyForm({
   const updateCarPartDetails = (
     carPartId: number,
     field: "productAllocationId" | "installationImageUrl",
-    value: number | string
+    value: number | string,
   ) => {
     const newSelected = new Map(selectedCarParts);
     const existing = newSelected.get(carPartId);
@@ -492,7 +493,7 @@ export default function WarrantyForm({
               if (!partId) {
                 console.error("Missing part ID for update:", part);
                 throw new Error(
-                  `Missing ID for warranty part: ${part.carPartId}`
+                  `Missing ID for warranty part: ${part.carPartId}`,
                 );
               }
 
@@ -518,14 +519,13 @@ export default function WarrantyForm({
                 productAllocationId: part.productAllocationId,
                 installationImageUrl: part.installationImageUrl,
               };
-              const createResult = await createWarrantyPartAction(
-                createPartData
-              );
+              const createResult =
+                await createWarrantyPartAction(createPartData);
               if (createResult && createResult.success) {
                 part.id = createResult.data.id;
               } else {
                 throw new Error(
-                  `Failed to create warranty part for carPartId: ${part.carPartId}`
+                  `Failed to create warranty part for carPartId: ${part.carPartId}`,
                 );
               }
             }
@@ -605,13 +605,13 @@ export default function WarrantyForm({
       } catch (error: any) {
         console.error(
           `Error during warranty ${isEditMode ? "update" : "creation"}:`,
-          error
+          error,
         );
         showToast(
           `Failed to ${isEditMode ? "update" : "create"} warranty: ${
             error.message || "Unknown error"
           }`,
-          "error"
+          "error",
         );
       } finally {
         setIsUploading(false);
@@ -633,6 +633,29 @@ export default function WarrantyForm({
       setInvoicePreview(null);
     }
   }, [isEditMode]);
+
+  if (
+    isEditMode &&
+    data?.warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
+  ) {
+    return (
+      <div className="rounded-md bg-yellow-50 p-4">
+        <div className="flex">
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-yellow-800">
+              Warranty Approved - Edit Restricted
+            </h3>
+            <div className="mt-2 text-sm text-yellow-700">
+              <p>
+                This warranty has been approved and cannot be edited. If you
+                need to make changes, please contact the administrator.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

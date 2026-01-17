@@ -2,7 +2,11 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ProductDetailResponse } from "@/types/productsType";
 import { Shop, ShopListResponse } from "@/types/shopsType";
 import { ProductAllocationsListResponse } from "@/types/productAllocationsType";
-import { Warranty, WarrantyDetails } from "@/types/warrantiesType";
+import {
+  Warranty,
+  WarrantyApprovalStatus,
+  WarrantyDetails,
+} from "@/types/warrantiesType";
 import { ClaimView } from "@/types/claimsType";
 import { ListUsersResponse } from "@/types/usersType";
 import Link from "next/link";
@@ -406,6 +410,57 @@ export const WarrantyColumns = [
         {info.getValue()}
       </Link>
     ),
+    enableSorting: true,
+  }),
+  warrantyColumnHelper.accessor("approvalStatus", {
+    header: "Approval Status",
+    cell: (info) =>
+      info.getValue() === WarrantyApprovalStatus.APPROVED ? (
+        <span className="inline-flex items-center gap-x-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+          <svg
+            className="h-1.5 w-1.5 fill-green-500"
+            viewBox="0 0 6 6"
+            aria-hidden="true"
+          >
+            <circle cx={3} cy={3} r={3} />
+          </svg>
+          Approved
+        </span>
+      ) : info.getValue() === WarrantyApprovalStatus.PENDING ? (
+        <span className="inline-flex items-center gap-x-1.5 rounded-full bg-yellow-50 px-2.5 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">
+          <svg
+            className="h-1.5 w-1.5 fill-yellow-500"
+            viewBox="0 0 6 6"
+            aria-hidden="true"
+          >
+            <circle cx={3} cy={3} r={3} />
+          </svg>
+          Pending
+        </span>
+      ) : info.getValue() === WarrantyApprovalStatus.REJECTED ? (
+        <span className="inline-flex items-center gap-x-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+          <svg
+            className="h-1.5 w-1.5 fill-red-500"
+            viewBox="0 0 6 6"
+            aria-hidden="true"
+          >
+            <circle cx={3} cy={3} r={3} />
+          </svg>
+          Rejected
+        </span>
+      ) : (
+        <span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+          <svg
+            className="h-1.5 w-1.5 fill-gray-400"
+            viewBox="0 0 6 6"
+            aria-hidden="true"
+          >
+            <circle cx={3} cy={3} r={3} />
+          </svg>
+          Unknown
+        </span>
+      ),
+
     enableSorting: true,
   }),
   warrantyColumnHelper.accessor("branchCode", {

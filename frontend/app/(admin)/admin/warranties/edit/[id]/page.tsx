@@ -17,7 +17,7 @@ export default function Page() {
   const params = useParams();
   const id = params.id as string;
   const [warranty, setWarranty] = useState<WarrantyWithPartsResponse | null>(
-    null
+    null,
   );
   const [carParts, setCarParts] = useState<CarPart[]>([]);
   const [productsFromAllocation, setProductsFromAllocation] = useState<
@@ -32,7 +32,7 @@ export default function Page() {
 
         if (warrantyData) {
           warrantyData.warranty.installationDate = formatDate(
-            warrantyData.warranty.installationDate
+            warrantyData.warranty.installationDate,
           );
 
           // Fetch car parts and products from allocation for the warranty's shop
@@ -40,6 +40,9 @@ export default function Page() {
             getCarPartsApi(),
             getProductsFromAllocationByShopIdApi(warrantyData.warranty.shopId),
           ]);
+
+          console.log("Fetched Car Parts:", carPartsData);
+          console.log("Fetched Products From Allocation:", productsData);
 
           setWarranty(warrantyData);
           setCarParts(carPartsData);

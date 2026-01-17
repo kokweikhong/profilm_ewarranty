@@ -486,7 +486,7 @@ func main() {
 
 	// 4. Seed Warranties (100 warranties)
 	log.Println("Seeding warranties...")
-	warrantiesList, err := seedWarranties(ctx, warrantiesService, shopsService, productAllocationsService, shopsList, 10)
+	warrantiesList, err := seedWarranties(ctx, warrantiesService, productAllocationsService, shopsList, 10)
 	if err != nil {
 		log.Fatalf("Failed to seed warranties: %v", err)
 	}
@@ -655,23 +655,16 @@ func seedProductAllocations(ctx context.Context, svc services.ProductAllocations
 	return allocationsList, nil
 }
 
-func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesService, shopsService services.ShopsService, productAllocationsService services.ProductAllocationsService, shopsList []*shops.Shop, count int) ([]*warranties.Warranty, error) {
+func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesService, productAllocationsService services.ProductAllocationsService, shopsList []*shops.Shop, count int) ([]*warranties.Warranty, error) {
 	var warrantiesList []*warranties.Warranty
 
-	productAllocations, err := productAllocationsService.ListProductAllocationsView(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	for i := range len(shopsList) {
+	for i := range shopsList {
 		// shop := shopsList[rand.Intn(len(shopsList))]
 
 		// product allocations based on shop id
-		productAllocationsFilter := []*productallocations.ListProductAllocationsViewRow{}
-		for _, pa := range productAllocations {
-			if pa.ShopName == shopsList[i].ShopName {
-				productAllocationsFilter = append(productAllocationsFilter, pa)
-			}
+		productAllocationsFilter, err := productAllocationsService.GetProductsFromProductAllocationsByShopID(ctx, shopsList[i].ID)
+		if err != nil {
+			return nil, err
 		}
 
 		for range count {
@@ -738,8 +731,12 @@ func seedWarranties(ctx context.Context, warrantiesService services.WarrantiesSe
 						break
 					}
 				}
+				if len(productAllocationsFilter) == 0 {
+					// go to next warranty if no product allocations
+					continue
+				}
 				part := &warranties.CreateWarrantyPartParams{
-					ProductAllocationID:  productAllocationsFilter[rand.Intn(len(productAllocationsFilter))].AllocationID,
+					ProductAllocationID:  productAllocationsFilter[rand.Intn(len(productAllocationsFilter))].ProductAllocationID,
 					CarPartID:            carPart.ID,
 					InstallationImageUrl: generateInstallationImageUrl(carPart.Code),
 				}

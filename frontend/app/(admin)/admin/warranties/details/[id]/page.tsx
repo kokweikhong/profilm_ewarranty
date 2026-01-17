@@ -55,40 +55,42 @@ export default function Page() {
     return url.split("/").pop() || "document";
   };
 
-  const handleToggleWarrantyApproval = async () => {
+  const handleToggleWarrantyApproval = async (
+    approvalStatus: WarrantyApprovalStatus,
+    remarks?: string,
+  ) => {
     if (!data || !isAdmin) return;
 
     console.log("Toggle warranty approval", data);
 
     try {
-      const newApprovalStatus =
-        data.warranty.approvalStatus === WarrantyApprovalStatus.PENDING
-          ? WarrantyApprovalStatus.APPROVED
-          : data.warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
-          ? WarrantyApprovalStatus.REJECTED
-          : WarrantyApprovalStatus.APPROVED;
       const result = await updateWarrantyApprovalAction(
         data.warranty.id,
-        newApprovalStatus
+        approvalStatus,
+        remarks,
       );
 
       if (result.success) {
         setData({
           ...data,
-          warranty: { ...data.warranty, approvalStatus: newApprovalStatus },
+          warranty: {
+            ...data.warranty,
+            approvalStatus: approvalStatus,
+            remarks: remarks,
+          },
         });
         showToast(
           `Warranty ${
-            newApprovalStatus === WarrantyApprovalStatus.APPROVED
+            approvalStatus === WarrantyApprovalStatus.APPROVED
               ? "approved"
               : "rejected"
           } successfully`,
-          "success"
+          "success",
         );
       } else {
         showToast(
           result.error || "Failed to update warranty approval",
-          "error"
+          "error",
         );
       }
     } catch (error) {
@@ -98,19 +100,17 @@ export default function Page() {
 
   const handleTogglePartApproval = async (
     partId: number,
-    currentStatus: WarrantyApprovalStatus
+    approvalStatus: WarrantyApprovalStatus,
+    remarks?: string,
   ) => {
     if (!data || !isAdmin) return;
 
     try {
       setUpdatingApproval(partId);
-      const newApprovalStatus =
-        currentStatus === WarrantyApprovalStatus.APPROVED
-          ? WarrantyApprovalStatus.REJECTED
-          : WarrantyApprovalStatus.APPROVED;
       const result = await updateWarrantyPartApprovalAction(
         partId,
-        newApprovalStatus
+        approvalStatus,
+        remarks,
       );
 
       if (result.success) {
@@ -118,13 +118,17 @@ export default function Page() {
           ...data,
           parts: data.parts.map((part) =>
             part.id === partId
-              ? { ...part, isApproved: newApprovalStatus }
-              : part
+              ? {
+                  ...part,
+                  isApproved:
+                    approvalStatus === WarrantyApprovalStatus.APPROVED,
+                }
+              : part,
           ),
         });
         showToast(
-          `Part ${newApprovalStatus ? "approved" : "Rejectd"} successfully`,
-          "success"
+          `Part ${approvalStatus === WarrantyApprovalStatus.APPROVED ? "approved" : "rejected"} successfully`,
+          "success",
         );
       } else {
         showToast(result.error || "Failed to update part approval", "error");
@@ -266,23 +270,34 @@ export default function Page() {
           {warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
             ? "Approved"
             : warranty.approvalStatus === WarrantyApprovalStatus.PENDING
-            ? "Pending"
-            : "Rejected"}
+              ? "Pending"
+              : "Rejected"}
         </span>
         {isAdmin && (
-          <button
-            onClick={handleToggleWarrantyApproval}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-              warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            {warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
-              ? "Reject"
-              : "Approve"}{" "}
-            Warranty
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() =>
+                handleToggleWarrantyApproval(WarrantyApprovalStatus.APPROVED)
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              disabled={
+                warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
+              }
+            >
+              Approve Warranty
+            </button>
+            <button
+              onClick={() =>
+                handleToggleWarrantyApproval(WarrantyApprovalStatus.REJECTED)
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              disabled={
+                warranty.approvalStatus === WarrantyApprovalStatus.REJECTED
+              }
+            >
+              Reject Warranty
+            </button>
+          </div>
         )}
       </div>
 
@@ -392,9 +407,9 @@ export default function Page() {
                             WarrantyApprovalStatus.APPROVED
                               ? "bg-green-100 text-green-700"
                               : part.approvalStatus ===
-                                WarrantyApprovalStatus.PENDING
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
+                                  WarrantyApprovalStatus.PENDING
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"
                           }`}
                         >
                           {part.approvalStatus ===
@@ -407,35 +422,45 @@ export default function Page() {
                           WarrantyApprovalStatus.APPROVED
                             ? "Approved"
                             : part.approvalStatus ===
-                              WarrantyApprovalStatus.PENDING
-                            ? "Pending"
-                            : "Rejected"}
+                                WarrantyApprovalStatus.PENDING
+                              ? "Pending"
+                              : "Rejected"}
                         </span>
                         {isAdmin && (
-                          <button
-                            onClick={() =>
-                              handleTogglePartApproval(
-                                part.id,
-                                part.approvalStatus
-                              )
-                            }
-                            disabled={updatingApproval === part.id}
-                            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 ${
-                              part.approvalStatus ===
-                              WarrantyApprovalStatus.APPROVED
-                                ? "bg-red-500 text-white hover:bg-red-600"
-                                : "bg-green-500 text-white hover:bg-green-600"
-                            }`}
-                          >
-                            {updatingApproval === part.id ? (
-                              <span className="inline-block animate-spin rounded-full h-3 w-3 border-b-2 border-white"></span>
-                            ) : part.approvalStatus ===
-                              WarrantyApprovalStatus.APPROVED ? (
-                              "Reject"
-                            ) : (
-                              "Approve"
-                            )}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() =>
+                                handleTogglePartApproval(
+                                  part.id,
+                                  WarrantyApprovalStatus.APPROVED,
+                                )
+                              }
+                              disabled={
+                                updatingApproval === part.id ||
+                                part.approvalStatus ===
+                                  WarrantyApprovalStatus.APPROVED
+                              }
+                              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 bg-blue-500 text-white hover:bg-blue-600"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleTogglePartApproval(
+                                  part.id,
+                                  WarrantyApprovalStatus.REJECTED,
+                                )
+                              }
+                              disabled={
+                                updatingApproval === part.id ||
+                                part.approvalStatus ===
+                                  WarrantyApprovalStatus.REJECTED
+                              }
+                              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 bg-red-500 text-white hover:bg-red-600"
+                            >
+                              Reject
+                            </button>
+                          </div>
                         )}
                       </div>
                       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -773,19 +798,30 @@ export default function Page() {
             : "Pending Approval"}
         </span>
         {isAdmin && (
-          <button
-            onClick={handleToggleWarrantyApproval}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-              warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
-                ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            {warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
-              ? "Reject"
-              : "Approve"}{" "}
-            Warranty
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() =>
+                handleToggleWarrantyApproval(WarrantyApprovalStatus.APPROVED)
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              disabled={
+                warranty.approvalStatus === WarrantyApprovalStatus.APPROVED
+              }
+            >
+              Approve Warranty
+            </button>
+            <button
+              onClick={() =>
+                handleToggleWarrantyApproval(WarrantyApprovalStatus.REJECTED)
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              disabled={
+                warranty.approvalStatus === WarrantyApprovalStatus.REJECTED
+              }
+            >
+              Reject Warranty
+            </button>
+          </div>
         )}
       </div>
     </div>

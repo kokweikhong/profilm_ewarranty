@@ -108,58 +108,54 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 		return nil, err
 	}
 
-	// Update parts associated with the warranty
-	for _, partArg := range partsArgs {
-		partArg.WarrantyID = warranty.ID
-		_, err = qtx.UpdateWarrantyPart(ctx, partArg)
-		if err != nil {
-			tx.Rollback(ctx)
-			return nil, err
-		}
-	}
-
-	// Delete parts that are duplicated in car_part_id for the same warranty
-	// to avoid multiple parts with the same car_part_id for a warranty
-	// delete the based on updated_at timestamp
+	// Get the existing parts associated with the warranty
 	existingParts, err := qtx.GetWarrantyPartsByWarrantyID(ctx, warranty.ID)
 	if err != nil {
 		tx.Rollback(ctx)
 		return nil, err
 	}
-	existingPartsMap := make(map[int32][]*warranties.GetWarrantyPartsByWarrantyIDRow)
-	for _, part := range existingParts {
-		existingPartsMap[part.CarPartID] = append(existingPartsMap[part.CarPartID], part)
-	}
-	for _, parts := range existingPartsMap {
-		if len(parts) > 1 {
-			// sort parts by updated_at descending
-			// delete all but the latest one
-			latestPart := parts[0]
-			for _, part := range parts[1:] {
-				if part.UpdatedAt.After(latestPart.UpdatedAt) {
-					latestPart = part
-				}
-			}
-			for _, part := range parts {
-				if part.ID != latestPart.ID {
-					err = qtx.DeleteWarrantyPart(ctx, part.ID)
+
+	// Update parts approval status to pending when a warranty part is updated
+	// need to check if the part is latest version by comparing all data fields
+	for _, partArg := range partsArgs {
+		partArg.WarrantyID = warranty.ID
+		found := false
+		for _, existingPart := range existingParts {
+			if partArg.ID == existingPart.ID {
+				found = true
+				// compare all fields except ID and WarrantyID
+				if partArg.CarPartID != existingPart.CarPartID ||
+					partArg.ProductAllocationID != existingPart.ProductAllocationID ||
+					partArg.InstallationImageUrl != existingPart.InstallationImageUrl ||
+					partArg.Remarks != existingPart.Remarks {
+					// part has changes, update part
+					_, err = qtx.UpdateWarrantyPart(ctx, partArg)
+					if err != nil {
+						tx.Rollback(ctx)
+						return nil, err
+					}
+					// mark part as pending approval
+					_, err = qtx.UpdateWarrantyPartApproval(ctx, &warranties.UpdateWarrantyPartApprovalParams{
+						ID:             existingPart.ID,
+						ApprovalStatus: warranties.WarrantyApprovalStatusPENDING,
+					})
 					if err != nil {
 						tx.Rollback(ctx)
 						return nil, err
 					}
 				}
+				break
 			}
 		}
-	}
-
-	// remove warranty parts that are not in the updated partsArgs
-	updatedPartIDs := make(map[int32]struct{})
-	for _, partArg := range partsArgs {
-		updatedPartIDs[partArg.ID] = struct{}{}
-	}
-	for _, existingPart := range existingParts {
-		if _, ok := updatedPartIDs[existingPart.ID]; !ok {
-			err = qtx.DeleteWarrantyPart(ctx, existingPart.ID)
+		if !found {
+			// part not found, create new part
+			_, err = qtx.CreateWarrantyPart(ctx, &warranties.CreateWarrantyPartParams{
+				WarrantyID:           warranty.ID,
+				CarPartID:            partArg.CarPartID,
+				ProductAllocationID:  partArg.ProductAllocationID,
+				InstallationImageUrl: partArg.InstallationImageUrl,
+				Remarks:              partArg.Remarks,
+			})
 			if err != nil {
 				tx.Rollback(ctx)
 				return nil, err
@@ -170,6 +166,7 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
+
 	return warranty, nil
 }
 
@@ -229,7 +226,36 @@ func (s *warrantiesService) CreateWarrantyPart(ctx context.Context, arg *warrant
 
 // UpdateWarrantyPart updates a warranty part in the database.
 func (s *warrantiesService) UpdateWarrantyPart(ctx context.Context, arg *warranties.UpdateWarrantyPartParams) (*warranties.WarrantyPart, error) {
-	return s.q.UpdateWarrantyPart(ctx, arg)
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := s.q.UpdateWarrantyPart(ctx, arg)
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+
+	// update the warranty approval status to pending when a part is updated
+	_, err = s.q.UpdateWarrantyApproval(ctx, &warranties.UpdateWarrantyApprovalParams{
+		ID:             result.WarrantyID,
+		ApprovalStatus: warranties.WarrantyApprovalStatusPENDING,
+	})
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+
+	_, err = s.q.UpdateWarrantyPartApproval(ctx, &warranties.UpdateWarrantyPartApprovalParams{
+		ID:             result.ID,
+		ApprovalStatus: warranties.WarrantyApprovalStatusPENDING,
+	})
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, err
+	}
+	return result, nil
 }
 
 // UpdateWarrantryPartApproval updates the approval status of a warranty part in the database.

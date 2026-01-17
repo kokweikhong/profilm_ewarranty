@@ -17,12 +17,16 @@ import {
   MagnifyingGlassIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/20/solid";
-import { WarrantyDetails } from "@/types/warrantiesType";
+import {
+  WarrantyApprovalStatus,
+  WarrantyDetails,
+} from "@/types/warrantiesType";
 import { WarrantyColumns } from "@/components/TableColumns";
 import { DebounceInput } from "@/components/DebounceInput";
 import { TablePagination } from "@/components/TablePagination";
 import { getWarrantiesApi } from "@/lib/apis/warrantiesApi";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
 export default function Page() {
   const [warranties, setWarranties] = useState<WarrantyDetails[]>([]);
@@ -98,7 +102,7 @@ export default function Page() {
       </div>
 
       {/* Stats Cards */}
-      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-4">
         <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow border border-gray-200">
           <div className="flex items-center">
             <div className="shrink-0">
@@ -174,7 +178,50 @@ export default function Page() {
                   Approved
                 </dt>
                 <dd className="text-2xl font-bold text-gray-900">
-                  {warranties.filter((w) => w.isApproved).length}
+                  {
+                    warranties.filter(
+                      (w) =>
+                        w.approvalStatus === WarrantyApprovalStatus.APPROVED,
+                    ).length
+                  }
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        {/* Pending */}
+        <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow border border-gray-200">
+          <div className="flex items-center">
+            <div className="shrink-0">
+              <div className="rounded-md bg-yellow-500/10 p-3">
+                <svg
+                  className="h-6 w-6 text-yellow-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div className="ml-5 w-0 flex-1">
+              <dl>
+                <dt className="text-sm font-medium text-gray-500 truncate">
+                  Pending
+                </dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  {
+                    warranties.filter(
+                      (w) =>
+                        w.approvalStatus === WarrantyApprovalStatus.PENDING,
+                    ).length
+                  }
                 </dd>
               </dl>
             </div>
@@ -233,7 +280,7 @@ export default function Page() {
                               >
                                 {flexRender(
                                   header.column.columnDef.header,
-                                  header.getContext()
+                                  header.getContext(),
                                 )}
                                 {header.column.getCanSort() && (
                                   <span className="ml-2 flex-none rounded text-gray-400 group-hover:text-primary">
@@ -301,8 +348,23 @@ export default function Page() {
                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                               <div className="flex items-center gap-2">
                                 <Link
-                                  href={`/admin/warranties/edit/${row.original.id}`}
-                                  className="inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-primary shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
+                                  href={
+                                    row.original.approvalStatus ===
+                                    WarrantyApprovalStatus.APPROVED
+                                      ? `#`
+                                      : `/admin/warranties/edit/${row.original.id}`
+                                  }
+                                  className={cn(
+                                    "inline-flex items-center gap-x-1.5 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-primary shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors",
+                                    row.original.approvalStatus ===
+                                      WarrantyApprovalStatus.APPROVED
+                                      ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                      : "",
+                                  )}
+                                  aria-disabled={
+                                    row.original.approvalStatus ===
+                                    WarrantyApprovalStatus.APPROVED
+                                  }
                                 >
                                   <svg
                                     className="h-4 w-4"
@@ -329,7 +391,7 @@ export default function Page() {
                             >
                               {flexRender(
                                 cell.column.columnDef.cell,
-                                cell.getContext()
+                                cell.getContext(),
                               )}
                             </td>
                           ))}
