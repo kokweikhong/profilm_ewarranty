@@ -287,30 +287,6 @@ export default function WarrantyForm({
       }
 
       // Upload installation images for each car part
-      // for (const [carPartId, file] of selectedFiles.entries()) {
-      //   try {
-      //     setUploadingImages((prev) => new Map(prev).set(carPartId, true));
-
-      //     const imageUrl = await uploadFile(file, "warranties/installations");
-      //     installationImages.set(carPartId, imageUrl);
-      //     console.log(
-      //       `Installation image uploaded for car part ${carPartId}:`,
-      //       imageUrl
-      //     );
-      //   } catch (error) {
-      //     console.error(
-      //       `Error uploading image for car part ${carPartId}:`,
-      //       error
-      //     );
-      //     throw error;
-      //   } finally {
-      //     setUploadingImages((prev) => {
-      //       const newMap = new Map(prev);
-      //       newMap.set(carPartId, false);
-      //       return newMap;
-      //     });
-      //   }
-      // }
       for (const [fieldIdx, file] of selectedFiles.entries()) {
         try {
           setUploadingImages((prev) => new Map(prev).set(fieldIdx, true));
@@ -742,12 +718,12 @@ export default function WarrantyForm({
             setInvoicePreview={setInvoicePreview}
           />
 
-          <div>
-            {/* json format form data for testing */}
+          {/* json format form data for testing */}
+          {/* <div>
             <pre className="bg-gray-100 p-4 rounded-md text-sm overflow-x-auto">
               {JSON.stringify(watch(), null, 2)}
             </pre>
-          </div>
+          </div> */}
 
           {/* Car Parts Selection */}
           <div className="border-b border-gray-900/10 pb-12">
