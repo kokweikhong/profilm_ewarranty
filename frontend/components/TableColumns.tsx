@@ -652,10 +652,10 @@ export const ClaimColumns = [
     ),
     enableSorting: true,
   }),
-  claimColumnHelper.accessor("isApproved", {
+  claimColumnHelper.accessor("approvalStatus", {
     header: "Approval Status",
     cell: (info) =>
-      info.getValue() ? (
+      info.getValue() === "APPROVED" ? (
         <span className="inline-flex items-center gap-x-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
           <svg
             className="h-1.5 w-1.5 fill-green-500"
@@ -666,7 +666,7 @@ export const ClaimColumns = [
           </svg>
           Approved
         </span>
-      ) : (
+      ) : info.getValue() === "PENDING" ? (
         <span className="inline-flex items-center gap-x-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
           <svg
             className="h-1.5 w-1.5 fill-amber-500"
@@ -677,7 +677,18 @@ export const ClaimColumns = [
           </svg>
           Pending
         </span>
-      ),
+      ) : info.getValue() === "REJECTED" ? (
+        <span className="inline-flex items-center gap-x-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+          <svg
+            className="h-1.5 w-1.5 fill-red-500"
+            viewBox="0 0 6 6"
+            aria-hidden="true"
+          >
+            <circle cx={3} cy={3} r={3} />
+          </svg>
+          Rejected
+        </span>
+      ) : null,
     enableSorting: true,
   }),
   claimColumnHelper.accessor("status", {

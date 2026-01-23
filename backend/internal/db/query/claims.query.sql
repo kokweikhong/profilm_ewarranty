@@ -57,7 +57,8 @@ RETURNING *;
 -- name: UpdateClaimApproval :one
 UPDATE claims
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
@@ -91,7 +92,8 @@ RETURNING *;
 -- name: UpdateClaimWarrantyPartApproval :one
 UPDATE claim_warranty_parts
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;

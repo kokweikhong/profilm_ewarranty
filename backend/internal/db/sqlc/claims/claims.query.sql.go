@@ -8,6 +8,8 @@ package claims
 import (
 	"context"
 	"time"
+
+	models "github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
 )
 
 const createClaim = `-- name: CreateClaim :one
@@ -18,7 +20,7 @@ INSERT INTO claims (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
+RETURNING id, warranty_id, claim_no, claim_date, approval_status, status, remarks, created_at, updated_at
 `
 
 type CreateClaimParams struct {
@@ -35,7 +37,7 @@ func (q *Queries) CreateClaim(ctx context.Context, arg *CreateClaimParams) (*Cla
 		&i.WarrantyID,
 		&i.ClaimNo,
 		&i.ClaimDate,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.Status,
 		&i.Remarks,
 		&i.CreatedAt,
@@ -55,7 +57,7 @@ INSERT INTO claim_warranty_parts (
 ) VALUES (
     $1, $2, $3, $4, $5, $6
 )
-RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at
+RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, approval_status, created_at, updated_at
 `
 
 type CreateClaimWarrantyPartParams struct {
@@ -86,7 +88,7 @@ func (q *Queries) CreateClaimWarrantyPart(ctx context.Context, arg *CreateClaimW
 		&i.Remarks,
 		&i.ResolutionDate,
 		&i.ResolutionImageUrl,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -95,7 +97,7 @@ func (q *Queries) CreateClaimWarrantyPart(ctx context.Context, arg *CreateClaimW
 
 const getClaimByID = `-- name: GetClaimByID :one
 SELECT
-    id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
+    id, warranty_id, claim_no, claim_date, approval_status, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
 FROM claim_view
 WHERE id = $1
 `
@@ -108,7 +110,7 @@ func (q *Queries) GetClaimByID(ctx context.Context, id int32) (*ClaimView, error
 		&i.WarrantyID,
 		&i.ClaimNo,
 		&i.ClaimDate,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.Status,
 		&i.Remarks,
 		&i.CreatedAt,
@@ -132,7 +134,7 @@ func (q *Queries) GetClaimByID(ctx context.Context, id int32) (*ClaimView, error
 
 const getClaimWarrantyPartsByClaimID = `-- name: GetClaimWarrantyPartsByClaimID :many
 SELECT
-    id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at, installation_image_url, car_part_name, car_part_code, product_allocation_id, brand_name, type_name, series_name, product_name, film_serial_number, warranty_in_months
+    id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, approval_status, created_at, updated_at, installation_image_url, car_part_name, car_part_code, product_allocation_id, brand_name, type_name, series_name, product_name, film_serial_number, warranty_in_months
 FROM claim_warranty_parts_view
 WHERE claim_id = $1
 ORDER BY created_at DESC
@@ -156,7 +158,7 @@ func (q *Queries) GetClaimWarrantyPartsByClaimID(ctx context.Context, claimID in
 			&i.Remarks,
 			&i.ResolutionDate,
 			&i.ResolutionImageUrl,
-			&i.IsApproved,
+			&i.ApprovalStatus,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.InstallationImageUrl,
@@ -182,7 +184,7 @@ func (q *Queries) GetClaimWarrantyPartsByClaimID(ctx context.Context, claimID in
 
 const getClaims = `-- name: GetClaims :many
 SELECT
-    id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
+    id, warranty_id, claim_no, claim_date, approval_status, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
 FROM claim_view
 ORDER BY created_at DESC
 `
@@ -202,7 +204,7 @@ func (q *Queries) GetClaims(ctx context.Context) ([]*ClaimView, error) {
 			&i.WarrantyID,
 			&i.ClaimNo,
 			&i.ClaimDate,
-			&i.IsApproved,
+			&i.ApprovalStatus,
 			&i.Status,
 			&i.Remarks,
 			&i.CreatedAt,
@@ -233,7 +235,7 @@ func (q *Queries) GetClaims(ctx context.Context) ([]*ClaimView, error) {
 
 const getClaimsByShopID = `-- name: GetClaimsByShopID :many
 SELECT
-    id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
+    id, warranty_id, claim_no, claim_date, approval_status, status, remarks, created_at, updated_at, shop_id, client_name, client_contact, client_email, car_brand, car_model, car_colour, car_plate_no, car_chassis_no, installation_date, reference_no, warranty_no, invoice_attachment_url
 FROM claim_view
 WHERE shop_id = $1
 ORDER BY created_at DESC
@@ -253,7 +255,7 @@ func (q *Queries) GetClaimsByShopID(ctx context.Context, shopID int32) ([]*Claim
 			&i.WarrantyID,
 			&i.ClaimNo,
 			&i.ClaimDate,
-			&i.IsApproved,
+			&i.ApprovalStatus,
 			&i.Status,
 			&i.Remarks,
 			&i.CreatedAt,
@@ -306,7 +308,7 @@ SET
     claim_date = $4,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
+RETURNING id, warranty_id, claim_no, claim_date, approval_status, status, remarks, created_at, updated_at
 `
 
 type UpdateClaimParams struct {
@@ -329,7 +331,7 @@ func (q *Queries) UpdateClaim(ctx context.Context, arg *UpdateClaimParams) (*Cla
 		&i.WarrantyID,
 		&i.ClaimNo,
 		&i.ClaimDate,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.Status,
 		&i.Remarks,
 		&i.CreatedAt,
@@ -341,26 +343,28 @@ func (q *Queries) UpdateClaim(ctx context.Context, arg *UpdateClaimParams) (*Cla
 const updateClaimApproval = `-- name: UpdateClaimApproval :one
 UPDATE claims
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
+RETURNING id, warranty_id, claim_no, claim_date, approval_status, status, remarks, created_at, updated_at
 `
 
 type UpdateClaimApprovalParams struct {
-	ID         int32 `db:"id" json:"id"`
-	IsApproved bool  `db:"is_approved" json:"isApproved"`
+	ID             int32                 `db:"id" json:"id"`
+	ApprovalStatus models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks        *string               `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateClaimApproval(ctx context.Context, arg *UpdateClaimApprovalParams) (*Claim, error) {
-	row := q.db.QueryRow(ctx, updateClaimApproval, arg.ID, arg.IsApproved)
+	row := q.db.QueryRow(ctx, updateClaimApproval, arg.ID, arg.ApprovalStatus, arg.Remarks)
 	var i Claim
 	err := row.Scan(
 		&i.ID,
 		&i.WarrantyID,
 		&i.ClaimNo,
 		&i.ClaimDate,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.Status,
 		&i.Remarks,
 		&i.CreatedAt,
@@ -375,7 +379,7 @@ SET
     status = $2,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, warranty_id, claim_no, claim_date, is_approved, status, remarks, created_at, updated_at
+RETURNING id, warranty_id, claim_no, claim_date, approval_status, status, remarks, created_at, updated_at
 `
 
 type UpdateClaimStatusParams struct {
@@ -391,7 +395,7 @@ func (q *Queries) UpdateClaimStatus(ctx context.Context, arg *UpdateClaimStatusP
 		&i.WarrantyID,
 		&i.ClaimNo,
 		&i.ClaimDate,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.Status,
 		&i.Remarks,
 		&i.CreatedAt,
@@ -411,7 +415,7 @@ SET
     resolution_image_url = $7,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at
+RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, approval_status, created_at, updated_at
 `
 
 type UpdateClaimWarrantyPartParams struct {
@@ -444,7 +448,7 @@ func (q *Queries) UpdateClaimWarrantyPart(ctx context.Context, arg *UpdateClaimW
 		&i.Remarks,
 		&i.ResolutionDate,
 		&i.ResolutionImageUrl,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -454,19 +458,21 @@ func (q *Queries) UpdateClaimWarrantyPart(ctx context.Context, arg *UpdateClaimW
 const updateClaimWarrantyPartApproval = `-- name: UpdateClaimWarrantyPartApproval :one
 UPDATE claim_warranty_parts
 SET
-    is_approved = $2,
+    approval_status = $2,
+    remarks = $3,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at
+RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, approval_status, created_at, updated_at
 `
 
 type UpdateClaimWarrantyPartApprovalParams struct {
-	ID         int32 `db:"id" json:"id"`
-	IsApproved bool  `db:"is_approved" json:"isApproved"`
+	ID             int32                 `db:"id" json:"id"`
+	ApprovalStatus models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks        *string               `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateClaimWarrantyPartApproval(ctx context.Context, arg *UpdateClaimWarrantyPartApprovalParams) (*ClaimWarrantyPart, error) {
-	row := q.db.QueryRow(ctx, updateClaimWarrantyPartApproval, arg.ID, arg.IsApproved)
+	row := q.db.QueryRow(ctx, updateClaimWarrantyPartApproval, arg.ID, arg.ApprovalStatus, arg.Remarks)
 	var i ClaimWarrantyPart
 	err := row.Scan(
 		&i.ID,
@@ -477,7 +483,7 @@ func (q *Queries) UpdateClaimWarrantyPartApproval(ctx context.Context, arg *Upda
 		&i.Remarks,
 		&i.ResolutionDate,
 		&i.ResolutionImageUrl,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -490,7 +496,7 @@ SET
     status = $2,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, is_approved, created_at, updated_at
+RETURNING id, claim_id, warranty_part_id, damaged_image_url, status, remarks, resolution_date, resolution_image_url, approval_status, created_at, updated_at
 `
 
 type UpdateClaimWarrantyPartStatusParams struct {
@@ -510,7 +516,7 @@ func (q *Queries) UpdateClaimWarrantyPartStatus(ctx context.Context, arg *Update
 		&i.Remarks,
 		&i.ResolutionDate,
 		&i.ResolutionImageUrl,
-		&i.IsApproved,
+		&i.ApprovalStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -26,7 +26,7 @@ export default function ClaimDetailsPage() {
     show: boolean;
     type: "claim-approval" | "claim-status" | "part-approval" | "part-status";
     id: number;
-    currentValue: boolean;
+    currentValue: string;
     title: string;
     message: string;
   } | null>(null);
@@ -59,7 +59,7 @@ export default function ClaimDetailsPage() {
     setIsUpdating(true);
     try {
       let result;
-      const newValue = !confirmModal.currentValue;
+      const newValue = confirmModal.currentValue;
 
       switch (confirmModal.type) {
         case "claim-approval":
@@ -67,14 +67,17 @@ export default function ClaimDetailsPage() {
           if (result.success) {
             setClaimData({
               ...claimData,
-              claim: { ...claimData.claim, isApproved: newValue },
+              claim: { ...claimData.claim, approvalStatus: newValue },
             });
             showToast("Claim approval status updated successfully", "success");
           }
           break;
 
         case "claim-status":
-          result = await updateClaimStatusAction(confirmModal.id, newValue);
+          result = await updateClaimStatusAction(
+            confirmModal.id,
+            newValue.toLowerCase() === "open",
+          );
           console.log("Update claim status result:", newValue);
           if (result.success) {
             setClaimData({
@@ -85,29 +88,31 @@ export default function ClaimDetailsPage() {
               },
             });
             showToast("Claim status updated successfully", "success");
+            // router.refresh();
           }
           break;
 
         case "part-approval":
           result = await updateClaimWarrantyPartApprovalAction(
             confirmModal.id,
-            newValue
+            newValue,
           );
           if (result.success) {
             setClaimData({
               ...claimData,
               parts: claimData.parts.map((p) =>
-                p.id === confirmModal.id ? { ...p, isApproved: newValue } : p
+                p.id === confirmModal.id ? { ...p, isApproved: newValue } : p,
               ),
             });
             showToast("Part approval status updated successfully", "success");
+            // router.refresh();
           }
           break;
 
         case "part-status":
           result = await updateClaimWarrantyPartStatusAction(
             confirmModal.id,
-            newValue
+            newValue.toLowerCase() === "open",
           );
           if (result.success) {
             setClaimData({
@@ -115,10 +120,12 @@ export default function ClaimDetailsPage() {
               parts: claimData.parts.map((p) =>
                 p.id === confirmModal.id
                   ? { ...p, status: newValue ? "open" : "closed" }
-                  : p
+                  : p,
               ),
             });
             showToast("Part status updated successfully", "success");
+            // refresh the page to reflect changes
+            // router.refresh();
           }
           break;
       }
@@ -282,12 +289,17 @@ export default function ClaimDetailsPage() {
               <p className="mt-1">
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    claimData.claim.isApproved
+                    claimData.claim.approvalStatus === "APPROVED"
                       ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
+                      : claimData.claim.approvalStatus === "PENDING"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {claimData.claim.isApproved ? "Approved" : "Not Approved"}
+                  {claimData.claim.approvalStatus
+                    ? claimData.claim.approvalStatus.charAt(0).toUpperCase() +
+                      claimData.claim.approvalStatus.slice(1).toLowerCase()
+                    : "N/A"}
                 </span>
               </p>
             </div>
@@ -325,7 +337,7 @@ export default function ClaimDetailsPage() {
               </label>
               <p className="mt-1 text-base text-gray-900">
                 {new Date(
-                  claimData.claim.installationDate
+                  claimData.claim.installationDate,
                 ).toLocaleDateString()}
               </p>
             </div>
@@ -388,15 +400,15 @@ export default function ClaimDetailsPage() {
                           show: true,
                           type: "claim-approval",
                           id: claimData.claim.id,
-                          currentValue: claimData.claim.isApproved,
+                          currentValue: "APPROVED",
                           title: "Approve Claim?",
                           message:
                             "Are you sure you want to approve this claim?",
                         })
                       }
-                      disabled={claimData.claim.isApproved}
+                      disabled={claimData.claim.approvalStatus === "APPROVED"}
                       className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        claimData.claim.isApproved
+                        claimData.claim.approvalStatus === "APPROVED"
                           ? "bg-green-100 text-green-800   cursor-not-allowed opacity-60"
                           : "bg-green-600 text-white hover:bg-green-700"
                       }`}
@@ -414,7 +426,9 @@ export default function ClaimDetailsPage() {
                           d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      {claimData.claim.isApproved ? "Approved" : "Approve"}
+                      {claimData.claim.approvalStatus === "APPROVED"
+                        ? "Approved"
+                        : "Approve"}
                     </button>
                     <button
                       onClick={() =>
@@ -422,17 +436,17 @@ export default function ClaimDetailsPage() {
                           show: true,
                           type: "claim-approval",
                           id: claimData.claim.id,
-                          currentValue: claimData.claim.isApproved,
+                          currentValue: "REJECTED",
                           title: "Unapprove Claim?",
                           message:
                             "Are you sure you want to mark this claim as not approved?",
                         })
                       }
-                      disabled={!claimData.claim.isApproved}
+                      disabled={claimData.claim.approvalStatus === "REJECTED"}
                       className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        !claimData.claim.isApproved
+                        claimData.claim.approvalStatus === "REJECTED"
                           ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
-                          : "bg-yellow-600 text-white hover:bg-yellow-700"
+                          : "bg-red-600 text-white hover:bg-red-700"
                       }`}
                     >
                       <svg
@@ -448,9 +462,7 @@ export default function ClaimDetailsPage() {
                           d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      {!claimData.claim.isApproved
-                        ? "Not Approved"
-                        : "Unapprove"}
+                      REJECT
                     </button>
                   </div>
                 </div>
@@ -470,8 +482,8 @@ export default function ClaimDetailsPage() {
                           show: true,
                           type: "claim-status",
                           id: claimData.claim.id,
-                          currentValue:
-                            claimData.claim.status.toLowerCase() === "open",
+                          currentValue: "open",
+                          // claimData.claim.status.toLowerCase() === "open",
                           title: "Open Claim?",
                           message: "Are you sure you want to open this claim?",
                         })
@@ -504,8 +516,7 @@ export default function ClaimDetailsPage() {
                           show: true,
                           type: "claim-status",
                           id: claimData.claim.id,
-                          currentValue:
-                            claimData.claim.status.toLowerCase() === "open",
+                          currentValue: "closed",
                           title: "Close Claim?",
                           message: "Are you sure you want to close this claim?",
                         })
@@ -676,12 +687,12 @@ export default function ClaimDetailsPage() {
                       </span>
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
-                          part.isApproved
+                          part.approvalStatus === "APPROVED"
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {part.isApproved ? "Approved" : "Not Approved"}
+                        {part.approvalStatus.toUpperCase()}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -693,8 +704,8 @@ export default function ClaimDetailsPage() {
                           part.status === "approved"
                             ? "bg-green-100 text-green-800"
                             : part.status === "rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-blue-100 text-blue-800"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-blue-100 text-blue-800"
                         }`}
                       >
                         {part.status?.toUpperCase() || "PENDING"}
@@ -786,14 +797,14 @@ export default function ClaimDetailsPage() {
                                   show: true,
                                   type: "part-approval",
                                   id: part.id,
-                                  currentValue: part.isApproved,
+                                  currentValue: "APPROVED",
                                   title: "Approve Part?",
                                   message: `Are you sure you want to approve"${part.carPartName}"?`,
                                 })
                               }
-                              disabled={part.isApproved}
+                              disabled={part.approvalStatus === "APPROVED"}
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                                part.isApproved
+                                part.approvalStatus === "APPROVED"
                                   ? "bg-green-100 text-green-800   cursor-not-allowed opacity-60"
                                   : "bg-green-600 text-white hover:bg-green-700"
                               }`}
@@ -811,7 +822,9 @@ export default function ClaimDetailsPage() {
                                   d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                               </svg>
-                              {part.isApproved ? "Approved" : "Approve"}
+                              {part.approvalStatus === "APPROVED"
+                                ? "Approved"
+                                : "Approve"}
                             </button>
                             <button
                               onClick={() =>
@@ -819,16 +832,16 @@ export default function ClaimDetailsPage() {
                                   show: true,
                                   type: "part-approval",
                                   id: part.id,
-                                  currentValue: part.isApproved,
-                                  title: "Unapprove Part?",
+                                  currentValue: "REJECTED",
+                                  title: "Reject Part?",
                                   message: `Are you sure you want to mark"${part.carPartName}" as not approved?`,
                                 })
                               }
-                              disabled={!part.isApproved}
+                              disabled={part.approvalStatus === "REJECTED"}
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                                !part.isApproved
+                                part.approvalStatus !== "APPROVED"
                                   ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
-                                  : "bg-yellow-600 text-white hover:bg-yellow-700"
+                                  : "bg-red-600 text-white hover:bg-red-700"
                               }`}
                             >
                               <svg
@@ -844,7 +857,7 @@ export default function ClaimDetailsPage() {
                                   d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                               </svg>
-                              {!part.isApproved ? "Not Approved" : "Unapprove"}
+                              REJECT
                             </button>
                           </div>
                         </div>
@@ -862,8 +875,7 @@ export default function ClaimDetailsPage() {
                                   show: true,
                                   type: "part-status",
                                   id: part.id,
-                                  currentValue:
-                                    part.status.toLowerCase() === "open",
+                                  currentValue: "open",
                                   title: "Open Part?",
                                   message: `Are you sure you want to open"${part.carPartName}"?`,
                                 })
@@ -896,8 +908,7 @@ export default function ClaimDetailsPage() {
                                   show: true,
                                   type: "part-status",
                                   id: part.id,
-                                  currentValue:
-                                    part.status.toLowerCase() === "open",
+                                  currentValue: "closed",
                                   title: "Close Part?",
                                   message: `Are you sure you want to close"${part.carPartName}"?`,
                                 })
@@ -966,14 +977,14 @@ export default function ClaimDetailsPage() {
                         show: true,
                         type: "claim-approval",
                         id: claimData.claim.id,
-                        currentValue: claimData.claim.isApproved,
+                        currentValue: "APPROVED",
                         title: "Approve Claim?",
                         message: "Are you sure you want to approve this claim?",
                       })
                     }
-                    disabled={claimData.claim.isApproved}
+                    disabled={claimData.claim.approvalStatus === "APPROVED"}
                     className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      claimData.claim.isApproved
+                      claimData.claim.approvalStatus === "APPROVED"
                         ? "bg-green-100 text-green-800   cursor-not-allowed opacity-60"
                         : "bg-green-600 text-white hover:bg-green-700"
                     }`}
@@ -991,7 +1002,9 @@ export default function ClaimDetailsPage() {
                         d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    {claimData.claim.isApproved ? "Approved" : "Approve"}
+                    {claimData.claim.approvalStatus === "APPROVED"
+                      ? "Approved"
+                      : "Approve"}
                   </button>
                   <button
                     onClick={() =>
@@ -999,17 +1012,17 @@ export default function ClaimDetailsPage() {
                         show: true,
                         type: "claim-approval",
                         id: claimData.claim.id,
-                        currentValue: claimData.claim.isApproved,
+                        currentValue: "REJECTED",
                         title: "Unapprove Claim?",
                         message:
                           "Are you sure you want to mark this claim as not approved?",
                       })
                     }
-                    disabled={!claimData.claim.isApproved}
+                    disabled={claimData.claim.approvalStatus !== "APPROVED"}
                     className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      !claimData.claim.isApproved
+                      claimData.claim.approvalStatus !== "APPROVED"
                         ? "bg-gray-100 text-gray-800   cursor-not-allowed opacity-60"
-                        : "bg-yellow-600 text-white hover:bg-yellow-700"
+                        : "bg-red-600 text-white hover:bg-red-700"
                     }`}
                   >
                     <svg
@@ -1025,7 +1038,7 @@ export default function ClaimDetailsPage() {
                         d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    {!claimData.claim.isApproved ? "Not Approved" : "Unapprove"}
+                    REJECT
                   </button>
                 </div>
               </div>
@@ -1045,8 +1058,7 @@ export default function ClaimDetailsPage() {
                         show: true,
                         type: "claim-status",
                         id: claimData.claim.id,
-                        currentValue:
-                          claimData.claim.status.toLowerCase() === "open",
+                        currentValue: claimData.claim.status,
                         title: "Open Claim?",
                         message: "Are you sure you want to open this claim?",
                       })
@@ -1079,8 +1091,7 @@ export default function ClaimDetailsPage() {
                         show: true,
                         type: "claim-status",
                         id: claimData.claim.id,
-                        currentValue:
-                          claimData.claim.status.toLowerCase() === "open",
+                        currentValue: claimData.claim.status,
                         title: "Close Claim?",
                         message: "Are you sure you want to close this claim?",
                       })

@@ -786,10 +786,7 @@ func seedClaims(ctx context.Context, svc services.ClaimsService, warrantySvc ser
 
 		claimWarrantyPartsParms := []*claims.CreateClaimWarrantyPartParams{}
 		// Each claim affects 1-3 parts
-		numParts := rand.Intn(3) + 1
-		if numParts > len(warrantyParts) {
-			numParts = len(warrantyParts)
-		}
+		numParts := min(rand.Intn(3)+1, len(warrantyParts))
 
 		for j := 0; j < numParts; j++ {
 			part := warrantyParts[rand.Intn(len(warrantyParts))]

@@ -41,11 +41,11 @@ export async function updateClaimAction(data: UpdateClaimWithPartsRequest) {
 
 export async function updateClaimApprovalAction(
   claimId: number,
-  isApproved: boolean
+  approvalStatus: string,
 ) {
   try {
     const response = await apiClient.put(`/claims/${claimId}/approval`, {
-      isApproved,
+      approvalStatus,
     });
     return { success: true, data: response.data };
   } catch (error: any) {
@@ -62,12 +62,12 @@ export async function updateClaimApprovalAction(
 
 export async function updateClaimWarrantyPartApprovalAction(
   partId: number,
-  isApproved: boolean
+  approvalStatus: string,
 ) {
   try {
     const response = await apiClient.put(
       `/claims/claim-warranty-parts/${partId}/approval`,
-      { isApproved }
+      { approvalStatus },
     );
     return { success: true, data: response.data };
   } catch (error: any) {
@@ -86,7 +86,7 @@ export async function updateClaimWarrantyPartApprovalAction(
 
 export async function updateClaimStatusAction(
   claimId: number,
-  isOpen: boolean
+  isOpen: boolean,
 ) {
   try {
     const response = await apiClient.put(`/claims/${claimId}/status`, {
@@ -107,12 +107,12 @@ export async function updateClaimStatusAction(
 
 export async function updateClaimWarrantyPartStatusAction(
   partId: number,
-  isOpen: boolean
+  isOpen: boolean,
 ) {
   try {
     const response = await apiClient.put(
       `/claims/claim-warranty-parts/${partId}/status`,
-      { isOpen }
+      { isOpen },
     );
     return { success: true, data: response.data };
   } catch (error: any) {

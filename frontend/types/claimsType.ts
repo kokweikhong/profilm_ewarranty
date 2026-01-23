@@ -3,7 +3,7 @@ export interface ClaimView {
   warrantyId: number;
   claimNo: string;
   claimDate: string;
-  isApproved: boolean;
+  approvalStatus: string;
   status: string;
   remarks?: string;
   createdAt: string;
@@ -32,7 +32,7 @@ export interface ClaimWarrantyPartsView {
   remarks?: string;
   resolutionDate?: string;
   resolutionImageUrl?: string;
-  isApproved: boolean;
+  approvalStatus: string;
   createdAt: string;
   updatedAt: string;
   installationImageUrl: string;
@@ -129,7 +129,7 @@ export interface ClaimDetail {
   warrantyId: number;
   claimNo: string;
   claimDate: string;
-  isApproved: boolean;
+  approvalStatus: string;
   status: string;
   remarks?: string;
   createdAt: string;
@@ -147,7 +147,7 @@ export interface ClaimWarrantyPartDetail {
   remarks?: string;
   resolutionDate?: string;
   resolutionImageUrl?: string;
-  isApproved: boolean;
+  approvalStatus: string;
   createdAt: string;
   updatedAt: string;
   installationImageUrl: string;

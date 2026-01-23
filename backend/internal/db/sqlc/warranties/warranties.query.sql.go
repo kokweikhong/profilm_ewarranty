@@ -8,6 +8,8 @@ package warranties
 import (
 	"context"
 	"time"
+
+	models "github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
 )
 
 const createWarranty = `-- name: CreateWarranty :one
@@ -208,27 +210,27 @@ ORDER BY w.created_at DESC
 `
 
 type GetWarrantiesByExactSearchRow struct {
-	ID                   int32                  `db:"id" json:"id"`
-	ShopID               int32                  `db:"shop_id" json:"shopId"`
-	ClientName           string                 `db:"client_name" json:"clientName"`
-	ClientContact        string                 `db:"client_contact" json:"clientContact"`
-	ClientEmail          string                 `db:"client_email" json:"clientEmail"`
-	CarBrand             string                 `db:"car_brand" json:"carBrand"`
-	CarModel             string                 `db:"car_model" json:"carModel"`
-	CarColour            string                 `db:"car_colour" json:"carColour"`
-	CarPlateNo           string                 `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string                 `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time              `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string                `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string                 `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string                 `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
-	IsActive             bool                   `db:"is_active" json:"isActive"`
-	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks              *string                `db:"remarks" json:"remarks"`
-	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
-	ShopName             string                 `db:"shop_name" json:"shopName"`
-	BranchCode           string                 `db:"branch_code" json:"branchCode"`
+	ID                   int32                 `db:"id" json:"id"`
+	ShopID               int32                 `db:"shop_id" json:"shopId"`
+	ClientName           string                `db:"client_name" json:"clientName"`
+	ClientContact        string                `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                `db:"client_email" json:"clientEmail"`
+	CarBrand             string                `db:"car_brand" json:"carBrand"`
+	CarModel             string                `db:"car_model" json:"carModel"`
+	CarColour            string                `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time             `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string               `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool                  `db:"is_active" json:"isActive"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
+	ShopName             string                `db:"shop_name" json:"shopName"`
+	BranchCode           string                `db:"branch_code" json:"branchCode"`
 }
 
 func (q *Queries) GetWarrantiesByExactSearch(ctx context.Context, lower string) ([]*GetWarrantiesByExactSearchRow, error) {
@@ -285,27 +287,27 @@ ORDER BY w.created_at DESC
 `
 
 type GetWarrantiesByShopIDRow struct {
-	ID                   int32                  `db:"id" json:"id"`
-	ShopID               int32                  `db:"shop_id" json:"shopId"`
-	ClientName           string                 `db:"client_name" json:"clientName"`
-	ClientContact        string                 `db:"client_contact" json:"clientContact"`
-	ClientEmail          string                 `db:"client_email" json:"clientEmail"`
-	CarBrand             string                 `db:"car_brand" json:"carBrand"`
-	CarModel             string                 `db:"car_model" json:"carModel"`
-	CarColour            string                 `db:"car_colour" json:"carColour"`
-	CarPlateNo           string                 `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string                 `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time              `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string                `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string                 `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string                 `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
-	IsActive             bool                   `db:"is_active" json:"isActive"`
-	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks              *string                `db:"remarks" json:"remarks"`
-	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
-	ShopName             string                 `db:"shop_name" json:"shopName"`
-	BranchCode           string                 `db:"branch_code" json:"branchCode"`
+	ID                   int32                 `db:"id" json:"id"`
+	ShopID               int32                 `db:"shop_id" json:"shopId"`
+	ClientName           string                `db:"client_name" json:"clientName"`
+	ClientContact        string                `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                `db:"client_email" json:"clientEmail"`
+	CarBrand             string                `db:"car_brand" json:"carBrand"`
+	CarModel             string                `db:"car_model" json:"carModel"`
+	CarColour            string                `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time             `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string               `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool                  `db:"is_active" json:"isActive"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
+	ShopName             string                `db:"shop_name" json:"shopName"`
+	BranchCode           string                `db:"branch_code" json:"branchCode"`
 }
 
 func (q *Queries) GetWarrantiesByShopID(ctx context.Context, shopID int32) ([]*GetWarrantiesByShopIDRow, error) {
@@ -431,23 +433,23 @@ WHERE wp.warranty_id = $1
 `
 
 type GetWarrantyPartsByWarrantyIDRow struct {
-	ID                   int32                  `db:"id" json:"id"`
-	WarrantyID           int32                  `db:"warranty_id" json:"warrantyId"`
-	ProductAllocationID  int32                  `db:"product_allocation_id" json:"productAllocationId"`
-	CarPartID            int32                  `db:"car_part_id" json:"carPartId"`
-	InstallationImageUrl string                 `db:"installation_image_url" json:"installationImageUrl"`
-	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks              *string                `db:"remarks" json:"remarks"`
-	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
-	CarPartName          string                 `db:"car_part_name" json:"carPartName"`
-	CarPartCode          string                 `db:"car_part_code" json:"carPartCode"`
-	FilmSerialNumber     string                 `db:"film_serial_number" json:"filmSerialNumber"`
-	WarrantyInMonths     int32                  `db:"warranty_in_months" json:"warrantyInMonths"`
-	ProductBrand         string                 `db:"product_brand" json:"productBrand"`
-	ProductType          string                 `db:"product_type" json:"productType"`
-	ProductSeries        string                 `db:"product_series" json:"productSeries"`
-	ProductName          string                 `db:"product_name" json:"productName"`
+	ID                   int32                 `db:"id" json:"id"`
+	WarrantyID           int32                 `db:"warranty_id" json:"warrantyId"`
+	ProductAllocationID  int32                 `db:"product_allocation_id" json:"productAllocationId"`
+	CarPartID            int32                 `db:"car_part_id" json:"carPartId"`
+	InstallationImageUrl string                `db:"installation_image_url" json:"installationImageUrl"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
+	CarPartName          string                `db:"car_part_name" json:"carPartName"`
+	CarPartCode          string                `db:"car_part_code" json:"carPartCode"`
+	FilmSerialNumber     string                `db:"film_serial_number" json:"filmSerialNumber"`
+	WarrantyInMonths     int32                 `db:"warranty_in_months" json:"warrantyInMonths"`
+	ProductBrand         string                `db:"product_brand" json:"productBrand"`
+	ProductType          string                `db:"product_type" json:"productType"`
+	ProductSeries        string                `db:"product_series" json:"productSeries"`
+	ProductName          string                `db:"product_name" json:"productName"`
 }
 
 func (q *Queries) GetWarrantyPartsByWarrantyID(ctx context.Context, warrantyID int32) ([]*GetWarrantyPartsByWarrantyIDRow, error) {
@@ -499,27 +501,27 @@ ORDER BY w.created_at DESC
 `
 
 type ListWarrantiesRow struct {
-	ID                   int32                  `db:"id" json:"id"`
-	ShopID               int32                  `db:"shop_id" json:"shopId"`
-	ClientName           string                 `db:"client_name" json:"clientName"`
-	ClientContact        string                 `db:"client_contact" json:"clientContact"`
-	ClientEmail          string                 `db:"client_email" json:"clientEmail"`
-	CarBrand             string                 `db:"car_brand" json:"carBrand"`
-	CarModel             string                 `db:"car_model" json:"carModel"`
-	CarColour            string                 `db:"car_colour" json:"carColour"`
-	CarPlateNo           string                 `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string                 `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time              `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string                `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string                 `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string                 `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
-	IsActive             bool                   `db:"is_active" json:"isActive"`
-	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks              *string                `db:"remarks" json:"remarks"`
-	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
-	ShopName             string                 `db:"shop_name" json:"shopName"`
-	BranchCode           string                 `db:"branch_code" json:"branchCode"`
+	ID                   int32                 `db:"id" json:"id"`
+	ShopID               int32                 `db:"shop_id" json:"shopId"`
+	ClientName           string                `db:"client_name" json:"clientName"`
+	ClientContact        string                `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                `db:"client_email" json:"clientEmail"`
+	CarBrand             string                `db:"car_brand" json:"carBrand"`
+	CarModel             string                `db:"car_model" json:"carModel"`
+	CarColour            string                `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time             `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string               `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool                  `db:"is_active" json:"isActive"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
+	ShopName             string                `db:"shop_name" json:"shopName"`
+	BranchCode           string                `db:"branch_code" json:"branchCode"`
 }
 
 func (q *Queries) ListWarranties(ctx context.Context) ([]*ListWarrantiesRow, error) {
@@ -658,9 +660,9 @@ RETURNING id, shop_id, client_name, client_contact, client_email, car_brand, car
 `
 
 type UpdateWarrantyApprovalParams struct {
-	ID             int32                  `db:"id" json:"id"`
-	ApprovalStatus WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks        *string                `db:"remarks" json:"remarks"`
+	ID             int32                 `db:"id" json:"id"`
+	ApprovalStatus models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks        *string               `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateWarrantyApproval(ctx context.Context, arg *UpdateWarrantyApprovalParams) (*Warranty, error) {
@@ -747,9 +749,9 @@ RETURNING id, warranty_id, product_allocation_id, car_part_id, installation_imag
 `
 
 type UpdateWarrantyPartApprovalParams struct {
-	ID             int32                  `db:"id" json:"id"`
-	ApprovalStatus WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks        *string                `db:"remarks" json:"remarks"`
+	ID             int32                 `db:"id" json:"id"`
+	ApprovalStatus models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks        *string               `db:"remarks" json:"remarks"`
 }
 
 func (q *Queries) UpdateWarrantyPartApproval(ctx context.Context, arg *UpdateWarrantyPartApprovalParams) (*WarrantyPart, error) {

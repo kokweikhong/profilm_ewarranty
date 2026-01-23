@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/claims"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
 	"github.com/kokweikhong/profilm_ewarranty/backend/pkg/utils"
 )
 
@@ -150,15 +151,15 @@ func (r *UpdateClaimWithPartsRequest) ToUpdateClaimParamsAndParts(id int32) (*cl
 
 // UpdateClaimApprovalRequest represents the request body for updating claim approval
 type UpdateClaimApprovalRequest struct {
-	ID         int32 `json:"id" binding:"required"`
-	IsApproved bool  `json:"isApproved"`
+	ID             int32  `json:"id" binding:"required"`
+	ApprovalStatus string `json:"approvalStatus" binding:"required"`
 }
 
 // ToUpdateClaimApprovalParams converts UpdateClaimApprovalRequest to claims.UpdateClaimApprovalParams
 func (r *UpdateClaimApprovalRequest) ToUpdateClaimApprovalParams() *claims.UpdateClaimApprovalParams {
 	return &claims.UpdateClaimApprovalParams{
-		ID:         r.ID,
-		IsApproved: r.IsApproved,
+		ID:             r.ID,
+		ApprovalStatus: models.ApprovalStatus(r.ApprovalStatus),
 	}
 }
 
@@ -227,15 +228,15 @@ func (r *UpdateClaimApprovalRequest) ToUpdateClaimApprovalParams() *claims.Updat
 
 // UpdateClaimWarrantyPartApprovalRequest represents the request body for updating claim warranty part approval
 type UpdateClaimWarrantyPartApprovalRequest struct {
-	ID         int32 `json:"id" binding:"required"`
-	IsApproved bool  `json:"isApproved"`
+	ID             int32  `json:"id" binding:"required"`
+	ApprovalStatus string `json:"approvalStatus" binding:"required"`
 }
 
 // ToUpdateClaimWarrantyPartApprovalParams converts UpdateClaimWarrantyPartApprovalRequest to claims.UpdateClaimWarrantyPartApprovalParams
 func (r *UpdateClaimWarrantyPartApprovalRequest) ToUpdateClaimWarrantyPartApprovalParams() *claims.UpdateClaimWarrantyPartApprovalParams {
 	return &claims.UpdateClaimWarrantyPartApprovalParams{
-		ID:         r.ID,
-		IsApproved: r.IsApproved,
+		ID:             r.ID,
+		ApprovalStatus: models.ApprovalStatus(r.ApprovalStatus),
 	}
 }
 

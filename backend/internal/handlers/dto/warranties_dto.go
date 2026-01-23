@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/warranties"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
 )
 
 // CreateWarrantyRequest represents the request body for creating a warranty
@@ -97,7 +98,7 @@ type UpdateWarrantyApprovalRequest struct {
 func (r *UpdateWarrantyApprovalRequest) ToUpdateWarrantyApprovalParams(id int32) *warranties.UpdateWarrantyApprovalParams {
 	return &warranties.UpdateWarrantyApprovalParams{
 		ID:             id,
-		ApprovalStatus: warranties.WarrantyApprovalStatus(r.ApprovalStatus),
+		ApprovalStatus: models.ApprovalStatus(r.ApprovalStatus),
 		Remarks:        r.Remarks,
 	}
 }
@@ -150,7 +151,7 @@ type UpdateWarrantyPartApprovalRequest struct {
 func (r *UpdateWarrantyPartApprovalRequest) ToUpdateWarrantyPartApprovalParams(id int32) *warranties.UpdateWarrantyPartApprovalParams {
 	return &warranties.UpdateWarrantyPartApprovalParams{
 		ID:             id,
-		ApprovalStatus: warranties.WarrantyApprovalStatus(r.ApprovalStatus),
+		ApprovalStatus: models.ApprovalStatus(r.ApprovalStatus),
 		Remarks:        r.Remarks,
 	}
 }

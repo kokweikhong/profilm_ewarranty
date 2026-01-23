@@ -149,7 +149,7 @@ export default function Page() {
                   Approved
                 </dt>
                 <dd className="text-2xl font-bold text-gray-900">
-                  {claims.filter((c) => c.isApproved).length}
+                  {claims.filter((c) => c.approvalStatus === "APPROVED").length}
                 </dd>
               </dl>
             </div>
@@ -180,7 +180,7 @@ export default function Page() {
                   Pending
                 </dt>
                 <dd className="text-2xl font-bold text-gray-900">
-                  {claims.filter((c) => !c.isApproved).length}
+                  {claims.filter((c) => c.approvalStatus === "PENDING").length}
                 </dd>
               </dl>
             </div>
@@ -239,7 +239,7 @@ export default function Page() {
                               >
                                 {flexRender(
                                   header.column.columnDef.header,
-                                  header.getContext()
+                                  header.getContext(),
                                 )}
                                 {header.column.getCanSort() && (
                                   <span className="ml-2 flex-none rounded text-gray-400 group-hover:text-primary">
@@ -334,7 +334,7 @@ export default function Page() {
                             >
                               {flexRender(
                                 cell.column.columnDef.cell,
-                                cell.getContext()
+                                cell.getContext(),
                               )}
                             </td>
                           ))}

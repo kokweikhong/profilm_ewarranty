@@ -22,6 +22,16 @@ overrides:
         go_type: "int32"
       - db_type: "int"
         go_type: "int32"
+      - db_type: "warranty_approval_status"
+        go_type:
+          import: "github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
+          package: "models"
+          type: "ApprovalStatus"
+      - db_type: "claim_approval_status"
+        go_type:
+          import: "github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
+          package: "models"
+          type: "ApprovalStatus"
 
 sql:
   - engine: "postgresql"

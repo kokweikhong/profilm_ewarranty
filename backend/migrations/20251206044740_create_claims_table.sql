@@ -1,11 +1,23 @@
 -- +goose Up
 -- +goose StatementBegin
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'claim_approval_status') THEN
+        CREATE TYPE claim_approval_status AS ENUM (
+            'PENDING',
+            'APPROVED',
+            'REJECTED'
+        );
+    END IF;
+END
+$$;
+
 CREATE TABLE IF NOT EXISTS claims (
     id SERIAL PRIMARY KEY,
     warranty_id INT NOT NULL,
     claim_no VARCHAR(100) UNIQUE NOT NULL,
     claim_date DATE NOT NULL,
-    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
+    approval_status claim_approval_status NOT NULL DEFAULT 'PENDING',
     status VARCHAR(50) NOT NULL DEFAULT 'Open', -- e.g., Open, Closed.
     remarks TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -22,7 +34,7 @@ CREATE TABLE IF NOT EXISTS claim_warranty_parts (
     remarks TEXT,
     resolution_date DATE,
     resolution_image_url VARCHAR(255),
-    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
+    approval_status claim_approval_status NOT NULL DEFAULT 'PENDING',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (claim_id) REFERENCES claims(id),
@@ -83,4 +95,5 @@ DROP TABLE IF EXISTS claim_warranty_parts CASCADE;
 DROP TABLE IF EXISTS claims CASCADE;
 DROP VIEW IF EXISTS claim_view;
 DROP VIEW IF EXISTS claim_warranty_parts_view;
+DROP TYPE IF EXISTS claim_approval_status;
 -- +goose StatementEnd

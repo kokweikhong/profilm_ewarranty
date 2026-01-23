@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/warranties"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
 )
 
 type WarrantiesService interface {
@@ -137,7 +138,7 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 					// mark part as pending approval
 					_, err = qtx.UpdateWarrantyPartApproval(ctx, &warranties.UpdateWarrantyPartApprovalParams{
 						ID:             existingPart.ID,
-						ApprovalStatus: warranties.WarrantyApprovalStatusPENDING,
+						ApprovalStatus: models.ApprovalStatusPending,
 					})
 					if err != nil {
 						tx.Rollback(ctx)
@@ -240,7 +241,7 @@ func (s *warrantiesService) UpdateWarrantyPart(ctx context.Context, arg *warrant
 	// update the warranty approval status to pending when a part is updated
 	_, err = s.q.UpdateWarrantyApproval(ctx, &warranties.UpdateWarrantyApprovalParams{
 		ID:             result.WarrantyID,
-		ApprovalStatus: warranties.WarrantyApprovalStatusPENDING,
+		ApprovalStatus: models.ApprovalStatusPending,
 	})
 	if err != nil {
 		tx.Rollback(ctx)
@@ -249,7 +250,7 @@ func (s *warrantiesService) UpdateWarrantyPart(ctx context.Context, arg *warrant
 
 	_, err = s.q.UpdateWarrantyPartApproval(ctx, &warranties.UpdateWarrantyPartApprovalParams{
 		ID:             result.ID,
-		ApprovalStatus: warranties.WarrantyApprovalStatusPENDING,
+		ApprovalStatus: models.ApprovalStatusPending,
 	})
 	if err != nil {
 		tx.Rollback(ctx)

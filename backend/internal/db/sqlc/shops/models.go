@@ -5,53 +5,10 @@
 package shops
 
 import (
-	"database/sql/driver"
-	"fmt"
 	"time"
+
+	models "github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
 )
-
-type WarrantyApprovalStatus string
-
-const (
-	WarrantyApprovalStatusPENDING  WarrantyApprovalStatus = "PENDING"
-	WarrantyApprovalStatusAPPROVED WarrantyApprovalStatus = "APPROVED"
-	WarrantyApprovalStatusREJECTED WarrantyApprovalStatus = "REJECTED"
-)
-
-func (e *WarrantyApprovalStatus) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = WarrantyApprovalStatus(s)
-	case string:
-		*e = WarrantyApprovalStatus(s)
-	default:
-		return fmt.Errorf("unsupported scan type for WarrantyApprovalStatus: %T", src)
-	}
-	return nil
-}
-
-type NullWarrantyApprovalStatus struct {
-	WarrantyApprovalStatus WarrantyApprovalStatus `json:"warrantyApprovalStatus"`
-	Valid                  bool                   `json:"valid"` // Valid is true if WarrantyApprovalStatus is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullWarrantyApprovalStatus) Scan(value interface{}) error {
-	if value == nil {
-		ns.WarrantyApprovalStatus, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.WarrantyApprovalStatus.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullWarrantyApprovalStatus) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.WarrantyApprovalStatus), nil
-}
 
 type CarPart struct {
 	ID          int32     `db:"id" json:"id"`
@@ -63,78 +20,78 @@ type CarPart struct {
 }
 
 type Claim struct {
-	ID         int32     `db:"id" json:"id"`
-	WarrantyID int32     `db:"warranty_id" json:"warrantyId"`
-	ClaimNo    string    `db:"claim_no" json:"claimNo"`
-	ClaimDate  time.Time `db:"claim_date" json:"claimDate"`
-	IsApproved bool      `db:"is_approved" json:"isApproved"`
-	Status     string    `db:"status" json:"status"`
-	Remarks    *string   `db:"remarks" json:"remarks"`
-	CreatedAt  time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt  time.Time `db:"updated_at" json:"updatedAt"`
+	ID             int32                 `db:"id" json:"id"`
+	WarrantyID     int32                 `db:"warranty_id" json:"warrantyId"`
+	ClaimNo        string                `db:"claim_no" json:"claimNo"`
+	ClaimDate      time.Time             `db:"claim_date" json:"claimDate"`
+	ApprovalStatus models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Status         string                `db:"status" json:"status"`
+	Remarks        *string               `db:"remarks" json:"remarks"`
+	CreatedAt      time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt      time.Time             `db:"updated_at" json:"updatedAt"`
 }
 
 type ClaimView struct {
-	ID                   int32     `db:"id" json:"id"`
-	WarrantyID           int32     `db:"warranty_id" json:"warrantyId"`
-	ClaimNo              string    `db:"claim_no" json:"claimNo"`
-	ClaimDate            time.Time `db:"claim_date" json:"claimDate"`
-	IsApproved           bool      `db:"is_approved" json:"isApproved"`
-	Status               string    `db:"status" json:"status"`
-	Remarks              *string   `db:"remarks" json:"remarks"`
-	CreatedAt            time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time `db:"updated_at" json:"updatedAt"`
-	ShopID               int32     `db:"shop_id" json:"shopId"`
-	ClientName           string    `db:"client_name" json:"clientName"`
-	ClientContact        string    `db:"client_contact" json:"clientContact"`
-	ClientEmail          string    `db:"client_email" json:"clientEmail"`
-	CarBrand             string    `db:"car_brand" json:"carBrand"`
-	CarModel             string    `db:"car_model" json:"carModel"`
-	CarColour            string    `db:"car_colour" json:"carColour"`
-	CarPlateNo           string    `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string    `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string   `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string    `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string    `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	ID                   int32                 `db:"id" json:"id"`
+	WarrantyID           int32                 `db:"warranty_id" json:"warrantyId"`
+	ClaimNo              string                `db:"claim_no" json:"claimNo"`
+	ClaimDate            time.Time             `db:"claim_date" json:"claimDate"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Status               string                `db:"status" json:"status"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
+	ShopID               int32                 `db:"shop_id" json:"shopId"`
+	ClientName           string                `db:"client_name" json:"clientName"`
+	ClientContact        string                `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                `db:"client_email" json:"clientEmail"`
+	CarBrand             string                `db:"car_brand" json:"carBrand"`
+	CarModel             string                `db:"car_model" json:"carModel"`
+	CarColour            string                `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time             `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string               `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
 }
 
 type ClaimWarrantyPart struct {
-	ID                 int32      `db:"id" json:"id"`
-	ClaimID            int32      `db:"claim_id" json:"claimId"`
-	WarrantyPartID     int32      `db:"warranty_part_id" json:"warrantyPartId"`
-	DamagedImageUrl    string     `db:"damaged_image_url" json:"damagedImageUrl"`
-	Status             string     `db:"status" json:"status"`
-	Remarks            *string    `db:"remarks" json:"remarks"`
-	ResolutionDate     *time.Time `db:"resolution_date" json:"resolutionDate"`
-	ResolutionImageUrl *string    `db:"resolution_image_url" json:"resolutionImageUrl"`
-	IsApproved         bool       `db:"is_approved" json:"isApproved"`
-	CreatedAt          time.Time  `db:"created_at" json:"createdAt"`
-	UpdatedAt          time.Time  `db:"updated_at" json:"updatedAt"`
+	ID                 int32                 `db:"id" json:"id"`
+	ClaimID            int32                 `db:"claim_id" json:"claimId"`
+	WarrantyPartID     int32                 `db:"warranty_part_id" json:"warrantyPartId"`
+	DamagedImageUrl    string                `db:"damaged_image_url" json:"damagedImageUrl"`
+	Status             string                `db:"status" json:"status"`
+	Remarks            *string               `db:"remarks" json:"remarks"`
+	ResolutionDate     *time.Time            `db:"resolution_date" json:"resolutionDate"`
+	ResolutionImageUrl *string               `db:"resolution_image_url" json:"resolutionImageUrl"`
+	ApprovalStatus     models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	CreatedAt          time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt          time.Time             `db:"updated_at" json:"updatedAt"`
 }
 
 type ClaimWarrantyPartsView struct {
-	ID                   int32      `db:"id" json:"id"`
-	ClaimID              int32      `db:"claim_id" json:"claimId"`
-	WarrantyPartID       int32      `db:"warranty_part_id" json:"warrantyPartId"`
-	DamagedImageUrl      string     `db:"damaged_image_url" json:"damagedImageUrl"`
-	Status               string     `db:"status" json:"status"`
-	Remarks              *string    `db:"remarks" json:"remarks"`
-	ResolutionDate       *time.Time `db:"resolution_date" json:"resolutionDate"`
-	ResolutionImageUrl   *string    `db:"resolution_image_url" json:"resolutionImageUrl"`
-	IsApproved           bool       `db:"is_approved" json:"isApproved"`
-	CreatedAt            time.Time  `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time  `db:"updated_at" json:"updatedAt"`
-	InstallationImageUrl string     `db:"installation_image_url" json:"installationImageUrl"`
-	CarPartName          string     `db:"car_part_name" json:"carPartName"`
-	CarPartCode          string     `db:"car_part_code" json:"carPartCode"`
-	ProductAllocationID  int32      `db:"product_allocation_id" json:"productAllocationId"`
-	BrandName            string     `db:"brand_name" json:"brandName"`
-	TypeName             string     `db:"type_name" json:"typeName"`
-	SeriesName           string     `db:"series_name" json:"seriesName"`
-	ProductName          string     `db:"product_name" json:"productName"`
-	FilmSerialNumber     string     `db:"film_serial_number" json:"filmSerialNumber"`
-	WarrantyInMonths     int32      `db:"warranty_in_months" json:"warrantyInMonths"`
+	ID                   int32                 `db:"id" json:"id"`
+	ClaimID              int32                 `db:"claim_id" json:"claimId"`
+	WarrantyPartID       int32                 `db:"warranty_part_id" json:"warrantyPartId"`
+	DamagedImageUrl      string                `db:"damaged_image_url" json:"damagedImageUrl"`
+	Status               string                `db:"status" json:"status"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	ResolutionDate       *time.Time            `db:"resolution_date" json:"resolutionDate"`
+	ResolutionImageUrl   *string               `db:"resolution_image_url" json:"resolutionImageUrl"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
+	InstallationImageUrl string                `db:"installation_image_url" json:"installationImageUrl"`
+	CarPartName          string                `db:"car_part_name" json:"carPartName"`
+	CarPartCode          string                `db:"car_part_code" json:"carPartCode"`
+	ProductAllocationID  int32                 `db:"product_allocation_id" json:"productAllocationId"`
+	BrandName            string                `db:"brand_name" json:"brandName"`
+	TypeName             string                `db:"type_name" json:"typeName"`
+	SeriesName           string                `db:"series_name" json:"seriesName"`
+	ProductName          string                `db:"product_name" json:"productName"`
+	FilmSerialNumber     string                `db:"film_serial_number" json:"filmSerialNumber"`
+	WarrantyInMonths     int32                 `db:"warranty_in_months" json:"warrantyInMonths"`
 }
 
 type MsiaState struct {
@@ -255,35 +212,35 @@ type User struct {
 }
 
 type Warranty struct {
-	ID                   int32                  `db:"id" json:"id"`
-	ShopID               int32                  `db:"shop_id" json:"shopId"`
-	ClientName           string                 `db:"client_name" json:"clientName"`
-	ClientContact        string                 `db:"client_contact" json:"clientContact"`
-	ClientEmail          string                 `db:"client_email" json:"clientEmail"`
-	CarBrand             string                 `db:"car_brand" json:"carBrand"`
-	CarModel             string                 `db:"car_model" json:"carModel"`
-	CarColour            string                 `db:"car_colour" json:"carColour"`
-	CarPlateNo           string                 `db:"car_plate_no" json:"carPlateNo"`
-	CarChassisNo         string                 `db:"car_chassis_no" json:"carChassisNo"`
-	InstallationDate     time.Time              `db:"installation_date" json:"installationDate"`
-	ReferenceNo          *string                `db:"reference_no" json:"referenceNo"`
-	WarrantyNo           string                 `db:"warranty_no" json:"warrantyNo"`
-	InvoiceAttachmentUrl string                 `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
-	IsActive             bool                   `db:"is_active" json:"isActive"`
-	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks              *string                `db:"remarks" json:"remarks"`
-	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
+	ID                   int32                 `db:"id" json:"id"`
+	ShopID               int32                 `db:"shop_id" json:"shopId"`
+	ClientName           string                `db:"client_name" json:"clientName"`
+	ClientContact        string                `db:"client_contact" json:"clientContact"`
+	ClientEmail          string                `db:"client_email" json:"clientEmail"`
+	CarBrand             string                `db:"car_brand" json:"carBrand"`
+	CarModel             string                `db:"car_model" json:"carModel"`
+	CarColour            string                `db:"car_colour" json:"carColour"`
+	CarPlateNo           string                `db:"car_plate_no" json:"carPlateNo"`
+	CarChassisNo         string                `db:"car_chassis_no" json:"carChassisNo"`
+	InstallationDate     time.Time             `db:"installation_date" json:"installationDate"`
+	ReferenceNo          *string               `db:"reference_no" json:"referenceNo"`
+	WarrantyNo           string                `db:"warranty_no" json:"warrantyNo"`
+	InvoiceAttachmentUrl string                `db:"invoice_attachment_url" json:"invoiceAttachmentUrl"`
+	IsActive             bool                  `db:"is_active" json:"isActive"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
 }
 
 type WarrantyPart struct {
-	ID                   int32                  `db:"id" json:"id"`
-	WarrantyID           int32                  `db:"warranty_id" json:"warrantyId"`
-	ProductAllocationID  int32                  `db:"product_allocation_id" json:"productAllocationId"`
-	CarPartID            int32                  `db:"car_part_id" json:"carPartId"`
-	InstallationImageUrl string                 `db:"installation_image_url" json:"installationImageUrl"`
-	ApprovalStatus       WarrantyApprovalStatus `db:"approval_status" json:"approvalStatus"`
-	Remarks              *string                `db:"remarks" json:"remarks"`
-	CreatedAt            time.Time              `db:"created_at" json:"createdAt"`
-	UpdatedAt            time.Time              `db:"updated_at" json:"updatedAt"`
+	ID                   int32                 `db:"id" json:"id"`
+	WarrantyID           int32                 `db:"warranty_id" json:"warrantyId"`
+	ProductAllocationID  int32                 `db:"product_allocation_id" json:"productAllocationId"`
+	CarPartID            int32                 `db:"car_part_id" json:"carPartId"`
+	InstallationImageUrl string                `db:"installation_image_url" json:"installationImageUrl"`
+	ApprovalStatus       models.ApprovalStatus `db:"approval_status" json:"approvalStatus"`
+	Remarks              *string               `db:"remarks" json:"remarks"`
+	CreatedAt            time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt            time.Time             `db:"updated_at" json:"updatedAt"`
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kokweikhong/profilm_ewarranty/backend/internal/db/sqlc/claims"
+	"github.com/kokweikhong/profilm_ewarranty/backend/internal/models"
 )
 
 type ClaimsService interface {
@@ -138,8 +139,8 @@ func (s *claimsService) UpdateClaimApproval(ctx context.Context, arg *claims.Upd
 	}
 	for _, part := range parts {
 		partArg := &claims.UpdateClaimWarrantyPartApprovalParams{
-			ID:         part.ID,
-			IsApproved: arg.IsApproved,
+			ID:             part.ID,
+			ApprovalStatus: arg.ApprovalStatus,
 		}
 		_, err := qtx.UpdateClaimWarrantyPartApproval(ctx, partArg)
 		if err != nil {
@@ -160,22 +161,22 @@ func (s *claimsService) UpdateClaimWarrantyPartApproval(ctx context.Context, arg
 	if err != nil {
 		return nil, err
 	}
-	if arg.IsApproved {
+	if arg.ApprovalStatus == models.ApprovalStatusApproved {
 		parts, err := s.q.GetClaimWarrantyPartsByClaimID(ctx, part.ClaimID)
 		if err != nil {
 			return nil, err
 		}
 		allApproved := true
 		for _, p := range parts {
-			if !p.IsApproved {
+			if p.ApprovalStatus != models.ApprovalStatusApproved {
 				allApproved = false
 				break
 			}
 		}
 		if allApproved {
 			claimArg := &claims.UpdateClaimApprovalParams{
-				ID:         part.ClaimID,
-				IsApproved: true,
+				ID:             part.ClaimID,
+				ApprovalStatus: models.ApprovalStatusApproved,
 			}
 			_, err := s.q.UpdateClaimApproval(ctx, claimArg)
 			if err != nil {
@@ -183,8 +184,8 @@ func (s *claimsService) UpdateClaimWarrantyPartApproval(ctx context.Context, arg
 			}
 		} else {
 			claimArg := &claims.UpdateClaimApprovalParams{
-				ID:         part.ClaimID,
-				IsApproved: false,
+				ID:             part.ClaimID,
+				ApprovalStatus: models.ApprovalStatusRejected,
 			}
 			_, err := s.q.UpdateClaimApproval(ctx, claimArg)
 			if err != nil {
