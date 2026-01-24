@@ -507,9 +507,6 @@ export default function WarrantyForm({
               };
             });
 
-          console.log("Updating warranty:", updatedWarranty);
-          console.log("Updating parts:", updatedWarrantyParts);
-
           // check if updatedWarrantyParts have ids with string type and create first
           for (const part of updatedWarrantyParts) {
             if (typeof part.id === "string") {
@@ -588,7 +585,6 @@ export default function WarrantyForm({
             parts: updatedWarrantyParts,
           };
 
-          console.log("Creating warranty:", requestData);
           const result = await createWarrantyWithPartsAction(requestData);
 
           if (result && result.success) {
