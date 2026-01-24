@@ -36,7 +36,7 @@ export default function ProductAllocationForm({
     "Product form mode:",
     mode,
     "Product Allocation:",
-    productAllocation
+    productAllocation,
   );
   const router = useRouter();
   const { showToast } = useToast();
@@ -55,6 +55,7 @@ export default function ProductAllocationForm({
     handleSubmit,
     setValue,
     watch,
+    resetField,
     formState: { errors },
   } = useForm<CreateProductAllocationRequest | UpdateProductAllocationRequest>({
     defaultValues: isEditMode
@@ -80,7 +81,7 @@ export default function ProductAllocationForm({
     .filter(
       (shop) =>
         shop.branchCode.toLowerCase().includes(shopSearch.toLowerCase()) ||
-        shop.shopName.toLowerCase().includes(shopSearch.toLowerCase())
+        shop.shopName.toLowerCase().includes(shopSearch.toLowerCase()),
     );
 
   const [showShopDropdown, setShowShopDropdown] = useState(false);
@@ -103,7 +104,7 @@ export default function ProductAllocationForm({
   // Extract unique brands
   const brands = useMemo(
     () => Array.from(new Set(products.map((p) => p.brandName))),
-    [products]
+    [products],
   );
 
   // Filter types by brand
@@ -113,10 +114,10 @@ export default function ProductAllocationForm({
         new Set(
           products
             .filter((p) => p.brandName === selectedBrand)
-            .map((p) => p.typeName)
-        )
+            .map((p) => p.typeName),
+        ),
       ),
-    [products, selectedBrand]
+    [products, selectedBrand],
   );
 
   // Filter series by brand and type
@@ -127,12 +128,12 @@ export default function ProductAllocationForm({
           products
             .filter(
               (p) =>
-                p.brandName === selectedBrand && p.typeName === selectedType
+                p.brandName === selectedBrand && p.typeName === selectedType,
             )
-            .map((p) => p.seriesName)
-        )
+            .map((p) => p.seriesName),
+        ),
       ),
-    [products, selectedBrand, selectedType]
+    [products, selectedBrand, selectedType],
   );
 
   // Filter names by brand, type, and series
@@ -145,12 +146,12 @@ export default function ProductAllocationForm({
               (p) =>
                 p.brandName === selectedBrand &&
                 p.typeName === selectedType &&
-                p.seriesName === selectedSeries
+                p.seriesName === selectedSeries,
             )
-            .map((p) => p.productName)
-        )
+            .map((p) => p.productName),
+        ),
       ),
-    [products, selectedBrand, selectedType, selectedSeries]
+    [products, selectedBrand, selectedType, selectedSeries],
   );
 
   // Film serial numbers: show all unless filtered
@@ -162,12 +163,20 @@ export default function ProductAllocationForm({
           (!selectedType || p.typeName === selectedType) &&
           (!selectedSeries || p.seriesName === selectedSeries) &&
           (!selectedName || p.productName === selectedName) &&
-          (selectedBrand ? p.brandName === selectedBrand : true)
+          (selectedBrand ? p.brandName === selectedBrand : true),
       );
     }
     // Otherwise, show all
     return products;
   }, [products, selectedBrand, selectedType, selectedSeries, selectedName]);
+
+  function handleResetProductSelection() {
+    setSelectedBrand("");
+    setSelectedType("");
+    setSelectedSeries("");
+    setSelectedName("");
+    resetField("productId");
+  }
 
   const shopDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -232,7 +241,7 @@ export default function ProductAllocationForm({
           `Product Allocation ${
             isEditMode ? "updated" : "created"
           } successfully!`,
-          "success"
+          "success",
         );
         setTimeout(() => {
           router.push("/admin/product-allocations");
@@ -288,7 +297,7 @@ export default function ProductAllocationForm({
                     {getDisplayValue(key, value)}
                   </span>
                 </div>
-              )
+              ),
             )}
           </div>
           <div className="flex gap-3 mt-6">
@@ -440,9 +449,21 @@ export default function ProductAllocationForm({
               </div>
 
               <div className="col-span-full">
-                <label className="block text-sm/6 font-medium text-gray-900">
-                  Film Serial Number <span className="text-red-600">*</span>
-                </label>
+                <div>
+                  <label className="block text-sm/6 font-medium text-gray-900">
+                    Film Serial Number <span className="text-red-600">*</span>
+                  </label>
+                  {/* reset button */}
+                  <div className="mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetProductSelection}
+                      className="text-sm text-blue-600 hover:underline cursor-pointer"
+                    >
+                      Reset Product Selection
+                    </button>
+                  </div>
+                </div>
                 <div className="form-select-container mt-2">
                   <select
                     value={watch("productId") ?? ""}
@@ -503,7 +524,7 @@ export default function ProductAllocationForm({
                           onMouseDown={() =>
                             handleShopSelect(
                               shop.id,
-                              `${shop.branchCode} - ${shop.shopName}`
+                              `${shop.branchCode} - ${shop.shopName}`,
                             )
                           }
                         >
