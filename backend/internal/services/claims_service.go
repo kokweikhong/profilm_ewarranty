@@ -102,6 +102,11 @@ func (s *claimsService) UpdateClaimWithParts(ctx context.Context, claimArg *clai
 			return nil, err
 		}
 	}
+	// Set claim approval status to pending when parts are updated
+	_, err = qtx.UpdateClaimApproval(ctx, &claims.UpdateClaimApprovalParams{
+		ID:             claim.ID,
+		ApprovalStatus: models.ApprovalStatusPending,
+	})
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
