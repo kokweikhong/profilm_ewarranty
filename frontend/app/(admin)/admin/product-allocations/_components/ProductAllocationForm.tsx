@@ -178,6 +178,23 @@ export default function ProductAllocationForm({
     resetField("productId");
   }
 
+  useEffect(() => {
+    if (isEditMode) {
+      const prod = products.find((p) => p.id === productAllocation!.productId);
+      if (prod) {
+        setSelectedBrand(prod.brandName);
+        setSelectedType(prod.typeName);
+        setSelectedSeries(prod.seriesName);
+        setSelectedName(prod.productName);
+      }
+      // set the shop search input value
+      const shop = shops.find((s) => s.id === productAllocation!.shopId);
+      if (shop) {
+        setShopSearch(`${shop.branchCode} - ${shop.shopName}`);
+      }
+    }
+  }, [isEditMode, productAllocation, products]);
+
   const shopDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
