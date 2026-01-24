@@ -47,9 +47,6 @@ export default function Page() {
         setLoading(true);
         const shopClaims = await getClaimsByShopIdApi(user.shopId);
 
-        console.log("All fetched claims:", shopClaims);
-        console.log("User's shop ID:", user.shopId);
-
         // FIXME: temporary commented out for testing
         // Filter warranties by shop ID
         // const shopWarranties = data.filter(
@@ -58,11 +55,8 @@ export default function Page() {
 
         // const shopWarranties = data.filter((w) => w.shopId === user.shopId);
 
-        console.log("Fetched claims:", shopClaims);
-
         setClaims(shopClaims);
         setFilteredClaims(shopClaims);
-        console.log("Filtered claims set:", filteredClaims);
       } catch (error: any) {
         console.error("Error loading warranties:", error);
         showToast("Failed to load warranties", "error");
@@ -82,7 +76,7 @@ export default function Page() {
       }
       try {
         const data = await getWarrantyWithPartsByIdApi(
-          selectedClaim.warrantyId
+          selectedClaim.warrantyId,
         );
 
         setWarrantyParts(data.parts);
@@ -99,7 +93,6 @@ export default function Page() {
 
   // Search claims
   const handleSearch = (value: string) => {
-    console.log("Filtering claims with search term:", filteredClaims);
     setSearchTerm(value);
 
     if (!value.trim()) {
@@ -113,7 +106,7 @@ export default function Page() {
       (c) =>
         c.claimNo?.toLowerCase().includes(value.toLowerCase()) ||
         c.carPlateNo?.toLowerCase().includes(value.toLowerCase()) ||
-        c.clientName?.toLowerCase().includes(value.toLowerCase())
+        c.clientName?.toLowerCase().includes(value.toLowerCase()),
     );
     setFilteredClaims(filtered);
   };
@@ -301,7 +294,7 @@ export default function Page() {
                               </span>
                               <span className="ml-2 text-gray-900">
                                 {new Date(
-                                  data.installationDate
+                                  data.installationDate,
                                 ).toLocaleDateString()}
                               </span>
                             </div>

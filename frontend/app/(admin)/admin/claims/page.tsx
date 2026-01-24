@@ -57,13 +57,11 @@ export default function Page() {
       // If user is admin, fetch all claims
       getClaimsApi().then((data) => {
         setClaims(data);
-        console.log("admin claims", data);
       });
     } else if (user?.shopId) {
       // If user is shop_admin, fetch claims by shop ID
       getClaimsByShopIdApi(user.shopId).then((data) => {
         setClaims(data);
-        console.log("shop claims", data);
       });
     }
   }, [user?.role, user?.shopId]);

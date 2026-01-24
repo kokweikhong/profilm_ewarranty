@@ -30,7 +30,6 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
 
   const claimId = Number(params.id);
-  console.log("Page loaded with claim ID:", claimId);
 
   const {
     register,
@@ -62,19 +61,10 @@ export default function Page() {
 
       try {
         setLoading(true);
-        console.log("Fetching claim with ID:", claimId);
 
         // Fetch claim with parts
         const claim = await getClaimWithPartsByIdApi(claimId);
-        console.log("Claim data:", claim);
         setClaimData(claim);
-
-        // Fetch warranty with parts
-        // const warranty = await getWarrantyWithPartsByIdApi(
-        //   claim.claim.warrantyId
-        // );
-        // console.log("Warranty data:", warranty);
-        // setWarrantyData(warranty);
       } catch (error: any) {
         console.error("Error loading claim:", error);
         console.error("Error details:", error.response?.data);
@@ -82,7 +72,7 @@ export default function Page() {
           `Failed to load claim data: ${
             error.response?.data?.message || error.message
           }`,
-          "error"
+          "error",
         );
         // Don't redirect immediately, let user see the error
         // router.push("/admin/claims");
@@ -174,7 +164,7 @@ export default function Page() {
         `Failed to update claim: ${
           error.response?.data?.message || error.message
         }`,
-        "error"
+        "error",
       );
     }
   };
