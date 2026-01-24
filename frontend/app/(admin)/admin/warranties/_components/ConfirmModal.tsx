@@ -235,6 +235,10 @@ const ConfirmModal = ({
                                 <span>Series: {product.seriesName}</span>
                                 <br />
                                 <span>Product Name: {product.productName}</span>
+                                <br />
+                                <span>
+                                  Film Serial Number: {product.filmSerialNumber}
+                                </span>
                               </p>
                               <p className="text-gray-600">
                                 <span className="font-medium">Warranty:</span>
