@@ -164,6 +164,12 @@ func (s *warrantiesService) UpdateWarrantyWithParts(ctx context.Context, warrant
 		}
 	}
 
+	// Set warranty approval status to pending when parts are updated
+	_, err = qtx.UpdateWarrantyApproval(ctx, &warranties.UpdateWarrantyApprovalParams{
+		ID:             warranty.ID,
+		ApprovalStatus: models.ApprovalStatusPending,
+	})
+
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
