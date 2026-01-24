@@ -589,7 +589,7 @@ func seedShops(ctx context.Context, svc services.ShopsService, count int) ([]*sh
 		return nil, err
 	}
 
-	companyNames := []string{"AutoCare", "ProFilm Center", "CarStyle", "Premium Tint", "Elite Motors"}
+	companyNames := []string{"AutoCare", "Profilm Center", "CarStyle", "Premium Tint", "Elite Motors"}
 
 	for i := 0; i < count; i++ {
 		state := states[rand.Intn(len(states))]

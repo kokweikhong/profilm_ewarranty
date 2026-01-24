@@ -3,7 +3,7 @@ import AdminLayout from "./_components/AdminLayout";
 import RoleGuard from "@/components/RoleGuard";
 
 export const metadata: Metadata = {
-  title: "ProFilm eWarranty Admin",
+  title: "Profilm eWarranty Admin",
   description: "...",
 };
 

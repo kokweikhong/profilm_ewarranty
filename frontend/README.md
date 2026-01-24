@@ -1,4 +1,4 @@
-# ProFilm E-Warranty Frontend
+# Profilm E-Warranty Frontend
 
 Next.js 16 application for managing e-warranties with server-side authentication.
 
@@ -71,12 +71,10 @@ frontend/
 ## Testing Authentication
 
 1. **Access protected route without auth**:
-
    - Navigate to `http://localhost:3000/admin`
    - Should redirect to `/login?redirect=/admin`
 
 2. **Login and redirect back**:
-
    - Enter credentials on login page
    - Should redirect to original protected page
 

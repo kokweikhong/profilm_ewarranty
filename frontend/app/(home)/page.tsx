@@ -16,7 +16,7 @@ import { formatDate } from "@/lib/utils";
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<WarrantySearchResult[]>(
-    []
+    [],
   );
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -61,7 +61,7 @@ export default function Page() {
             <ShieldCheckIcon className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                ProFilm E-Warranty
+                Profilm E-Warranty
               </h1>
               <p className="text-sm text-gray-600">
                 Warranty Verification Portal
@@ -169,7 +169,7 @@ export default function Page() {
                           setSelectedWarranty(
                             selectedWarranty?.warranty.id === result.warranty.id
                               ? null
-                              : result
+                              : result,
                           )
                         }
                         className="w-full p-4 sm:p-6 text-left"
@@ -433,15 +433,16 @@ export default function Page() {
                                               {formatDate(
                                                 (() => {
                                                   const install = new Date(
-                                                    result.warranty.installationDate
+                                                    result.warranty
+                                                      .installationDate,
                                                   );
                                                   install.setMonth(
                                                     install.getMonth() +
                                                       (part.warrantyInMonths ||
-                                                        0)
+                                                        0),
                                                   );
                                                   return install.toISOString();
-                                                })()
+                                                })(),
                                               )}
                                             </dd>
                                           </div>
@@ -515,7 +516,7 @@ export default function Page() {
       <footer className="mt-16 sm:mt-20 border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center text-sm text-gray-600">
           <p>
-            © {new Date().getFullYear()} ProFilm E-Warranty. All rights
+            © {new Date().getFullYear()} Profilm E-Warranty. All rights
             reserved.
           </p>
         </div>

@@ -81,7 +81,7 @@ export default function AdminLayout({
               <a className="relative flex h-16 shrink-0 items-center" href="/">
                 <Image
                   src={"/profilm_logo.png"}
-                  alt="ProFilm eWarranty"
+                  alt="Profilm eWarranty"
                   width={150}
                   height={50}
                   className="h-8 w-auto"
@@ -99,7 +99,7 @@ export default function AdminLayout({
                               item.current
                                 ? "bg-white/5 text-white"
                                 : "text-gray-800 hover:bg-white/5 hover:text-white",
-                              "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold"
+                              "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
                             )}
                           >
                             <Image
@@ -111,7 +111,7 @@ export default function AdminLayout({
                                 "size-6 shrink-0 transition-all duration-200",
                                 item.current
                                   ? "brightness-0 invert"
-                                  : "group-hover:brightness-0 group-hover:invert"
+                                  : "group-hover:brightness-0 group-hover:invert",
                               )}
                             />
                             {item.name}
@@ -134,7 +134,7 @@ export default function AdminLayout({
           <a className="flex h-16 shrink-0 items-center" href="/">
             <Image
               src={"/profilm_logo.png"}
-              alt="ProFilm eWarranty"
+              alt="Profilm eWarranty"
               width={150}
               height={50}
               className="h-8 w-auto"
@@ -152,7 +152,7 @@ export default function AdminLayout({
                           item.current
                             ? "bg-white/5 text-white"
                             : "text-gray-800 hover:bg-white/5 hover:text-white",
-                          "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold"
+                          "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
                         )}
                       >
                         <Image
@@ -164,7 +164,7 @@ export default function AdminLayout({
                             "size-6 shrink-0 transition-all duration-200",
                             item.current
                               ? "brightness-0 invert"
-                              : "group-hover:brightness-0 group-hover:invert"
+                              : "group-hover:brightness-0 group-hover:invert",
                           )}
                         />
                         {item.name}
@@ -302,7 +302,7 @@ export default function AdminLayout({
 
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="border-t border-gray-200 py-4 text-center text-sm/6 text-gray-500">
-          &copy; {new Date().getFullYear()} ProFilm eWarranty. All rights
+          &copy; {new Date().getFullYear()} Profilm eWarranty. All rights
           reserved.
         </div>
       </div>

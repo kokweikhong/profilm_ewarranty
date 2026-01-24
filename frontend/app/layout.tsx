@@ -4,8 +4,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/contexts/ToastContext";
 
 export const metadata: Metadata = {
-  title: "ProFilm eWarranty",
-  description: "eWarranty management system for ProFilm",
+  title: "Profilm eWarranty",
+  description: "eWarranty management system for Profilm",
 };
 
 export default function RootLayout({
