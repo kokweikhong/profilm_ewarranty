@@ -190,10 +190,10 @@ const ConfirmModal = ({
               <div className="space-y-4">
                 {warrantyParts.map((part, index) => {
                   const carPart = carParts.find(
-                    (cp) => cp.id === part.carPartId
+                    (cp) => cp.id === part.carPartId,
                   );
                   const product = productsFromAllocation?.find(
-                    (p) => p.productAllocationId === part.productAllocationId
+                    (p) => p.productAllocationId === part.productAllocationId,
                   );
                   const imageUrl =
                     imagePreview.get(index) || part.installationImageUrl;
@@ -227,8 +227,14 @@ const ConfirmModal = ({
                               <p className="text-gray-700">
                                 <span className="font-medium">Product:</span>
                                 {""}
-                                {product.brandName} - {product.typeName} -{""}
-                                {product.seriesName} - {product.productName}
+                                <br />
+                                <span>Brand: {product.brandName}</span>
+                                <br />
+                                <span>Type: {product.typeName}</span>
+                                <br />
+                                <span>Series: {product.seriesName}</span>
+                                <br />
+                                <span>Product Name: {product.productName}</span>
                               </p>
                               <p className="text-gray-600">
                                 <span className="font-medium">Warranty:</span>
@@ -258,8 +264,8 @@ const ConfirmModal = ({
             {isUploading
               ? "Uploading..."
               : isEditMode
-              ? "Confirm Update"
-              : "Confirm Create"}
+                ? "Confirm Update"
+                : "Confirm Create"}
           </button>
           <button
             onClick={handleCancel}
