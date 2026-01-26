@@ -478,7 +478,7 @@ func main() {
 
 	// 3. Seed Product Allocations (50 allocations)
 	log.Println("Seeding product allocations...")
-	allocationsList, err := seedProductAllocations(ctx, productAllocationsService, productsList, shopsList, 50)
+	allocationsList, err := seedProductAllocations(ctx, productAllocationsService, productsList, shopsList, 5)
 	if err != nil {
 		log.Fatalf("Failed to seed product allocations: %v", err)
 	}
@@ -632,24 +632,26 @@ func seedShops(ctx context.Context, svc services.ShopsService, count int) ([]*sh
 func seedProductAllocations(ctx context.Context, svc services.ProductAllocationsService, productsList []*products.Product, shopsList []*shops.Shop, count int) ([]*productallocations.ProductAllocation, error) {
 	var allocationsList []*productallocations.ProductAllocation
 
-	for range count {
-		product := productsList[rand.Intn(len(productsList))]
-		shop := shopsList[rand.Intn(len(shopsList))]
+	for i := range shopsList {
+		for range count {
+			product := productsList[rand.Intn(len(productsList))]
 
-		// Random date within the last 6 months
-		daysAgo := rand.Intn(180)
-		allocationDate := time.Now().AddDate(0, 0, -daysAgo)
+			// Random date within the last 6 months
+			daysAgo := rand.Intn(180)
+			allocationDate := time.Now().AddDate(0, 0, -daysAgo)
 
-		allocation, err := svc.CreateProductAllocation(ctx, &productallocations.CreateProductAllocationParams{
-			ProductID:      product.ID,
-			ShopID:         shop.ID,
-			FilmQuantity:   int32(rand.Intn(100) + 10),
-			AllocationDate: allocationDate,
-		})
-		if err != nil {
-			return nil, err
+			allocation, err := svc.CreateProductAllocation(ctx, &productallocations.CreateProductAllocationParams{
+				ProductID: product.ID,
+				// ShopID:         get from outer range shopList
+				ShopID:         shopsList[i].ID,
+				FilmQuantity:   int32(rand.Intn(100) + 10),
+				AllocationDate: allocationDate,
+			})
+			if err != nil {
+				return nil, err
+			}
+			allocationsList = append(allocationsList, allocation)
 		}
-		allocationsList = append(allocationsList, allocation)
 	}
 
 	return allocationsList, nil

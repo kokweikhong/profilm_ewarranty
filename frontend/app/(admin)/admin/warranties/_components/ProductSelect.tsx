@@ -44,6 +44,13 @@ const ProductSelect: FC<ProductSelectProps> = ({
   setDuplicateProduct,
   fields,
 }) => {
+  const [brands, setBrands] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [series, setSeries] = useState<string[]>([]);
+  const [names, setNames] = useState<string[]>([]);
+  const [filmSerialNumbers, setFilmSerialNumbers] = useState<
+    ProductsFromAllocationByShopIdResponse[]
+  >([]);
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [selectedSeries, setSelectedSeries] = useState("");
@@ -58,94 +65,168 @@ const ProductSelect: FC<ProductSelectProps> = ({
   );
 
   // Extract unique brands
-  const brands = useMemo(
-    () => Array.from(new Set(productsFromAllocation?.map((p) => p.brandName))),
-    [productsFromAllocation],
-  );
+  // const brands = useMemo(
+  //   () => Array.from(new Set(productsFromAllocation?.map((p) => p.brandName))),
+  //   [productsFromAllocation],
+  // );
 
   // Filter types by brand
-  const types = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          productsFromAllocation!
-            .filter((p) => p.brandName === selectedBrand)
-            .map((p) => p.typeName),
-        ),
-      ),
-    [productsFromAllocation, selectedBrand],
-  );
+  // const types = useMemo(
+  //   () =>
+  //     Array.from(
+  //       new Set(
+  //         productsFromAllocation!
+  //           .filter((p) => p.brandName === selectedBrand)
+  //           .map((p) => p.typeName),
+  //       ),
+  //     ),
+  //   [productsFromAllocation, selectedBrand],
+  // );
 
   // Filter series by brand and type
-  const series = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          productsFromAllocation!
-            .filter(
-              (p) =>
-                p.brandName === selectedBrand && p.typeName === selectedType,
-            )
-            .map((p) => p.seriesName),
-        ),
-      ),
-    [productsFromAllocation, selectedBrand, selectedType],
-  );
+  // const series = useMemo(
+  //   () =>
+  //     Array.from(
+  //       new Set(
+  //         productsFromAllocation!
+  //           .filter(
+  //             (p) =>
+  //               p.brandName === selectedBrand && p.typeName === selectedType,
+  //           )
+  //           .map((p) => p.seriesName),
+  //       ),
+  //     ),
+  //   [productsFromAllocation, selectedBrand, selectedType],
+  // );
 
   // Filter names by brand, type, and series
-  const names = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          productsFromAllocation!
-            .filter(
-              (p) =>
-                p.brandName === selectedBrand &&
-                p.typeName === selectedType &&
-                p.seriesName === selectedSeries,
-            )
-            .map((p) => p.productName),
-        ),
-      ),
-    [productsFromAllocation, selectedBrand, selectedType, selectedSeries],
-  );
+  // const names = useMemo(
+  //   () =>
+  //     Array.from(
+  //       new Set(
+  //         productsFromAllocation!
+  //           .filter(
+  //             (p) =>
+  //               p.brandName === selectedBrand &&
+  //               p.typeName === selectedType &&
+  //               p.seriesName === selectedSeries,
+  //           )
+  //           .map((p) => p.productName),
+  //       ),
+  //     ),
+  //   [productsFromAllocation, selectedBrand, selectedType, selectedSeries],
+  // );
 
   // Film serial numbers: show all unless filtered
-  const filmSerialNumbers = useMemo(() => {
-    // If type, series, or name is selected, filter
-    if (selectedType || selectedSeries || selectedName) {
-      return productsFromAllocation!.filter(
-        (p) =>
-          (!selectedType || p.typeName === selectedType) &&
-          (!selectedSeries || p.seriesName === selectedSeries) &&
-          (!selectedName || p.productName === selectedName) &&
-          (selectedBrand ? p.brandName === selectedBrand : true),
+  // const filmSerialNumbers = useMemo(() => {
+  //   // If type, series, or name is selected, filter
+  //   if (selectedType || selectedSeries || selectedName) {
+  //     return productsFromAllocation!.filter(
+  //       (p) =>
+  //         (!selectedType || p.typeName === selectedType) &&
+  //         (!selectedSeries || p.seriesName === selectedSeries) &&
+  //         (!selectedName || p.productName === selectedName) &&
+  //         (selectedBrand ? p.brandName === selectedBrand : true),
+  //     );
+  //   }
+  //   // Otherwise, show all
+  //   return productsFromAllocation!;
+  // }, [
+  //   productsFromAllocation,
+  //   selectedBrand,
+  //   selectedType,
+  //   selectedSeries,
+  //   selectedName,
+  // ]);
+
+  useEffect(() => {
+    console.log("Field productAllocationId:", field.productAllocationId);
+    // Initialize selected values based on field data
+
+    // unique brands
+    const brands = Array.from(
+      new Set(productsFromAllocation?.map((p) => p.brandName)),
+    );
+    setBrands(brands);
+
+    // unique types
+    const types = Array.from(
+      new Set(
+        // filter by selected brand
+        productsFromAllocation!
+          .filter((p) => (selectedBrand ? p.brandName === selectedBrand : true))
+          .map((p) => p.typeName),
+      ),
+    );
+
+    setTypes(types);
+    const series = Array.from(
+      new Set(
+        // filter by selected brand and type
+        productsFromAllocation!
+          .filter((p) => (selectedBrand ? p.brandName === selectedBrand : true))
+          .filter((p) => (selectedType ? p.typeName === selectedType : true))
+          .map((p) => p.seriesName),
+      ),
+    );
+    setSeries(series);
+    const names = Array.from(
+      new Set(
+        // filter by selected brand, type, and series
+        productsFromAllocation!
+          .filter((p) => (selectedBrand ? p.brandName === selectedBrand : true))
+          .filter((p) => (selectedType ? p.typeName === selectedType : true))
+          .filter((p) =>
+            selectedSeries ? p.seriesName === selectedSeries : true,
+          )
+          .map((p) => p.productName),
+      ),
+    );
+    setNames(names);
+
+    // unique film serial numbers based on filters
+    const filmSerialNumbers = Array.from(
+      new Map(
+        productsFromAllocation!
+          .filter((p) => (selectedBrand ? p.brandName === selectedBrand : true))
+          .filter((p) => (selectedType ? p.typeName === selectedType : true))
+          .filter((p) =>
+            selectedSeries ? p.seriesName === selectedSeries : true,
+          )
+          .filter((p) => (selectedName ? p.productName === selectedName : true))
+          .map((p) => [p.filmSerialNumber, p]),
+      ).values(),
+    );
+    setFilmSerialNumbers(filmSerialNumbers);
+
+    console.log(
+      "Updated film serial numbers:",
+      field.productAllocationId,
+      filmSerialNumbers,
+    );
+    if (field.productAllocationId) {
+      const selectedProduct = productsFromAllocation?.find(
+        (p) => p.productAllocationId === field.productAllocationId,
       );
+      if (selectedProduct) {
+        setSelectedBrand(selectedProduct.brandName);
+        setSelectedType(selectedProduct.typeName);
+        setSelectedSeries(selectedProduct.seriesName);
+        setSelectedName(selectedProduct.productName);
+        setFilmSerialNumbers(
+          selectedProduct.filmSerialNumber ? [selectedProduct] : [],
+        );
+        setSelectedProductId(selectedProduct.productAllocationId);
+      }
     }
-    // Otherwise, show all
-    return productsFromAllocation!;
   }, [
+    field.productAllocationId,
     productsFromAllocation,
     selectedBrand,
     selectedType,
     selectedSeries,
     selectedName,
   ]);
-
-  useEffect(() => {
-    // Initialize selected values based on field data
-    const product = productsFromAllocation?.find(
-      (p) => p.productId === field.productAllocationId,
-    );
-    console.log("Initializing product select:", product);
-    if (product) {
-      setSelectedBrand(product.brandName);
-      setSelectedType(product.typeName);
-      setSelectedSeries(product.seriesName);
-      setSelectedName(product.productName);
-      setSelectedProductId(product.productId);
-    }
-  }, [field.productAllocationId, productsFromAllocation]);
 
   return (
     <div>
@@ -368,8 +449,8 @@ const ProductSelect: FC<ProductSelectProps> = ({
             required
           >
             <option value="">Select a film serial number</option>
-            {filmSerialNumbers.map((product) => (
-              <option key={product.productId} value={product.productId}>
+            {filmSerialNumbers.map((product, index) => (
+              <option key={index} value={product.productAllocationId}>
                 {product.filmSerialNumber}
               </option>
             ))}

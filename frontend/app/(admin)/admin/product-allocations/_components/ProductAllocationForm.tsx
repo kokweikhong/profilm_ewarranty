@@ -175,7 +175,9 @@ export default function ProductAllocationForm({
     setSelectedType("");
     setSelectedSeries("");
     setSelectedName("");
+
     resetField("productId");
+    setValue("productId", 0);
   }
 
   useEffect(() => {
