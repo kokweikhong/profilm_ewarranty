@@ -298,7 +298,7 @@ const ProductSelect: FC<ProductSelectProps> = ({
                 setValue(`parts.${fieldIndex}.productAllocationId`, 0);
               }}
             >
-              Reset
+              Reset Product
             </button>
           </div>
         </div>
