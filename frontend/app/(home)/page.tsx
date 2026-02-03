@@ -13,6 +13,46 @@ import {
 } from "@heroicons/react/24/outline";
 import { formatDate } from "@/lib/utils";
 
+function maskName(name: string) {
+  if (!name) return "";
+  if (name.length <= 4) return name[0] + "*".repeat(name.length - 1);
+  // Show first 3 or 4 chars, mask the rest
+  const visible = name.length >= 4 ? 4 : 3;
+  return name.slice(0, visible) + "*".repeat(name.length - visible);
+}
+
+function maskContact(contact: string) {
+  if (!contact) return "";
+  if (contact.startsWith("+")) {
+    return contact.slice(0, 5) + "*".repeat(contact.length - 5);
+  }
+  if (contact.startsWith("6")) {
+    return contact.slice(0, 4) + "*".repeat(contact.length - 4);
+  }
+  if (contact.startsWith("0")) {
+    return contact.slice(0, 3) + "*".repeat(contact.length - 3);
+  }
+  // Default: show first 3
+  return contact.slice(0, 3) + "*".repeat(contact.length - 3);
+}
+
+function maskEmail(email: string) {
+  if (!email) return "";
+  const atIdx = email.indexOf("@");
+  if (atIdx === -1) return "*".repeat(email.length);
+
+  // Show "@....com" part, mask the front
+  const domain = email.slice(atIdx);
+  const name = email.slice(0, atIdx);
+  let visible = 4;
+  if (name.length <= 4) visible = 1;
+  return (
+    name.slice(0, visible) +
+    "*".repeat(Math.max(0, name.length - visible)) +
+    domain
+  );
+}
+
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<WarrantySearchResult[]>(
@@ -285,19 +325,19 @@ export default function Page() {
                                 <div>
                                   <dt className="text-gray-500">Name</dt>
                                   <dd className="font-medium text-gray-900">
-                                    {result.warranty.clientName}
+                                    {maskName(result.warranty.clientName)}
                                   </dd>
                                 </div>
                                 <div>
                                   <dt className="text-gray-500">Contact</dt>
                                   <dd className="font-medium text-gray-900">
-                                    {result.warranty.clientContact}
+                                    {maskContact(result.warranty.clientContact)}
                                   </dd>
                                 </div>
                                 <div>
                                   <dt className="text-gray-500">Email</dt>
                                   <dd className="font-medium text-gray-900 break-all">
-                                    {result.warranty.clientEmail}
+                                    {maskEmail(result.warranty.clientEmail)}
                                   </dd>
                                 </div>
                               </dl>
