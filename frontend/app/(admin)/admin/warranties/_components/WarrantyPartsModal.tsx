@@ -73,6 +73,25 @@ const WarrantyPartsModal: FC<WarrantyPartsModalProps> = (props) => {
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
             <h3 className="text-lg font-semibold mb-4">Select Car Parts</h3>
             {/* ...duplicate info... */}
+            {isDuplicate && duplicateProduct && (
+              <div className="mb-4 p-3 rounded bg-blue-50 border border-blue-200 text-sm text-blue-900">
+                <div>
+                  <b>Brand:</b> {duplicateProduct.brandName}
+                </div>
+                <div>
+                  <b>Type:</b> {duplicateProduct.typeName}
+                </div>
+                <div>
+                  <b>Series:</b> {duplicateProduct.seriesName}
+                </div>
+                <div>
+                  <b>Product Name:</b> {duplicateProduct.productName}
+                </div>
+                <div>
+                  <b>Film Serial Number:</b> {duplicateProduct.filmSerialNumber}
+                </div>
+              </div>
+            )}
             <div className="max-h-72 overflow-y-auto space-y-2">
               {carParts.map((carPart, index) => (
                 <label

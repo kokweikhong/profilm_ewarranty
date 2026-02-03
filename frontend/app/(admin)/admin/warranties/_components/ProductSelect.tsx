@@ -243,15 +243,17 @@ const ProductSelect: FC<ProductSelectProps> = ({
             onClick={() => {
               console.log("Set duplicate product:", selectedProductId);
               if (selectedProductId === null) return;
+              const selectedProduct = filmSerialNumbers.find(
+                (p) => p.productAllocationId === selectedProductId,
+              );
+              if (!selectedProduct) return;
               setDuplicateProduct({
                 productAllocationId: selectedProductId,
                 brandName: selectedBrand,
                 typeName: selectedType,
                 seriesName: selectedSeries,
                 productName: selectedName,
-                filmSerialNumber: filmSerialNumbers.find(
-                  (p) => p.productId === selectedProductId,
-                )!.filmSerialNumber,
+                filmSerialNumber: selectedProduct.filmSerialNumber,
               });
               setIsDuplicateMode(true);
               setShowCarPartsModal(true);
@@ -432,7 +434,7 @@ const ProductSelect: FC<ProductSelectProps> = ({
               setSelectedProductId(val);
               setValue(`parts.${fieldIndex}.productAllocationId`, val);
               const selectedProduct = filmSerialNumbers.find(
-                (p) => p.productId === val,
+                (p) => p.productAllocationId === val, // <-- FIXED HERE
               );
               setSelectedBrand(
                 selectedProduct ? selectedProduct.brandName : "",
