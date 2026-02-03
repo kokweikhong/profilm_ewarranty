@@ -55,9 +55,9 @@ const WarrantyInformation: FC<Props> = ({
       setInvoiceFileSizeError(true);
       showToast(
         `Invoice file size (${(file.size / 1024 / 1024).toFixed(
-          2
+          2,
         )} MB) exceeds 50MB limit`,
-        "error"
+        "error",
       );
     } else {
       setInvoiceFileSizeError(false);
@@ -247,7 +247,7 @@ const WarrantyInformation: FC<Props> = ({
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
               {invoiceFile ? (
-                <div className="p-4">
+                <div className="p-4 relative">
                   {invoiceFile.type.startsWith("image/") && invoicePreview ? (
                     <div className="flex items-center gap-4">
                       <img
@@ -278,7 +278,8 @@ const WarrantyInformation: FC<Props> = ({
                             setInvoiceFileSizeError(false);
                             setValue("warranty.invoiceAttachmentUrl", "");
                           }}
-                          className="mt-2 text-sm text-red-600 hover:text-red-700"
+                          className="mt-2 text-sm text-red-600 hover:text-red-700 relative z-20"
+                          style={{ pointerEvents: "auto" }}
                         >
                           Remove
                         </button>
@@ -324,7 +325,8 @@ const WarrantyInformation: FC<Props> = ({
                             setInvoiceFileSizeError(false);
                             setValue("warranty.invoiceAttachmentUrl", "");
                           }}
-                          className="mt-2 text-sm text-red-600 hover:text-red-700"
+                          className="mt-2 text-sm text-red-600 hover:text-red-700 relative z-20"
+                          style={{ pointerEvents: "auto" }}
                         >
                           Remove
                         </button>
