@@ -621,6 +621,12 @@ export default function WarrantyForm({
     setShowConfirmModal(false);
     setFormData(null);
     setWarrantyParts([]);
+    setInvoiceFile(null);
+    setInvoicePreview(null);
+    setSelectedFiles(new Map());
+    setImagePreview(new Map());
+    setUploadingImages(new Map());
+    setImageFileSizeErrors(new Map());
   };
 
   useEffect(() => {
