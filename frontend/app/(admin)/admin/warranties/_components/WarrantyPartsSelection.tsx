@@ -45,9 +45,10 @@ type Prop = {
   >;
   append: (
     value: CreateWarrantyPartRequest | CreateWarrantyPartRequest[],
-    options?: FieldArrayMethodProps
+    options?: FieldArrayMethodProps,
   ) => void;
   remove: (index?: number | number[] | undefined) => void;
+  fileInputKey: number;
 };
 
 const WarrantyPartsSelection: FC<Prop> = ({
@@ -61,6 +62,7 @@ const WarrantyPartsSelection: FC<Prop> = ({
   setValue,
   append,
   remove,
+  fileInputKey,
 }) => {
   const [showCarPartsModal, setShowCarPartsModal] = useState(false);
   const [isDuplicateMode, setIsDuplicateMode] = useState<boolean>(false);
@@ -71,7 +73,7 @@ const WarrantyPartsSelection: FC<Prop> = ({
   //   new Map()
   // );
   const [selectedFiles, setSelectedFiles] = useState<Map<number, File>>(
-    new Map()
+    new Map(),
   );
   const [imageFileSizeErrors, setImageFileSizeErrors] = useState<
     Map<number, boolean>
@@ -198,6 +200,7 @@ const WarrantyPartsSelection: FC<Prop> = ({
                         )}
                         <div className="relative w-full h-64 sm:h-48 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50  hover:border-primary/50 transition-colors overflow-hidden group">
                           <input
+                            key={`${fileInputKey}-${field.id}`}
                             type="file"
                             id={`image-upload-${field.id}`}
                             accept="image/*"
@@ -207,8 +210,9 @@ const WarrantyPartsSelection: FC<Prop> = ({
                                 handleImageSelect(idx, file);
                                 setValue(
                                   `parts.${idx}.installationImageUrl`,
-                                  "Pending Upload"
+                                  "Pending Upload",
                                 );
+                                e.target.value = "";
                               }
                             }}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"

@@ -233,6 +233,7 @@ export default function WarrantyForm({
   const [imageFileSizeErrors, setImageFileSizeErrors] = useState<
     Map<number, boolean>
   >(new Map());
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   // const [warrantyPartsImageFiles, setWarrantyPartsImageFiles] = useState<
 
@@ -627,6 +628,7 @@ export default function WarrantyForm({
     setImagePreview(new Map());
     setUploadingImages(new Map());
     setImageFileSizeErrors(new Map());
+    setFileInputKey((prev) => prev + 1);
   };
 
   useEffect(() => {
@@ -741,6 +743,7 @@ export default function WarrantyForm({
             setInvoiceFile={setInvoiceFile}
             invoicePreview={invoicePreview}
             setInvoicePreview={setInvoicePreview}
+            fileInputKey={fileInputKey}
           />
 
           {/* json format form data for testing */}
@@ -763,6 +766,7 @@ export default function WarrantyForm({
               append={append}
               setValue={setValue}
               remove={remove}
+              fileInputKey={fileInputKey}
             />
           </div>
         </div>

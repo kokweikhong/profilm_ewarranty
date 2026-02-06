@@ -25,6 +25,7 @@ type Props = {
   setInvoiceFile: (file: File | null) => void;
   invoicePreview: string | null;
   setInvoicePreview: (preview: string | null) => void;
+  fileInputKey: number;
 };
 
 const WarrantyInformation: FC<Props> = ({
@@ -37,6 +38,7 @@ const WarrantyInformation: FC<Props> = ({
   setInvoiceFile,
   invoicePreview,
   setInvoicePreview,
+  fileInputKey,
 }) => {
   console.log("Invoice URL:", data?.warranty.invoiceAttachmentUrl);
   console.log("Is Edit Mode:", data);
@@ -237,12 +239,16 @@ const WarrantyInformation: FC<Props> = ({
           <div className="mt-2">
             <div className="relative w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50  hover:border-primary/50 transition-colors overflow-hidden group">
               <input
+                key={fileInputKey}
                 type="file"
                 id="invoice-upload"
                 accept="image/*,application/pdf"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) handleInvoiceSelect(file);
+                  if (file) {
+                    handleInvoiceSelect(file);
+                    e.target.value = "";
+                  }
                 }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
