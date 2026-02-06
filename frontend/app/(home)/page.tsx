@@ -23,17 +23,34 @@ function maskName(name: string) {
 
 function maskContact(contact: string) {
   if (!contact) return "";
+  // Show first 3 (or country code) and last 4 digits, mask the rest
+  const len = contact.length;
+  if (len <= 7) {
+    // If too short, just mask middle
+    return (
+      contact.slice(0, 1) + "*".repeat(Math.max(0, len - 5)) + contact.slice(-4)
+    );
+  }
+  let prefixLen = 0;
   if (contact.startsWith("+")) {
-    return contact.slice(0, 5) + "*".repeat(contact.length - 5);
+    prefixLen = 3; // e.g. "+60"
+    if (contact[3] === " ") prefixLen = 4; // e.g. "+60 "
+  } else if (contact.startsWith("6")) {
+    prefixLen = 2; // e.g. "60"
+  } else if (contact.startsWith("0")) {
+    prefixLen = 3; // e.g. "012"
+  } else {
+    prefixLen = 3;
   }
-  if (contact.startsWith("6")) {
-    return contact.slice(0, 4) + "*".repeat(contact.length - 4);
+  if (len <= prefixLen + 4) {
+    // Not enough to mask
+    return contact;
   }
-  if (contact.startsWith("0")) {
-    return contact.slice(0, 3) + "*".repeat(contact.length - 3);
-  }
-  // Default: show first 3
-  return contact.slice(0, 3) + "*".repeat(contact.length - 3);
+  return (
+    contact.slice(0, prefixLen) +
+    "*".repeat(len - prefixLen - 4) +
+    contact.slice(-4)
+  );
 }
 
 function maskEmail(email: string) {

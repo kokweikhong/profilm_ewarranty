@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/contexts/ToastContext";
+import CookiePopup from "@/components/CookiePopup";
 
 export const metadata: Metadata = {
   title: "Profilm eWarranty",
@@ -17,7 +18,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased bg-white`}>
         <ToastProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <CookiePopup />
+          </AuthProvider>
         </ToastProvider>
       </body>
     </html>
