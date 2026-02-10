@@ -638,3 +638,11 @@ For issues:
 - Test SSL: https://www.ssllabs.com/ssltest/
 
 Your nginx reverse proxy with SSL/TLS is now fully configured! 🎉🔒
+
+## After add new domain
+
+```bash
+sudo certbot --nginx -d inikali.com -d www.inikali.com -d ewarranty.profilm.com.my
+
+sudo nginx -s reload
+```
