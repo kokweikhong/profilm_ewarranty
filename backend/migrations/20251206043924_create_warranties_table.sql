@@ -35,10 +35,23 @@ CREATE TABLE IF NOT EXISTS warranties (
     FOREIGN KEY (shop_id) REFERENCES shops(id)
 );
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'product_type_enum') THEN
+        CREATE TYPE product_type_enum AS ENUM (
+            'Window Tinting Film',
+            'Paint Protection Film'
+        );
+    END IF;
+END
+$$;
+
 CREATE TABLE IF NOT EXISTS car_parts (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     code VARCHAR(50) NOT NULL,
+    product_type product_type_enum NOT NULL,
+    location_type VARCHAR(100),
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -71,4 +84,5 @@ DROP TABLE IF EXISTS warranty_parts CASCADE;
 DROP TABLE IF EXISTS warranties CASCADE;
 DROP TABLE IF EXISTS car_parts CASCADE;
 DROP TYPE IF EXISTS warranty_approval_status CASCADE;
+DROP TYPE IF EXISTS product_type_enum CASCADE;
 -- +goose StatementEnd
