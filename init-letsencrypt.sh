@@ -14,7 +14,7 @@ if [ -f .env ]; then
 fi
 
 # Configuration
-domains=(${DOMAIN_NAME:-example.com})
+domains=(ewarranty.profilm.com.my www.ewarranty.profilm.com.my inikali.com www.inikali.com)
 rsa_key_size=4096
 data_path="./certbot"
 email="${SSL_EMAIL:-}" # Adding a valid email is strongly recommended
