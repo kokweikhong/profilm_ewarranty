@@ -3,6 +3,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getProductsApi } from "@/lib/apis/productsApi";
+import { getWarrantiesApi } from "@/lib/apis/warrantiesApi";
+import { getShops } from "@/lib/apis/shopsApi";
+import { getProductAllocationsApi } from "@/lib/apis/productAllocationsApi";
+import { getClaimsApi } from "@/lib/apis/claimsApi";
+import { WarrantyApprovalStatus } from "@/types/warrantiesType";
 
 interface DashboardStats {
   totalWarranties: number;
@@ -25,24 +31,59 @@ export default function AdminPage() {
     const fetchStats = async () => {
       try {
         // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // await new Promise((resolve) => setTimeout(resolve, 500));
+        const warranties = await getWarrantiesApi();
+        const claims = await getClaimsApi();
+        let pendingClaims = 0;
+        let approvedWarranties = 0;
 
         if (user?.role === "admin") {
+          warranties.forEach((warranty) => {
+            if (warranty.approvalStatus === WarrantyApprovalStatus.APPROVED) {
+              approvedWarranties += 1;
+            }
+          });
+          claims.forEach((claim) => {
+            if (claim.approvalStatus.toLowerCase() === "pending") {
+              pendingClaims += 1;
+            }
+          });
+          const products = await getProductsApi();
+          const shops = await getShops();
+          const allocations = await getProductAllocationsApi();
+
           setStats({
-            totalWarranties: 156,
-            totalClaims: 42,
-            pendingClaims: 12,
-            approvedWarranties: 142,
-            totalProducts: 25,
-            totalShops: 18,
-            totalAllocations: 89,
+            totalWarranties: warranties.length,
+            totalClaims: claims.length,
+            pendingClaims: pendingClaims,
+            approvedWarranties: approvedWarranties,
+            totalProducts: products.length,
+            totalShops: shops.length,
+            totalAllocations: allocations.length,
           });
         } else if (user?.role === "shop_admin") {
+          warranties
+            .filter((warranty) => warranty.shopId === user.shopId)
+            .forEach((warranty) => {
+              if (warranty.approvalStatus === WarrantyApprovalStatus.APPROVED) {
+                approvedWarranties += 1;
+              }
+            });
+          claims
+            .filter((claim) => claim.shopId === user.shopId)
+            .forEach((claim) => {
+              if (claim.approvalStatus.toLowerCase() === "pending") {
+                pendingClaims += 1;
+              }
+            });
           setStats({
-            totalWarranties: 24,
-            totalClaims: 8,
-            pendingClaims: 3,
-            approvedWarranties: 21,
+            totalWarranties: warranties.filter(
+              (warranty) => warranty.shopId === user.shopId,
+            ).length,
+            totalClaims: claims.filter((claim) => claim.shopId === user.shopId)
+              .length,
+            pendingClaims: pendingClaims,
+            approvedWarranties: approvedWarranties,
           });
         }
       } catch (error) {
