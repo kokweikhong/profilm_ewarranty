@@ -11,6 +11,7 @@ import { FC } from "react";
 import { FieldArrayMethodProps, FieldArrayWithId } from "react-hook-form";
 import { CarPartsCombination } from "./CarPartsCombination";
 import { CAR_PARTS_COMBINATIONS } from "@/constants/carParts";
+import { cn } from "@/lib/utils";
 
 type DuplicateProduct = {
   productAllocationId: number;
@@ -126,7 +127,7 @@ const WarrantyPartsModal: FC<WarrantyPartsModalProps> = (props) => {
                   showTitleModal={showTitleModal}
                   setShowTitleModal={setShowTitleModal}
                 />
-                {carPartsCombinationTitle.map((title, index) => (
+                {CAR_PARTS_COMBINATIONS.map((combination, index) => (
                   <div
                     key={index}
                     className="flex items-center gap-2 p-2 rounded cursor-pointer transition hover:bg-gray-100"
@@ -135,11 +136,11 @@ const WarrantyPartsModal: FC<WarrantyPartsModalProps> = (props) => {
                     {/* if selected, also select car parts with same combination */}
                     <input
                       type="checkbox"
-                      checked={selectedTitle === title}
+                      checked={selectedTitle === combination.title}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          handleCombinationClick(title);
-                          setSelectedTitle(title);
+                          handleCombinationClick(combination.title);
+                          setSelectedTitle(combination.title);
                         } else {
                           setSelectedTitle(null);
                           setSelectedParts([]);
@@ -153,11 +154,11 @@ const WarrantyPartsModal: FC<WarrantyPartsModalProps> = (props) => {
                       type="button"
                       className="cursor-pointer text-sm text-primary font-medium underline underline-offset-2 hover:text-primary/80 mr-4 mb-2"
                       onClick={() => {
-                        setSelectedTitle(title);
+                        setSelectedTitle(combination.title);
                         setShowTitleModal(true);
                       }}
                     >
-                      {title}
+                      {combination.title}
                     </button>
                   </div>
                 ))}
@@ -188,11 +189,22 @@ const WarrantyPartsModal: FC<WarrantyPartsModalProps> = (props) => {
               {carParts.map((carPart, index) => (
                 <label
                   key={index}
-                  className="flex items-center gap-2 p-2 rounded cursor-pointer transition hover:bg-gray-100"
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded cursor-pointer transition hover:bg-gray-100",
+                    // hide checkbox if car part is not in selected combination when combination is selected
+                    CAR_PARTS_COMBINATIONS.some(
+                      (combination) =>
+                        combination.title === selectedTitle &&
+                        !combination.parts.some(
+                          (part) => part.name === carPart.name,
+                        ),
+                    ) && "pointer-events-none hidden",
+                  )}
                 >
                   <input
                     type="checkbox"
                     checked={selectedParts.includes(carPart.id)}
+                    className="mr-2 cursor-pointer"
                     onChange={(e) =>
                       handleCheckboxChange(carPart.id, e.target.checked)
                     }
