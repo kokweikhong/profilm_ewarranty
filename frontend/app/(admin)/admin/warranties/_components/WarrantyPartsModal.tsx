@@ -96,6 +96,21 @@ const WarrantyPartsModal: FC<WarrantyPartsModalProps> = (props) => {
     }
   };
 
+  const handleReorderCarparts = (combinationTitle: string) => {
+    const combination = CAR_PARTS_COMBINATIONS.find(
+      (comb) => comb.title === combinationTitle,
+    );
+    if (!combination) return carParts;
+    const combinationPartCodes = combination.parts.map((part) => part.code);
+    const combinationParts = carParts.filter((part) =>
+      combinationPartCodes.includes(part.code),
+    );
+    const otherParts = carParts.filter(
+      (part) => !combinationPartCodes.includes(part.code),
+    );
+    return [...combinationParts, ...otherParts];
+  };
+
   return (
     <>
       {showCarPartsModal && (
@@ -186,35 +201,39 @@ const WarrantyPartsModal: FC<WarrantyPartsModalProps> = (props) => {
               </div>
             )}
             <div className="max-h-72 overflow-y-auto space-y-2">
-              {carParts.map((carPart, index) => (
-                <label
-                  key={index}
-                  className={cn(
-                    "flex items-center gap-2 p-2 rounded cursor-pointer transition hover:bg-gray-100",
-                    // hide checkbox if car part is not in selected combination when combination is selected
-                    CAR_PARTS_COMBINATIONS.some(
-                      (combination) =>
-                        combination.title === selectedTitle &&
-                        !combination.parts.some(
-                          (part) => part.name === carPart.name,
-                        ),
-                    ) && "pointer-events-none hidden",
-                  )}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedParts.includes(carPart.id)}
-                    className="mr-2 cursor-pointer"
-                    onChange={(e) =>
-                      handleCheckboxChange(carPart.id, e.target.checked)
-                    }
-                  />
-                  <span className="font-medium">{carPart.name}</span>
-                  <span className="text-xs text-gray-500 ml-2">
-                    {carPart.code}
-                  </span>
-                </label>
-              ))}
+              {handleReorderCarparts(selectedTitle || "").map(
+                (carPart, index) => (
+                  // if combination is selected, the car part need to display on top and follow by other car parts that not in the combination, and the car part that not in the combination will be hidden if the combination is selected
+
+                  <label
+                    key={index}
+                    className={cn(
+                      "flex items-center gap-2 p-2 rounded cursor-pointer transition hover:bg-gray-100",
+                      // hide checkbox if car part is not in selected combination when combination is selected
+                      // CAR_PARTS_COMBINATIONS.some(
+                      //   (combination) =>
+                      //     combination.title === selectedTitle &&
+                      //     !combination.parts.some(
+                      //       (part) => part.name === carPart.name,
+                      //     ),
+                      // ) && "pointer-events-none hidden",
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedParts.includes(carPart.id)}
+                      className="mr-2 cursor-pointer"
+                      onChange={(e) =>
+                        handleCheckboxChange(carPart.id, e.target.checked)
+                      }
+                    />
+                    <span className="font-medium">{carPart.name}</span>
+                    <span className="text-xs text-gray-500 ml-2">
+                      {carPart.code}
+                    </span>
+                  </label>
+                ),
+              )}
             </div>
             <div className="flex justify-end mt-6">
               <button
