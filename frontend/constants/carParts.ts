@@ -29,6 +29,11 @@ export const CAR_PARTS_COMBINATIONS: CarPartsCombinationData[] = [
     parts: [
       { name: "Bonnet", code: "BN001" },
       { name: "Roof", code: "RF001" },
+      { name: "Oil Cap", code: "OC001" },
+      { name: "Front Right Door Panel", code: "FRDP001" },
+      { name: "Front Left Door Panel", code: "FLDP001" },
+      { name: "Rear Right Door Panel", code: "RRDP001" },
+      { name: "Rear Left Door Panel", code: "RLDP001" },
       { name: "Front Bumper", code: "FB001" },
       { name: "Rear Bumper", code: "RB001" },
       { name: "Right Rocker Panel", code: "RRP001" },
